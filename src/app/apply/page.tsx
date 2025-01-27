@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import banner from "@/asset/banner.png";
+import banner from "@/assets/banner.png";
 import Image from "next/image";
 
 export default function ApplyPage() {
