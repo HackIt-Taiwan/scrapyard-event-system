@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} flex flex-col h-screen antialiased`}
       >
         <ThemeProvider
           attribute="class"
@@ -31,7 +31,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Nav />
-          {children}
+          <div className="flex grow h-full w-full justify-center place-items-center">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>
