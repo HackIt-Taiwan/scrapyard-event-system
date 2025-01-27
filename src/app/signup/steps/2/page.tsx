@@ -79,7 +79,7 @@ export default function stepPage() {
             scale: { type: "spring", visualDuration: 0.4, bounce: 0.3 },
           }}
         >
-          <ScrollArea className="h-[800px]">
+          <ScrollArea className="h-[800px] pr-3 flex">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -333,28 +333,12 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.meal.allergies`}
+                  name={`teamLeader.diet`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>食物過敏物</FormLabel>
                       <FormControl>
                         <Input placeholder="無" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`teamLeader.meal.vegetarian`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="pr-4">
-                        <b>若您吃素，請勾選此欄</b>
-                      </FormLabel>
-                      <FormControl>
-                        {/* TODO: Fix this type issue*/}
-                        <Checkbox {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -1,19 +1,6 @@
 import { number, z } from "zod";
 
-export const grades = [
-  "國小一年級",
-  "國小二年級",
-  "國小三年級",
-  "國小四年級",
-  "國小五年級",
-  "國小六年級",
-  "國中一年級",
-  "國中二年級",
-  "國中三年級",
-  "高中一年級",
-  "高中二年級",
-  "高中三年級",
-] as const;
+export const grades = ["高中一年級", "高中二年級", "高中三年級"] as const;
 
 export const tShirtSizes = ["S", "M", "L", "XL"] as const;
 
@@ -37,10 +24,7 @@ export const signUpDataSchema = z.object({
       telephone: z.string(),
       ID: z.string(),
     }),
-    meal: z.object({
-      vegetarian: z.boolean(),
-      allergies: z.string(),
-    }),
+    diet: z.string().optional(),
     specialNeeds: z.string().optional(),
     insurance: z.object({
       ID: z.string(),

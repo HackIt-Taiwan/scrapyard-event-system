@@ -31,7 +31,7 @@ export default function MultistepFormContextProvider({
         en: "",
         zh: "",
       },
-      grade: "國小一年級",
+      grade: "高中一年級",
       school: "",
       telephone: "0900000000",
       email: "",
@@ -40,10 +40,7 @@ export default function MultistepFormContextProvider({
         telephone: "0900000000",
         ID: "",
       },
-      meal: {
-        vegetarian: false,
-        allergies: "",
-      },
+      diet:"",
       specialNeeds: "",
       insurance: {
         ID: "",
