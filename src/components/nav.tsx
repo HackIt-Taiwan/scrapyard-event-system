@@ -1,6 +1,7 @@
 import Image from "next/image";
 import favicon from "@/assets/favicon.png";
 import NavThemeToggle from "@/components/navThemeToggle";
+import Link from "next/link";
 
 export default function () {
   return (
@@ -12,7 +13,9 @@ export default function () {
           width={38}
           height={38}
         />
-        <h1 className="ml-4 font-semibold">Scrapyard 報名系統</h1>
+        <h1 className="ml-4 font-semibold">
+          <Link href="/">Scrapyard 報名系統</Link>
+        </h1>
         <div className="ml-auto">
           <NavThemeToggle />
         </div>
