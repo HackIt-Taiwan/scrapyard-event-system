@@ -1,12 +1,10 @@
-import { Document } from "mongodb";
-
 export interface IgnoreEncryption {
   _id: boolean;
   createdAt: boolean;
   updatedAt: boolean;
 }
 
-export interface Team extends Document {
+export interface Team {
   _id: string; // uuidv4
   team_name: string;
   team_size: number;
