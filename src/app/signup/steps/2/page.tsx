@@ -353,8 +353,8 @@ export default function stepPage() {
                         <b>若您吃素，請勾選此欄</b>
                       </FormLabel>
                       <FormControl>
-                        // TODO: Fix this type issue
-                        <Checkbox value={false} {...field} />
+                        {/* TODO: Fix this type issue*/}
+                        <Checkbox {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
