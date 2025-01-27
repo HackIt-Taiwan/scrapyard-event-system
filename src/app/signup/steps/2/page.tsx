@@ -24,10 +24,9 @@ import { type signUpData, signUpDataSchema } from "@/app/signup/types";
 import { AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { grades } from "@/app/signup/types";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
   PopoverContent,
@@ -37,9 +36,32 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import SignatureCanvas from "react-signature-canvas";
+import ReactSignatureCanvas from "react-signature-canvas";
 
 export default function stepPage() {
   const router = useRouter();
+
+  // TODO: integrate with zod
+  const sigRef = useRef<SignatureCanvas | null>(null);
+  const [signature, setSignature] = useState<string | null>(null);
+
+  const handleSignatureEnd = () => {
+    if (sigRef.current) {
+      setSignature(sigRef.current.toDataURL());
+    }
+  };
+  const clearSignature = () => {
+    if (sigRef.current) {
+      sigRef.current.clear();
+    }
+    setSignature(null);
+  };
+
+  useEffect(() => {
+    console.log(signature);
+  }, [signature]);
+
   const [show, setShow] = useState(true);
   const [back, setBack] = useState(false);
 
@@ -48,7 +70,7 @@ export default function stepPage() {
     resolver: zodResolver(
       signUpDataSchema.pick({
         teamLeader: true,
-      }),
+      })
     ),
     defaultValues: {
       teamLeader: formData.teamLeader,
@@ -288,7 +310,7 @@ export default function stepPage() {
                                 variant={"outline"}
                                 className={cn(
                                   "pl-3 text-left font-normal ",
-                                  !field.value && "text-muted-foreground",
+                                  !field.value && "text-muted-foreground"
                                 )}
                               >
                                 {field.value ? (
@@ -344,6 +366,19 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
+                
+                <div>
+                  請在此簽名xxx
+                <div className="bg-white rounded-md">
+                  <SignatureCanvas
+                    penColor="black"
+                    canvasProps={{ className: "signature" }}
+                    ref={sigRef}
+                    onEnd={handleSignatureEnd}
+                  />
+                </div>
+                </div>
+
                 <Button type="submit" className="w-full">
                   下一步
                 </Button>
