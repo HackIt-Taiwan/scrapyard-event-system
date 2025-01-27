@@ -3,6 +3,7 @@ import { Document } from "mongodb";
 export interface IgnoreEncryption {
   _id: boolean;
   will_attend: boolean;
+  email_verified: boolean;
   createdAt: boolean;
   updatedAt: boolean;
 }
@@ -13,6 +14,7 @@ export interface Teacher extends Document {
   school_name: string;
   phone_number: string;
   email: string;
+  email_verified: boolean;
   team_id: string; // points to team's id
   diet: string; // allergens or specific diet required
   rare_disease: string;
@@ -30,6 +32,7 @@ export interface Teacher extends Document {
 export const defaultIgnoreEncryption: IgnoreEncryption = {
   _id: true,
   will_attend: true,
+  email_verified: true,
   createdAt: true,
   updatedAt: true,
 };
