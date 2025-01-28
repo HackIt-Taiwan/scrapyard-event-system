@@ -100,7 +100,7 @@ export default function stepPage() {
           }}
           className="w-full"
         >
-          <div className="h-[800px] max-w-[450px] px-4 overflow-y-scroll no-scrollbar mx-auto">
+          <div className="h-[800px] max-w-[450px] px-4 overflow-y-scroll no-scrollbar mx-auto flex flex-col place-items-center">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
