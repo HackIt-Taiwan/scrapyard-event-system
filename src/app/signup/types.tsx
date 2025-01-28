@@ -28,7 +28,7 @@ export const signUpDataSchema = z.object({
     specialNeeds: z.string().optional(),
     insurance: z.object({
       ID: z.string(),
-      birthday: z.date(),
+      birthday: z.string().transform((k) => new Date(k)),
       address: z.string(),
     }),
     tShirtSize: z.enum(tShirtSizes),
