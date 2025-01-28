@@ -159,7 +159,7 @@ export default function stepPage() {
                     <FormItem>
                       <FormLabel>在學年級</FormLabel>
                       <FormControl>
-                        <Select {...field}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="高中一年級" />
                           </SelectTrigger>
