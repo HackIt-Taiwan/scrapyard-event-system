@@ -368,8 +368,8 @@ export default function stepPage() {
                   )}
                 />
 
-                <div>
-                  請在此簽名xxx
+                <div className="space-y-2">
+                  <p className="text-sm font-medium leading-none">請在此簽名</p>
                   <div className="bg-white rounded-md">
                     <SignatureCanvas
                       penColor="black"
