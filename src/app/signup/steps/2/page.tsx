@@ -44,6 +44,9 @@ export default function stepPage() {
   const sigRef = useRef<SignatureCanvas | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
 
+  const [show, setShow] = useState(false);
+  const [back, setBack] = useState(false);
+
   const handleSignatureEnd = () => {
     if (sigRef.current) {
       setSignature(sigRef.current.toDataURL());
@@ -57,11 +60,16 @@ export default function stepPage() {
   };
 
   useEffect(() => {
-    console.log(signature);
-  }, [signature]);
+    if (Number(localStorage.getItem("signup-form-last-page") ?? "1") < 1) {
+      router.push(
+        `/signup/steps/${(Number(localStorage.getItem("signup-form-last-page")) || 0) + 1}`,
+      );
+    } else {
+      setShow(true);
+    }
 
-  const [show, setShow] = useState(true);
-  const [back, setBack] = useState(false);
+    console.log(signature);
+  }, [signature, setShow]);
 
   const { formData, updateFormData } = useMultistepFormContext();
   const form = useForm({
@@ -76,6 +84,7 @@ export default function stepPage() {
   });
 
   const onSubmit = (data: Partial<signUpData>) => {
+    localStorage.setItem("signup-form-last-page", "2");
     updateFormData(data);
     console.log(123123);
     setShow(false);

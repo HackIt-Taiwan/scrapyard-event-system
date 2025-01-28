@@ -38,6 +38,7 @@ export default function stepPage() {
   }, [router]);
 
   const onSubmit = (data: Partial<signUpData>) => {
+    localStorage.setItem("signup-form-last-page", "1");
     updateFormData(data);
     setShow(false);
   };
