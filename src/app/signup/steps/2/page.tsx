@@ -91,12 +91,12 @@ export default function stepPage() {
     >
       {show && (
         <motion.div
-          initial={{ opacity: 0, scale: 0 }}
+          initial={{ opacity: 0, scale: 0.4 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ x: -300, opacity: 0 }}
           transition={{
-            ease: "easeInOut",
-            scale: { type: "spring", visualDuration: 0.4, bounce: 0.3 },
+            type: "spring",
+            scale: { type: "spring", visualDuration: 0.4, bounce: 0 },
           }}
           className="w-full"
         >

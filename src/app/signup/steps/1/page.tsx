@@ -16,7 +16,7 @@ import { type signUpData, signUpDataSchema } from "@/app/signup/types";
 import { AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -41,12 +41,12 @@ export default function stepPage() {
     <AnimatePresence onExitComplete={() => router.push("/signup/steps/2/")}>
       {show && (
         <motion.div
-          initial={{ opacity: 0, scale: 0 }}
+          initial={{ opacity: 0, scale: 0.4 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ x: -300, opacity: 0 }}
           transition={{
-            ease: "easeInOut",
-            scale: { type: "spring", visualDuration: 0.4, bounce: 0.3 },
+            type: "spring",
+            scale: { type: "spring", visualDuration: 0.4, bounce: 0 },
           }}
           className="w-full"
         >
