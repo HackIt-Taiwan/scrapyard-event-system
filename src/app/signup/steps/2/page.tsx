@@ -70,7 +70,7 @@ export default function stepPage() {
     resolver: zodResolver(
       signUpDataSchema.pick({
         teamLeader: true,
-      })
+      }),
     ),
     defaultValues: {
       teamLeader: formData.teamLeader,
@@ -100,12 +100,13 @@ export default function stepPage() {
             ease: "easeInOut",
             scale: { type: "spring", visualDuration: 0.4, bounce: 0.3 },
           }}
+          className="w-full"
         >
-          <ScrollArea className="h-[800px] pr-3 flex">
+          <div className="h-[800px] max-w-[450px] px-4 overflow-y-scroll no-scrollbar mx-auto">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 w-[400px]"
+                className="space-y-8 w-full"
               >
                 <FormLabel className="text-xl md:text-2xl font-bold">
                   隊長資料填寫
@@ -310,7 +311,7 @@ export default function stepPage() {
                                 variant={"outline"}
                                 className={cn(
                                   "pl-3 text-left font-normal ",
-                                  !field.value && "text-muted-foreground"
+                                  !field.value && "text-muted-foreground",
                                 )}
                               >
                                 {field.value ? (
@@ -366,17 +367,17 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
-                
+
                 <div>
                   請在此簽名xxx
-                <div className="bg-white rounded-md">
-                  <SignatureCanvas
-                    penColor="black"
-                    canvasProps={{ className: "signature" }}
-                    ref={sigRef}
-                    onEnd={handleSignatureEnd}
-                  />
-                </div>
+                  <div className="bg-white rounded-md">
+                    <SignatureCanvas
+                      penColor="black"
+                      canvasProps={{ className: "signature" }}
+                      ref={sigRef}
+                      onEnd={handleSignatureEnd}
+                    />
+                  </div>
                 </div>
 
                 <Button type="submit" className="w-full">
@@ -394,7 +395,7 @@ export default function stepPage() {
             >
               上一步 (此頁將不會儲存)
             </Button>
-          </ScrollArea>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

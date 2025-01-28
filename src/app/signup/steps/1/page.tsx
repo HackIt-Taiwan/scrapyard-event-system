@@ -48,12 +48,13 @@ export default function stepPage() {
             ease: "easeInOut",
             scale: { type: "spring", visualDuration: 0.4, bounce: 0.3 },
           }}
+          className="w-full"
         >
-          <ScrollArea className="h-[800px]">
+          <div className="h-[800px] max-w-[450px] px-4 overflow-y-scroll no-scrollbar mx-auto">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 w-[400px]"
+                className="space-y-8 w-full"
               >
                 <FormLabel className="text-xl md:text-2xl font-bold">
                   團隊名稱與參賽人數
@@ -115,7 +116,7 @@ export default function stepPage() {
                 </Button>
               </form>
             </Form>
-          </ScrollArea>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
