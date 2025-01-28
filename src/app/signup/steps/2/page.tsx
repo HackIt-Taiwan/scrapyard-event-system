@@ -87,9 +87,9 @@ export default function stepPage() {
     localStorage.setItem("signup-form-last-page", "2");
     updateFormData(data);
     console.log(123123);
-    setShow(false);
+    // setShow(false);
     console.log(formData);
-    router.push("/signup/3/");
+    // router.push("/signup/3/");
   };
 
   return (
