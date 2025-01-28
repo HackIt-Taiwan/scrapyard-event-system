@@ -32,6 +32,11 @@ export default function stepPage() {
     defaultValues: { name: formData.name, teamMemberCount: 4 },
   });
 
+  // Prefetch next page
+  useEffect(() => {
+    router.prefetch("/signup/steps/2");
+  }, [router]);
+
   const onSubmit = (data: Partial<signUpData>) => {
     updateFormData(data);
     setShow(false);
