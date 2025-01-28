@@ -13,7 +13,7 @@ const MultistepFormContext = createContext<
   MultistepFormContextType | undefined
 >(undefined);
 
-const STORAGE_KEY = "singup-form-data";
+const STORAGE_KEY = "signup-form-data";
 
 export default function MultistepFormContextProvider({
   children,
