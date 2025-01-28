@@ -308,7 +308,7 @@ export default function stepPage() {
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "pl-3 text-left font-normal ",
+                                  "pl-3 text-left font-normal w-full",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -321,7 +321,7 @@ export default function stepPage() {
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent className="w-auto p-0" align="center">
                             <Calendar
                               mode="single"
                               selected={field.value}

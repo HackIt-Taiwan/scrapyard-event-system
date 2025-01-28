@@ -33,21 +33,21 @@ export default function MultistepFormContextProvider({
       },
       grade: "高中一年級",
       school: "",
-      telephone: "0900000000",
+      telephone: "",
       email: "",
       emergencyContact: {
         name: "",
-        telephone: "0900000000",
+        telephone: "",
         ID: "",
       },
-      diet:"",
+      diet: "",
       specialNeeds: "",
       insurance: {
         ID: "",
-        birthday: new Date(),
+        birthday: new Date("2009-01-01"),
         address: "",
       },
-      tShirtSize: "S",
+      tShirtSize: "M",
     },
   };
 
