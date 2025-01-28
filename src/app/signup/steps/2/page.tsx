@@ -35,9 +35,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import SignatureCanvas from "react-signature-canvas";
-import ReactSignatureCanvas from "react-signature-canvas";
 
 export default function stepPage() {
   const router = useRouter();
