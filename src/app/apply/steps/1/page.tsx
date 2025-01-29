@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import * as changeKeys from "change-case/keys";
 
 export default function StepPage() {
   const router = useRouter();
@@ -25,37 +26,39 @@ export default function StepPage() {
   const form = useForm<teamData>({
     resolver: zodResolver(teamDataSchema),
     defaultValues: {
-      name: "",
+      teamName: "",
       teamSize: 4,
     },
   });
 
   // Prefetch next page
   useEffect(() => {
-    router.prefetch("/signup/steps/2");
+    router.prefetch("/apply/steps/2");
   }, [router]);
 
   const onSubmit = async (data: teamData) => {
     try {
+      const transformedData = changeKeys.snakeCase(data,5);
+  
       const response = await fetch("/api/apply/team", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(transformedData),
       });
-
+  
       if (!response.ok) {
         const errorMessage = await response.text();
         throw new Error(`Failed to submit team data: ${errorMessage}`);
       }
-
+  
       const result = await response.json();
       console.log("Team data submitted successfully:", result);
-
+  
       setShow(false);
       setTimeout(() => {
-        router.push("/signup/steps/2");
+        router.push("/apply/steps/2");
       }, 300);
     } catch (error) {
       console.error("Error submitting team data:", error);
@@ -86,7 +89,7 @@ export default function StepPage() {
                 {/* 團隊名稱 */}
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="teamName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>團隊名稱 *</FormLabel>
