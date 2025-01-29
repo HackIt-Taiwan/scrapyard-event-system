@@ -21,7 +21,11 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMultistepFormContext } from "@/app/signup/context";
-import { type signUpData, signUpDataSchema } from "@/app/signup/types";
+import {
+  type signUpData,
+  signUpDataSchema,
+  tShirtSizes,
+} from "@/app/signup/types";
 import { AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -377,6 +381,36 @@ export default function stepPage() {
                       <FormLabel>食物過敏物</FormLabel>
                       <FormControl>
                         <Input placeholder="無" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name={`teamLeader.tShirtSize`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>T 恤尺寸 *</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="M" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {tShirtSizes.map((k) => {
+                              return (
+                                <SelectItem value={k} key={k}>
+                                  {k}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
