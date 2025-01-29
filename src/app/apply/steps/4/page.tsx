@@ -1,8 +1,9 @@
 "use client";
 
+// FIXME: still need to update to fix some issue
 import { useRouter } from "next/navigation";
-import { useMultistepFormContext } from "@/app/signup/context";
-import { type signUpData } from "@/app/signup/types";
+import { useMultistepFormContext } from "@/app/apply/context";
+import { type signUpData } from "@/app/apply/types";
 import { AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";

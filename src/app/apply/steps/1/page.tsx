@@ -11,25 +11,23 @@ import {
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMultistepFormContext } from "@/app/signup/context";
-import { type signUpData, signUpDataSchema } from "@/app/signup/types";
+import { type teamData, teamDataSchema } from "@/app/apply/types";
 import { AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
-export default function stepPage() {
+export default function StepPage() {
   const router = useRouter();
   const [show, setShow] = useState(true);
 
-  const { formData, updateFormData } = useMultistepFormContext();
-  const form = useForm({
-    resolver: zodResolver(
-      signUpDataSchema.pick({ name: true, teamMemberCount: true }),
-    ),
-    defaultValues: { name: formData.name, teamMemberCount: 4 },
+  const form = useForm<teamData>({
+    resolver: zodResolver(teamDataSchema),
+    defaultValues: {
+      name: "",
+      teamSize: 4,
+    },
   });
 
   // Prefetch next page
@@ -37,26 +35,44 @@ export default function stepPage() {
     router.prefetch("/signup/steps/2");
   }, [router]);
 
-  const onSubmit = (data: Partial<signUpData>) => {
-    localStorage.setItem("signup-form-last-page", "1");
-    updateFormData(data);
-    setShow(false);
+  const onSubmit = async (data: teamData) => {
+    try {
+      const response = await fetch("/api/apply/team", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(`Failed to submit team data: ${errorMessage}`);
+      }
+
+      const result = await response.json();
+      console.log("Team data submitted successfully:", result);
+
+      setShow(false);
+      setTimeout(() => {
+        router.push("/signup/steps/2");
+      }, 300);
+    } catch (error) {
+      console.error("Error submitting team data:", error);
+    }
   };
 
   return (
-    <AnimatePresence onExitComplete={() => router.push("/signup/steps/2/")}>
+    <AnimatePresence>
       {show && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ x: -300, opacity: 0 }}
-          transition={{
-            type: "spring",
-            scale: { type: "spring", visualDuration: 0.4, bounce: 0 },
-          }}
+          exit={{ opacity: 0, x: -100 }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
           className="w-full"
         >
-          <div className="h-[800px] max-w-[450px] px-4 overflow-y-scroll no-scrollbar mx-auto flex flex-col place-items-center">
+          <div className="h-[800px] max-w-[450px] px-4 overflow-y-auto mx-auto flex flex-col place-items-center">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -66,33 +82,18 @@ export default function stepPage() {
                   團隊名稱與參賽人數
                 </label>
                 <p className="!mt-4 !mb-2 text-sm">* 為必填</p>
+
+                {/* 團隊名稱 */}
                 <FormField
                   control={form.control}
-                  name="name.en"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>英文團隊名稱 *</FormLabel>
+                      <FormLabel>團隊名稱 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="BanG Dream! It's MyGO!!!!!"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="name.zh"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>中文團隊名稱 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="要跟我組一輩子的樂團嗎"
-                          required={true}
+                          required
                           {...field}
                         />
                       </FormControl>
@@ -101,23 +102,30 @@ export default function stepPage() {
                   )}
                 />
 
+                {/* 團隊人數 */}
                 <FormField
                   control={form.control}
-                  name="teamMemberCount"
+                  name="teamSize"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>團隊人數 (不包含指導老師)</FormLabel>
+                      <FormLabel>團隊人數 (不包含指導老師) *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="一個團隊可有 4 ~ 5 個人"
                           type="number"
-                          {...field}
+                          required
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* 提交按鈕 */}
                 <Button type="submit" className="w-full">
                   下一步
                 </Button>

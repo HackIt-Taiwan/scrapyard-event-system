@@ -77,6 +77,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
+      taiwan-id-validator:
+        specifier: ^1.5.0
+        version: 1.5.0
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -1286,6 +1289,9 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
+  taiwan-id-validator@1.5.0:
+    resolution: {integrity: sha512-irYM8NdxujlRvFBJeRSJ/xuL1TuSXsL7MUSs2EXmBVypaFegG32Bt2MOZ/QDImamh6x5dREnlfrjrZMHSEfbSQ==}
+
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
     engines: {node: '>=0.8'}
@@ -2462,6 +2468,10 @@ snapshots:
       sucrase: 3.35.0
     transitivePeerDependencies:
       - ts-node
+
+  taiwan-id-validator@1.5.0:
+    dependencies:
+      tslib: 2.8.1
 
   thenify-all@1.6.0:
     dependencies:

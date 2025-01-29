@@ -20,18 +20,17 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMultistepFormContext } from "@/app/signup/context";
 import {
-  type signUpData,
-  signUpDataSchema,
+  type memberData,
+  memberDataSchema,
   tShirtSizes,
-} from "@/app/signup/types";
+} from "@/app/apply/types";
 import { AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { grades } from "@/app/signup/types";
+import { grades } from "@/app/apply/types";
 import {
   Popover,
   PopoverContent,
@@ -76,21 +75,13 @@ export default function stepPage() {
     console.log(signature);
   }, [signature, setShow]);
 
-  const { formData, updateFormData } = useMultistepFormContext();
   const form = useForm({
-    resolver: zodResolver(
-      signUpDataSchema.pick({
-        teamLeader: true,
-      }),
-    ),
-    defaultValues: {
-      teamLeader: formData.teamLeader,
-    },
+    resolver: zodResolver(memberDataSchema),
   });
 
-  const onSubmit = (data: Partial<signUpData>) => {
+  // TODO: need to const the type
+  const onSubmit = () => {
     localStorage.setItem("signup-form-last-page", "2");
-    updateFormData(data);
     setShow(false);
     router.push("/signup/steps/3/");
   };
