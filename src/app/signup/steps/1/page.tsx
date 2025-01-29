@@ -47,7 +47,7 @@ export default function stepPage() {
     <AnimatePresence onExitComplete={() => router.push("/signup/steps/2/")}>
       {show && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.4 }}
+          initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ x: -300, opacity: 0 }}
           transition={{
