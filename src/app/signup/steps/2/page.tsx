@@ -91,9 +91,8 @@ export default function stepPage() {
   const onSubmit = (data: Partial<signUpData>) => {
     localStorage.setItem("signup-form-last-page", "2");
     updateFormData(data);
-    // setShow(false);
-    console.log(formData);
-    // router.push("/signup/3/");
+    setShow(false);
+    router.push("/signup/steps/3/");
   };
 
   return (
