@@ -159,7 +159,10 @@ export default function stepPage() {
                     <FormItem>
                       <FormLabel>在學年級</FormLabel>
                       <FormControl>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="高中一年級" />
                           </SelectTrigger>
@@ -380,7 +383,7 @@ export default function stepPage() {
                   <div className="bg-white rounded-md">
                     <SignatureCanvas
                       penColor="black"
-                      canvasProps={{ className: "signature" }}
+                      canvasProps={{ width: 418 }}
                       ref={sigRef}
                       onEnd={handleSignatureEnd}
                     />
