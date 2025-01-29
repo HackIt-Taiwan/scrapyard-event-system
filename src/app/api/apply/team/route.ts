@@ -83,6 +83,43 @@ export async function POST(request: Request) {
       members_link: teamMembersLink,
     };
 
+    const teamName = {
+      team_name: newTeam.team_name,
+      ignore_encryption: defaultIgnoreEncryption,
+    };
+
+    // Check if the team_name have the same
+    const teamNameCheckResponse = await fetch(
+      `${process.env.DATABASE_API}/etc/get/team`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(teamName),
+      }
+    );
+
+    const teamNameCheckData = await teamNameCheckResponse.json();
+
+    if (!teamNameCheckResponse.ok) {
+      throw new Error(
+        teamNameCheckData.message || "Database API request failed"
+      );
+    }
+
+    if (teamNameCheckData.data.length != 0) {
+      return NextResponse.json(
+        {
+          message: "Team name already used.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     // Send to database API
     const databaseResponse = await fetch(
       `${process.env.DATABASE_API}/etc/create/team`,
@@ -102,20 +139,29 @@ export async function POST(request: Request) {
       throw new Error(errorData.message || "Database API request failed");
     }
 
-    return NextResponse.json({
-      status: 201,
-      data: teamLinkData,
-      message: "Team created successfully",
-      teamID: newTeam._id,
-    });
-  } catch (error: unknown) {
+    return NextResponse.json(
+      {
+        data: teamLinkData,
+        message: "Team created successfully",
+        teamId: newTeam._id,
+      },
+      {
+        status: 201,
+      }
+    );
+  }
+  catch (error: unknown) {
     console.error("Error while creating a team:", error);
 
     if (error instanceof SyntaxError) {
-      return NextResponse.json({
-        status: 400,
-        message: "Invalid JSON in request body",
-      });
+      return NextResponse.json(
+        {
+          message: "Invalid JSON in request body",
+        },
+        {
+          status: 400,
+        }
+      );
     }
 
     if (error instanceof z.ZodError) {
@@ -124,20 +170,28 @@ export async function POST(request: Request) {
         message: err.message,
       }));
 
-      return NextResponse.json({
-        status: 400,
-        message: "Validation failed",
-        errors: errorMessages,
-      });
+      return NextResponse.json(
+        {
+          message: "Validation failed",
+          errors: errorMessages,
+        },
+        {
+          status: 400,
+        }
+      );
     }
 
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({
-      status: 500,
-      message: "Internal server error",
-    });
+    return NextResponse.json(
+      {
+        message: "Internal server error",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }
