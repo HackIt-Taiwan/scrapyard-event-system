@@ -3,6 +3,7 @@
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -114,15 +115,16 @@ export default function stepPage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8 w-full"
               >
-                <FormLabel className="text-xl md:text-2xl font-bold">
+                <label className="text-xl md:text-2xl font-bold">
                   隊長資料填寫
-                </FormLabel>
+                </label>
+                <p className="!mt-4 !mb-2 text-sm">* 為必填</p>
                 <FormField
                   control={form.control}
                   name="teamLeader.name.en"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>英文名字</FormLabel>
+                      <FormLabel>英文名字 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Xiao Ming Wang"
@@ -139,7 +141,7 @@ export default function stepPage() {
                   name={`teamLeader.name.zh`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>中文名字</FormLabel>
+                      <FormLabel>中文名字 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="王小明"
@@ -156,7 +158,7 @@ export default function stepPage() {
                   name={`teamLeader.grade`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>在學年級</FormLabel>
+                      <FormLabel>在學年級 *</FormLabel>
                       <FormControl>
                         <Select
                           onValueChange={field.onChange}
@@ -185,7 +187,7 @@ export default function stepPage() {
                   name={`teamLeader.school`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>在學學校</FormLabel>
+                      <FormLabel>在學學校 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="阿里山國中"
@@ -202,7 +204,7 @@ export default function stepPage() {
                   name={`teamLeader.telephone`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>電話號碼</FormLabel>
+                      <FormLabel>電話號碼 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="0900000000"
@@ -219,7 +221,7 @@ export default function stepPage() {
                   name={`teamLeader.email`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>常用電子郵件</FormLabel>
+                      <FormLabel>常用電子郵件 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="example@example.com"
@@ -237,7 +239,7 @@ export default function stepPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <b>緊急聯絡人</b>中文名字
+                        <b>緊急聯絡人</b>中文名字 *
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -256,7 +258,7 @@ export default function stepPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <b>緊急聯絡人</b>電話
+                        <b>緊急聯絡人</b>電話 *
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -275,7 +277,7 @@ export default function stepPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <b>緊急聯絡人</b>身分證字號
+                        <b>緊急聯絡人</b>身分證字號 *
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -293,7 +295,7 @@ export default function stepPage() {
                   name={`teamLeader.insurance.ID`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>身分證字號 (保險用)</FormLabel>
+                      <FormLabel>身分證字號 (保險用) *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="A121212121"
@@ -310,7 +312,7 @@ export default function stepPage() {
                   name={`teamLeader.insurance.birthday`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>生日 (保險用)</FormLabel>
+                      <FormLabel>生日 (保險用) *</FormLabel>
                       <br />
                       <FormControl>
                         <Popover>
@@ -382,7 +384,9 @@ export default function stepPage() {
                 />
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium leading-none">請在此簽名</p>
+                  <p className="text-sm font-medium leading-none">
+                    請在此簽名 *
+                  </p>
                   <div className="bg-white rounded-md">
                     <SignatureCanvas
                       penColor="black"

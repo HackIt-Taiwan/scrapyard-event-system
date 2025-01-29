@@ -62,15 +62,16 @@ export default function stepPage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8 w-full"
               >
-                <FormLabel className="text-xl md:text-2xl font-bold">
+                <label className="text-xl md:text-2xl font-bold">
                   團隊名稱與參賽人數
-                </FormLabel>
+                </label>
+                <p className="!mt-4 !mb-2 text-sm">* 為必填</p>
                 <FormField
                   control={form.control}
                   name="name.en"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>英文團隊名稱</FormLabel>
+                      <FormLabel>英文團隊名稱 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="BanG Dream! It's MyGO!!!!!"
@@ -87,7 +88,7 @@ export default function stepPage() {
                   name="name.zh"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>中文團隊名稱</FormLabel>
+                      <FormLabel>中文團隊名稱 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="要跟我組一輩子的樂團嗎"
