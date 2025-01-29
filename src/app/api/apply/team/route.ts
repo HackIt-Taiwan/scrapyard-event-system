@@ -11,7 +11,7 @@ const TeamSchema = z
     team_name: z
       .string()
       .min(1, "Team name is required")
-      .max(36, "Team name must be 36 characters or fewer")
+      .max(24, "Team name must be 24 characters or fewer")
       .trim(),
     team_size: z.union([z.literal(4), z.literal(5)]),
   })
@@ -40,9 +40,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const membersId: string[] = [];
+    const membersID: string[] = [];
     for (let i = 0; i < validationResult.data.team_size - 1; i++) {
-      membersId.push(randomUUID());
+      membersID.push(randomUUID());
     }
 
     // Create validated team object
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       team_size: validatedData.team_size,
       leader_id: randomUUID(),
       teacher_id: randomUUID(),
-      members_id: membersId,
+      members_id: membersID,
       createdAt: new Date(),
       ignore_encryption: defaultIgnoreEncryption,
     };
@@ -61,8 +61,8 @@ export async function POST(request: Request) {
     const teamMembersLink: string[] = [];
     for (let i = 0; i < validationResult.data.team_size - 1; i++) {
       const payload: TokenPayload = {
-        teamId: newTeam._id,
-        userId: membersId[i],
+        teamID: newTeam._id,
+        userID: membersID[i],
         role: "member",
       };
       teamMembersLink.push(generateToken(payload));
@@ -71,13 +71,13 @@ export async function POST(request: Request) {
     const teamLinkData: TeamLink = {
       ...newTeam,
       leader_link: generateToken(<TokenPayload>{
-        teamId: newTeam._id,
-        userId: newTeam.leader_id,
+        teamID: newTeam._id,
+        userID: newTeam.leader_id,
         role: "leader",
       }),
       teacher_link: generateToken(<TokenPayload>{
-        teamId: newTeam._id,
-        userId: newTeam.teacher_id,
+        teamID: newTeam._id,
+        userID: newTeam.teacher_id,
         role: "teacher",
       }),
       members_link: teamMembersLink,
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
 
     // Send to database API
     const databaseResponse = await fetch(
-      `${process.env.DATABASE_API}/etc/team`,
+      `${process.env.DATABASE_API}/etc/create/team`,
       {
         method: "POST",
         headers: {
@@ -106,10 +106,10 @@ export async function POST(request: Request) {
       status: 201,
       data: teamLinkData,
       message: "Team created successfully",
-      teamId: newTeam._id,
+      teamID: newTeam._id,
     });
   } catch (error: unknown) {
-    console.error("Team creation error:", error);
+    console.error("Error while creating a team:", error);
 
     if (error instanceof SyntaxError) {
       return NextResponse.json({
