@@ -406,7 +406,7 @@ export default function stepPage() {
                 setShow(false);
               }}
             >
-              上一步 (此頁將不會儲存)
+              上一步 (此頁的更改將不會儲存)
             </Button>
           </div>
         </motion.div>
