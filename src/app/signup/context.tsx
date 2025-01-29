@@ -44,7 +44,7 @@ export default function MultistepFormContextProvider({
       specialNeeds: "",
       insurance: {
         ID: "",
-        birthday: new Date("2009-01-01"),
+        birthday: new Date("2009-01-01T00:00:00.000Z"),
         address: "",
       },
       tShirtSize: "M",
