@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
 
 export interface TokenPayload {
-  teamId: string;
-  userId: string;
+  teamID: string;
+  userID: string;
   role: "leader" | "member" | "teacher";
 }
 
-const SECRET_KEY = process.env.SECRET_KEY || "your_secret_key_here";
+const SECRET_KEY = process.env.JWT_SECRET || "your_secret_key_here";
 
 export const generateToken = (payload: TokenPayload): string => {
   return jwt.sign(
@@ -22,10 +22,10 @@ export const generateToken = (payload: TokenPayload): string => {
 export const verifyToken = (token: string): TokenPayload | null => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY) as jwt.JwtPayload;
-    if (decoded && decoded.userId && decoded.username && decoded.role) {
+    if (decoded && decoded.userID && decoded.teamID && decoded.role) {
       return {
-        teamId: decoded.username,
-        userId: decoded.userId,
+        teamID: decoded.teamID,
+        userID: decoded.userID,
         role: decoded.role,
       };
     }

@@ -49,4 +49,4 @@ export const defaultIgnoreEncryption: IgnoreEncryption = {
   updatedAt: true,
 };
 
-// TODO: add checks, and ignore encryption
+// TODO: add checks
