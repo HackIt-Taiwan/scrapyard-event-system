@@ -6,7 +6,7 @@ export const grades = ["高中一年級", "高中二年級", "高中三年級"] 
 export const tShirtSizes = ["S", "M", "L", "XL"] as const;
 
 export const teamDataSchema = z.object({
-  teamName:  z.string().max(36, "團隊名字不能超過 36 個字元"),
+  teamName:  z.string().max(24, "團隊名字不能超過 24 個字元"),
   teamSize: z
     .number()
     .max(5, "團隊不能超過五個人")
