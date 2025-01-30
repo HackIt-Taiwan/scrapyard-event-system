@@ -42,7 +42,7 @@ export default function stepPage() {
   const sigRef = useRef<SignatureCanvas | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
 
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
   const [back, setBack] = useState(false);
 
   const handleSignatureEnd = () => {
@@ -101,7 +101,7 @@ export default function stepPage() {
                 <p className="!mb-2 !mt-4 text-sm">* 為必填</p>
                 <FormField
                   control={form.control}
-                  name="teamLeader.name.en"
+                  name="NameEn"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>英文名字 *</FormLabel>
@@ -116,9 +116,10 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
+                <div>
                 <FormField
                   control={form.control}
-                  name={`teamLeader.name.zh`}
+                  name={`NameZh`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>中文名字 *</FormLabel>
@@ -135,7 +136,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.grade`}
+                  name={`grade`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>在學年級 *</FormLabel>
@@ -164,7 +165,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.school`}
+                  name={`school`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>在學學校 *</FormLabel>
@@ -179,9 +180,10 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
+                </div>
                 <FormField
                   control={form.control}
-                  name={`teamLeader.telephone`}
+                  name={`telephone`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>電話號碼 *</FormLabel>
@@ -198,7 +200,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.email`}
+                  name={`email`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>常用電子郵件 *</FormLabel>
@@ -215,7 +217,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.emergencyContact.name`}
+                  name={`emergencyContactName`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -234,7 +236,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.emergencyContact.telephone`}
+                  name={`emergencyContactTelephone`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -253,7 +255,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.emergencyContact.ID`}
+                  name={`emergencyContactNationalID`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -272,7 +274,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.insurance.ID`}
+                  name={`nationalID`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>身分證字號 (保險用) *</FormLabel>
@@ -289,7 +291,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.insurance.birthday`}
+                  name={`birthDate`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>生日 (保險用) *</FormLabel>
@@ -338,7 +340,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.specialNeeds`}
+                  name={`specialNeeds`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>特殊需求 (過敏、特殊疾病等)</FormLabel>
@@ -351,7 +353,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`teamLeader.diet`}
+                  name={`diet`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>食物過敏物</FormLabel>

@@ -12,7 +12,7 @@ const StudentIDSchema = z.object({
 });
 
 export const teamDataSchema = z.object({
-  teamName:  z.string().max(24, "團隊名字不能超過 24 個字元"),
+  teamName: z.string().max(24, "團隊名字不能超過 24 個字元"),
   teamSize: z
     .number()
     .max(5, "團隊不能超過五個人")
@@ -27,12 +27,9 @@ export const memberDataSchema = z.object({
   school: z.string().max(30, "學校名稱太長了，最多只能 30 個字"),
   nationalID: z
     .string()
-    .refine(
-      (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-      {
-        message: "你的身份證字號格式錯誤",
-      }
-    ),
+    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
+      message: "你的身份證字號格式錯誤",
+    }),
   birthDate: z.preprocess((k) => {
     if (typeof k === "string" || k instanceof Date) {
       return new Date(k);
@@ -49,7 +46,6 @@ export const memberDataSchema = z.object({
     .min(7, "你的電話號碼太短了，最少 7 碼"),
   email: z.string().email({ message: "這不是有效的電子郵件格式" }),
 
-
   // Special Needs & Additional Information
   diet: z.string().optional(),
   specialNeeds: z.string().optional(),
@@ -57,19 +53,18 @@ export const memberDataSchema = z.object({
   parentAffidavit: z.string().url("無效的base64 url"),
 
   // Emergency Contact Information
-  emergencyContactName: z.string().max(6, "緊急聯絡人名字太長了，最多只能 6 個字"),
-  emergencyContactPhone: z
+  emergencyContactName: z
+    .string()
+    .max(6, "緊急聯絡人名字太長了，最多只能 6 個字"),
+  emergencyContactTelephone: z
     .string()
     .max(10, "緊急聯絡人電話號碼太長了，最多 10 碼")
     .min(7, "緊急聯絡人電話號碼太短了，最少 7 碼"),
-  emergencyContactNational_id: z
+  emergencyContactNationalID: z
     .string()
-    .refine(
-      (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-      {
-        message: "緊急聯絡人身份證字號格式錯誤",
-      }
-    ),
+    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
+      message: "緊急聯絡人身份證字號格式錯誤",
+    }),
 });
 
 export type teamData = z.infer<typeof teamDataSchema>;
