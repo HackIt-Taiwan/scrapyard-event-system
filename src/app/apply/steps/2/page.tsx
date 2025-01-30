@@ -64,16 +64,8 @@ export default function stepPage() {
   };
 
   useEffect(() => {
-    if (Number(localStorage.getItem("signup-form-last-page") ?? "1") < 1) {
-      router.push(
-        `/apply/steps/${(Number(localStorage.getItem("signup-form-last-page")) || 0) + 1}`,
-      );
-    } else {
-      setShow(true);
-    }
-
     console.log(signature);
-  }, [signature, setShow]);
+  }, [signature]);
 
   const form = useForm({
     resolver: zodResolver(memberDataSchema),
