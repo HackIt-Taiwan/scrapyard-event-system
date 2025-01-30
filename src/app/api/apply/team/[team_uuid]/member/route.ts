@@ -1,15 +1,15 @@
-import taiwanIdValidator from "taiwan-id-validator";
-import { NextResponse } from "next/server";
+import { TokenPayload, verifyToken } from "@/lib/jwt";
 import {
-  defaultIgnoreEncryption as memberIgnoreEncryption,
   Member,
+  defaultIgnoreEncryption as memberIgnoreEncryption,
 } from "@/models/member";
 import {
-  defaultIgnoreEncryption as teacherIgnoreEncryption,
   Teacher,
+  defaultIgnoreEncryption as teacherIgnoreEncryption,
 } from "@/models/teacher";
+import { NextResponse } from "next/server";
+import taiwanIdValidator from "taiwan-id-validator";
 import { z } from "zod";
-import { TokenPayload, verifyToken } from "@/lib/jwt";
 
 // Define Zod schema for request validation
 const StudentIDSchema = z.object({
@@ -33,7 +33,7 @@ const MemberSchema = z
       .string()
       .refine(
         (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        { message: "Invalid Taiwan national ID" }
+        { message: "Invalid Taiwan national ID" },
       ),
     student_id: StudentIDSchema,
     address: z.string(),
@@ -53,11 +53,8 @@ const MemberSchema = z
     personal_affidavit: z.string().url("Invalid affidavit URL"),
 
     // Emergency Contact Information
-    emergency_contact_name: z
-      .string()
-      .max(36, "Name's length exceeded")
-      .trim(),
-    emergency_contact_phone: z
+    emergency_contact_name: z.string().max(36, "Name's length exceeded").trim(),
+    emergencyContactTelephone: z
       .string()
       .max(10, "Emergency contact phone number's length exceeded")
       .min(7, "Emergency contact phone number's length is too short")
@@ -66,7 +63,7 @@ const MemberSchema = z
       .string()
       .refine(
         (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        { message: "Invalid Taiwan national ID" }
+        { message: "Invalid Taiwan national ID" },
       ),
   })
   .strict();
