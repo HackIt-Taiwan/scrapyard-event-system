@@ -66,7 +66,7 @@ export default function stepPage() {
   useEffect(() => {
     if (Number(localStorage.getItem("signup-form-last-page") ?? "1") < 1) {
       router.push(
-        `/signup/steps/${(Number(localStorage.getItem("signup-form-last-page")) || 0) + 1}`,
+        `/apply/steps/${(Number(localStorage.getItem("signup-form-last-page")) || 0) + 1}`,
       );
     } else {
       setShow(true);
@@ -83,13 +83,13 @@ export default function stepPage() {
   const onSubmit = () => {
     localStorage.setItem("signup-form-last-page", "2");
     setShow(false);
-    router.push("/signup/steps/3/");
+    router.push("/apply/steps/3/");
   };
 
   return (
     <AnimatePresence
       onExitComplete={() =>
-        router.push(back ? "/signup/steps/1/" : "/signup/steps/3/")
+        router.push(back ? "/apply/steps/1/" : "/apply/steps/3/")
       }
     >
       {show && (
