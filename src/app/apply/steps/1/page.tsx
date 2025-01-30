@@ -1,5 +1,7 @@
 "use client";
 
+import { type teamData, teamDataSchema } from "@/app/apply/types";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -8,17 +10,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type teamData, teamDataSchema } from "@/app/apply/types";
-import { AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
-import * as changeKeys from "change-case/keys";
 import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as changeKeys from "change-case/keys";
+import { AnimatePresence, motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function StepPage() {
   const router = useRouter();
@@ -81,16 +80,16 @@ export default function StepPage() {
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
           className="w-full"
         >
-          <div className="h-[800px] max-w-[450px] px-4 overflow-y-auto mx-auto flex flex-col place-items-center">
+          <div className="mx-auto flex h-[800px] max-w-[450px] flex-col place-items-center overflow-y-auto px-4">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 w-full"
+                className="w-full space-y-8"
               >
-                <label className="text-xl md:text-2xl font-bold">
+                <label className="text-xl font-bold md:text-2xl">
                   團隊名稱與參賽人數
                 </label>
-                <p className="!mt-4 !mb-2 text-sm">* 為必填</p>
+                <p className="!mb-2 !mt-4 text-sm">* 為必填</p>
 
                 {/* 團隊名稱 */}
                 <FormField

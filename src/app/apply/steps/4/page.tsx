@@ -1,14 +1,12 @@
 "use client";
 
 // FIXME: still need to update to fix some issue
-import { useRouter } from "next/navigation";
 import { useMultistepFormContext } from "@/app/apply/context";
-import { type signUpData } from "@/app/apply/types";
-import { AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { motion } from "motion/react";
 import { format } from "date-fns";
+import { AnimatePresence, motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function stepPage() {
   const router = useRouter();
@@ -29,12 +27,12 @@ export default function stepPage() {
           }}
           className="w-full"
         >
-          <div className="h-[800px] max-w-[450px] px-4 overflow-y-scroll no-scrollbar mx-auto">
-            <h2 className="text-xl md:text-2xl font-bold">
+          <div className="no-scrollbar mx-auto h-[800px] max-w-[450px] overflow-y-scroll px-4">
+            <h2 className="text-xl font-bold md:text-2xl">
               來看看這些資料對不對吧！
             </h2>
 
-            <div className="space-y-6 my-4">
+            <div className="my-4 space-y-6">
               <section className="space-y-4">
                 <h3 className="text-md font-semibold">團隊資料</h3>
                 <div className="space-y-2">
@@ -151,7 +149,7 @@ export default function stepPage() {
 
             <div>
               <Button
-                className="w-full mt-4"
+                className="mt-4 w-full"
                 onClick={() => {
                   console.log(formData);
                 }}
@@ -160,7 +158,7 @@ export default function stepPage() {
               </Button>
               <Button
                 variant="secondary"
-                className="w-full mt-4"
+                className="mt-4 w-full"
                 onClick={() => {
                   setShow(false);
                 }}
