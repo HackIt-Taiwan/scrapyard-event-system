@@ -1,12 +1,12 @@
-import Image from "next/image";
 import favicon from "@/assets/favicon.png";
 import NavThemeToggle from "@/components/navThemeToggle";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function () {
   return (
-    <nav className="sticky z-10 top-0 left-0 w-full bg-gray-300 dark:bg-gray-700 ">
-      <div className="mx-auto max-w-6xl px-4 py-2 flex place-items-center ">
+    <nav className="sticky left-0 top-0 z-10 w-full bg-gray-300 dark:bg-gray-700">
+      <div className="mx-auto flex max-w-6xl place-items-center px-4 py-2">
         <Image
           src={favicon}
           alt="Scrapyard signup system favicon"

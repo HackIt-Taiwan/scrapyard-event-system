@@ -1,7 +1,7 @@
 "use client";
 
-import { Loader2, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Loader2, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -30,9 +30,9 @@ export default function () {
       }}
     >
       {theme === "dark" ? (
-        <Sun className="h-[1.2rem] w-[1.2rem] " />
+        <Sun className="h-[1.2rem] w-[1.2rem]" />
       ) : (
-        <Moon className=" h-[1.2rem] w-[1.2rem] " />
+        <Moon className="h-[1.2rem] w-[1.2rem]" />
       )}
       <span className="sr-only">切換主題顏色</span>
     </Button>
