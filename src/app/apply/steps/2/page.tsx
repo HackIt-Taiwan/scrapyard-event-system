@@ -34,6 +34,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import SignatureCanvas from "react-signature-canvas";
 
+// FIXME: this page is currently broken due to lack of context (previous implementation was using a context provider)
 export default function stepPage() {
   const router = useRouter();
 
