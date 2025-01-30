@@ -19,34 +19,44 @@ const StudentIDSchema = z.object({
 
 const MemberSchema = z
   .object({
-    name: z.string().max(36, "Name's length exceeded").trim(),
+    // Personal Information
+    name_en: z.string().max(36, "English name's length exceeded"),
+    name_zh: z.string().max(6, "Chinese name's length exceeded"),
     grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
     school: z.string().max(30, "School's name's length exceeded").trim(),
-    phone_number: z
-      .string()
-      .max(10, "Phone number's length exceeded")
-      .min(7, "Phone number's length is too short")
-      .trim(),
-    email: z.string().email({ message: "Incorrect email format" }).trim(),
-    special_needs: z.string().optional(),
-    diet: z.string().optional(),
-    national_id: z
-      .string()
-      .refine(
-        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        { message: "Invalid Taiwan national ID" },
-      ),
-    student_id: StudentIDSchema,
     birth_date: z.preprocess((val) => {
       if (typeof val === "string" || val instanceof Date) {
         return new Date(val);
       }
     }, z.date()),
+    national_id: z
+      .string()
+      .refine(
+        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
+        { message: "Invalid Taiwan national ID" }
+      ),
+    student_id: StudentIDSchema,
     address: z.string(),
-    personal_affidavit: z.string().url("Invalid affidavit URL"),
     shirt_size: z.enum(["S", "M", "L", "XL"]),
 
-    emergency_contact_name: z.string().max(36, "Name's length exceeded").trim(),
+    // Contact Information
+    telephone: z
+      .string()
+      .max(10, "Phone number's length exceeded")
+      .min(7, "Phone number's length is too short")
+      .trim(),
+    email: z.string().email({ message: "Incorrect email format" }).trim(),
+
+    // Special Needs & Additional Information
+    special_needs: z.string().optional(),
+    diet: z.string().optional(),
+    personal_affidavit: z.string().url("Invalid affidavit URL"),
+
+    // Emergency Contact Information
+    emergency_contact_name: z
+      .string()
+      .max(36, "Name's length exceeded")
+      .trim(),
     emergency_contact_phone: z
       .string()
       .max(10, "Emergency contact phone number's length exceeded")
@@ -56,7 +66,7 @@ const MemberSchema = z
       .string()
       .refine(
         (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        { message: "Invalid Taiwan national ID" },
+        { message: "Invalid Taiwan national ID" }
       ),
   })
   .strict();

@@ -5,6 +5,12 @@ export const grades = ["高中一年級", "高中二年級", "高中三年級"] 
 
 export const tShirtSizes = ["S", "M", "L", "XL"] as const;
 
+// Define Zod schema for request validation
+const StudentIDSchema = z.object({
+  card_front: z.string().url("Invalid card front URL"), // assuming S3 URLs
+  card_back: z.string().url("Invalid card back URL"),
+});
+
 export const teamDataSchema = z.object({
   teamName:  z.string().max(24, "團隊名字不能超過 24 個字元"),
   teamSize: z
@@ -14,52 +20,56 @@ export const teamDataSchema = z.object({
 });
 
 export const memberDataSchema = z.object({
-  name: z.object({
-    en: z.string().max(36, "你的名字似乎有點太長了，最多只能 36 個字"),
-    zh: z.string().max(4, "你的名字似乎有點太長了，最多只能 4 個字"),
-  }),
+  // Personal information
+  nameEn: z.string().max(36, "你的英文名字太長了，最多只能 36 個字"),
+  nameZh: z.string().max(6, "你的中文名字太長了，最多只能 6 個字"),
   grade: z.enum(grades),
-  school: z.string().max(30, "這個學校名字太長了"),
+  school: z.string().max(30, "學校名稱太長了，最多只能 30 個字"),
+  nationalID: z
+    .string()
+    .refine(
+      (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
+      {
+        message: "你的身份證字號格式錯誤",
+      }
+    ),
+  birthDate: z.preprocess((k) => {
+    if (typeof k === "string" || k instanceof Date) {
+      return new Date(k);
+    }
+  }, z.date()),
+  address: z.string(),
+  studentID: StudentIDSchema,
+  tShirtSize: z.enum(tShirtSizes),
+
+  // Contact Information
   telephone: z
     .string()
-    .max(10, "你的電話號碼似乎有點長")
-    .min(7, "你的電話號碼似乎有點短"),
-  email: z.string().email({ message: "這不是一個正確的電子郵件" }),
-  emergencyContact: z.object({
-    name: z.string().max(4, "你的名字似乎有點太長了，最多只能 4 個字"),
-    telephone: z
-      .string()
-      .max(10, "你的電話號碼似乎有點長")
-      .min(7, "你的電話號碼似乎有點短"),
-    ID: z
-      .string()
-      .refine(
-        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        {
-          message: "你的身份證似乎不太正確",
-        },
-      ),
-  }),
+    .max(10, "你的電話號碼太長了，最多 10 碼")
+    .min(7, "你的電話號碼太短了，最少 7 碼"),
+  email: z.string().email({ message: "這不是有效的電子郵件格式" }),
+
+
+  // Special Needs & Additional Information
   diet: z.string().optional(),
   specialNeeds: z.string().optional(),
-  insurance: z.object({
-    ID: z
-      .string()
-      .refine(
-        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        {
-          message: "你的身份證似乎不太正確",
-        },
-      ),
-    birthday: z.preprocess((k) => {
-      if (typeof k === "string" || k instanceof Date) {
-        return new Date(k);
+  personalAffidavit: z.string().url("無效的base64 url"),
+  parentAffidavit: z.string().url("無效的base64 url"),
+
+  // Emergency Contact Information
+  emergencyContactName: z.string().max(6, "緊急聯絡人名字太長了，最多只能 6 個字"),
+  emergencyContactPhone: z
+    .string()
+    .max(10, "緊急聯絡人電話號碼太長了，最多 10 碼")
+    .min(7, "緊急聯絡人電話號碼太短了，最少 7 碼"),
+  emergencyContactNational_id: z
+    .string()
+    .refine(
+      (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
+      {
+        message: "緊急聯絡人身份證字號格式錯誤",
       }
-    }, z.date()),
-    address: z.string(),
-  }),
-  tShirtSize: z.enum(tShirtSizes),
-  // TODO: Add files upload schema
+    ),
 });
 
 export type teamData = z.infer<typeof teamDataSchema>;
