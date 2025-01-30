@@ -32,12 +32,6 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.1.1
         version: 1.1.1(@types/react@19.0.7)(react@19.0.0)
-      '@types/jsonwebtoken':
-        specifier: ^9.0.8
-        version: 9.0.8
-      '@types/react-signature-canvas':
-        specifier: ^1.0.6
-        version: 1.0.6
       change-case:
         specifier: ^5.4.4
         version: 5.4.4
@@ -93,6 +87,9 @@ importers:
         specifier: ^3.24.1
         version: 3.24.1
     devDependencies:
+      '@types/jsonwebtoken':
+        specifier: ^9.0.8
+        version: 9.0.8
       '@types/node':
         specifier: ^20
         version: 20.17.14
@@ -102,6 +99,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.0.3(@types/react@19.0.7)
+      '@types/react-signature-canvas':
+        specifier: ^1.0.6
+        version: 1.0.6
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
