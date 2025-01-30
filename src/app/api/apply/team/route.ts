@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { defaultIgnoreEncryption, Team, TeamLink } from "@/models/team";
 import { randomUUID } from "crypto";
-import { string, z } from "zod";
+import { z } from "zod";
 import { generateToken, TokenPayload } from "@/lib/jwt";
 
 // Define Zod schema for request validation
@@ -35,8 +35,13 @@ export async function POST(request: Request) {
       }));
 
       return NextResponse.json(
-        { message: "Validation failed", errors: errorMessages },
-        { status: 400 }
+        {
+          message: "Validation failed",
+          errors: errorMessages
+        },
+        {
+          status: 400
+        }
       );
     }
 
@@ -109,7 +114,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (teamNameCheckData.data.length != 0) {
+    if (teamNameCheckData.data) {
       return NextResponse.json(
         {
           message: "Team name already used.",

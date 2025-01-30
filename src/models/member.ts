@@ -1,5 +1,3 @@
-import { Document } from "mongodb";
-
 export interface IgnoreEncryption {
   _id: boolean;
   is_leader: boolean;
@@ -13,21 +11,21 @@ export interface StudentID {
   card_back: string; // points to s3
 }
 
-export interface Member extends Document {
+export interface Member {
   _id: string; // uuidv4
   is_leader: boolean; // if a member is team leader
   name: string;
   grade: string;
-  school_name: string;
+  school: string;
   phone_number: string;
   email: string;
   email_verified: boolean;
   team_id: string; // points to team's id
-  rare_disease: string;
-  diet: string; // allergens or specific diet required
+  diet?: string; // allergens or specific diet required
+  special_needs?: string;
   national_id: string;
   student_id: StudentID;
-  birth_date: string;
+  birth_date: Date;
   address: string;
   personal_affidavit: string; // url points to s3
   shirt_size: string;
