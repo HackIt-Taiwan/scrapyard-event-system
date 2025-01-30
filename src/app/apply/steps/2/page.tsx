@@ -1,14 +1,22 @@
 "use client";
 
+import { grades, memberDataSchema, tShirtSizes } from "@/app/apply/types";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -16,31 +24,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format } from "date-fns";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  type memberData,
-  memberDataSchema,
-  tShirtSizes,
-} from "@/app/apply/types";
-import { AnimatePresence } from "motion/react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
-import { grades } from "@/app/apply/types";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import SignatureCanvas from "react-signature-canvas";
 
+// FIXME: this page is currently broken due to lack of context (previous implementation was using a context provider)
 export default function stepPage() {
   const router = useRouter();
 
@@ -64,16 +58,8 @@ export default function stepPage() {
   };
 
   useEffect(() => {
-    if (Number(localStorage.getItem("signup-form-last-page") ?? "1") < 1) {
-      router.push(
-        `/signup/steps/${(Number(localStorage.getItem("signup-form-last-page")) || 0) + 1}`,
-      );
-    } else {
-      setShow(true);
-    }
-
     console.log(signature);
-  }, [signature, setShow]);
+  }, [signature]);
 
   const form = useForm({
     resolver: zodResolver(memberDataSchema),
@@ -83,13 +69,13 @@ export default function stepPage() {
   const onSubmit = () => {
     localStorage.setItem("signup-form-last-page", "2");
     setShow(false);
-    router.push("/signup/steps/3/");
+    router.push("/apply/steps/3/");
   };
 
   return (
     <AnimatePresence
       onExitComplete={() =>
-        router.push(back ? "/signup/steps/1/" : "/signup/steps/3/")
+        router.push(back ? "/apply/steps/1/" : "/apply/steps/3/")
       }
     >
       {show && (
@@ -103,16 +89,16 @@ export default function stepPage() {
           }}
           className="w-full"
         >
-          <div className="h-[800px] max-w-[450px] px-4 overflow-y-scroll no-scrollbar mx-auto flex flex-col place-items-center">
+          <div className="no-scrollbar mx-auto flex h-[800px] max-w-[450px] flex-col place-items-center overflow-y-scroll px-4">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 w-full"
+                className="w-full space-y-8"
               >
-                <label className="text-xl md:text-2xl font-bold">
+                <label className="text-xl font-bold md:text-2xl">
                   隊長資料填寫
                 </label>
-                <p className="!mt-4 !mb-2 text-sm">* 為必填</p>
+                <p className="!mb-2 !mt-4 text-sm">* 為必填</p>
                 <FormField
                   control={form.control}
                   name="teamLeader.name.en"
@@ -315,7 +301,7 @@ export default function stepPage() {
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "pl-3 text-left font-normal w-full",
+                                  "w-full pl-3 text-left font-normal",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -411,7 +397,7 @@ export default function stepPage() {
                   <p className="text-sm font-medium leading-none">
                     請在此簽名 *
                   </p>
-                  <div className="bg-white rounded-md">
+                  <div className="rounded-md bg-white">
                     <SignatureCanvas
                       penColor="black"
                       canvasProps={{ width: 418 }}
@@ -428,7 +414,7 @@ export default function stepPage() {
             </Form>
             <Button
               variant="secondary"
-              className="w-full mt-4"
+              className="mt-4 w-full"
               onClick={() => {
                 setBack(true);
                 setShow(false);

@@ -1,5 +1,7 @@
 "use client";
 
+import { type teamData, teamDataSchema } from "@/app/apply/types";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -8,20 +10,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type teamData, teamDataSchema } from "@/app/apply/types";
-import { AnimatePresence } from "motion/react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import * as changeKeys from "change-case/keys";
+import { AnimatePresence, motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function StepPage() {
   const router = useRouter();
   const [show, setShow] = useState(true);
+  const { toast } = useToast();
 
   const form = useForm<teamData>({
     resolver: zodResolver(teamDataSchema),
@@ -31,15 +32,14 @@ export default function StepPage() {
     },
   });
 
-  // Prefetch next page
   useEffect(() => {
     router.prefetch("/apply/steps/2");
   }, [router]);
 
   const onSubmit = async (data: teamData) => {
     try {
-      const transformedData = changeKeys.snakeCase(data,5);
-  
+      const transformedData = changeKeys.snakeCase(data, 5);
+
       const response = await fetch("/api/apply/team", {
         method: "POST",
         headers: {
@@ -47,26 +47,31 @@ export default function StepPage() {
         },
         body: JSON.stringify(transformedData),
       });
-  
+
       if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(`Failed to submit team data: ${errorMessage}`);
+        const errorMessage = await response.json();
+        return toast({
+          title: "送出表單時發生了一些問題",
+          description: errorMessage.message,
+        });
       }
-  
-      const result = await response.json();
-      console.log("Team data submitted successfully:", result);
-  
+
+      // If the response is successful, directly take the user to the next page
+
       setShow(false);
-      setTimeout(() => {
-        router.push("/apply/steps/2");
-      }, 300);
     } catch (error) {
       console.error("Error submitting team data:", error);
     }
   };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence
+      // When the exit animation is complete, navigate to the next page.
+      // We need to ensure only the exit animation will ONLY trigger if the form is submitted successfully
+      onExitComplete={() => {
+        router.push("/apply/steps/2");
+      }}
+    >
       {show && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -75,16 +80,16 @@ export default function StepPage() {
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
           className="w-full"
         >
-          <div className="h-[800px] max-w-[450px] px-4 overflow-y-auto mx-auto flex flex-col place-items-center">
+          <div className="mx-auto flex h-[800px] max-w-[450px] flex-col place-items-center overflow-y-auto px-4">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 w-full"
+                className="w-full space-y-8"
               >
-                <label className="text-xl md:text-2xl font-bold">
+                <label className="text-xl font-bold md:text-2xl">
                   團隊名稱與參賽人數
                 </label>
-                <p className="!mt-4 !mb-2 text-sm">* 為必填</p>
+                <p className="!mb-2 !mt-4 text-sm">* 為必填</p>
 
                 {/* 團隊名稱 */}
                 <FormField
@@ -105,7 +110,6 @@ export default function StepPage() {
                   )}
                 />
 
-                {/* 團隊人數 */}
                 <FormField
                   control={form.control}
                   name="teamSize"
@@ -128,7 +132,6 @@ export default function StepPage() {
                   )}
                 />
 
-                {/* 提交按鈕 */}
                 <Button type="submit" className="w-full">
                   下一步
                 </Button>

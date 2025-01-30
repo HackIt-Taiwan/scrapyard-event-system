@@ -1,5 +1,5 @@
-import { z } from "zod";
 import taiwanIdValidator from "taiwan-id-validator";
+import { z } from "zod";
 
 export const grades = ["高中一年級", "高中二年級", "高中三年級"] as const;
 
@@ -37,7 +37,7 @@ export const memberDataSchema = z.object({
         (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
         {
           message: "你的身份證似乎不太正確",
-        }
+        },
       ),
   }),
   diet: z.string().optional(),
@@ -49,7 +49,7 @@ export const memberDataSchema = z.object({
         (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
         {
           message: "你的身份證似乎不太正確",
-        }
+        },
       ),
     birthday: z.preprocess((k) => {
       if (typeof k === "string" || k instanceof Date) {
