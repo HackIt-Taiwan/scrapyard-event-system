@@ -1,7 +1,13 @@
 import taiwanIdValidator from "taiwan-id-validator";
 import { NextResponse } from "next/server";
-import { defaultIgnoreEncryption as memberIgnoreEncryption, Member } from "@/models/member";
-import { defaultIgnoreEncryption as teacherIgnoreEncryption, Teacher } from "@/models/teacher";
+import {
+  defaultIgnoreEncryption as memberIgnoreEncryption,
+  Member,
+} from "@/models/member";
+import {
+  defaultIgnoreEncryption as teacherIgnoreEncryption,
+  Teacher,
+} from "@/models/teacher";
 import { z } from "zod";
 import { TokenPayload, verifyToken } from "@/lib/jwt";
 
@@ -11,66 +17,79 @@ const StudentIDSchema = z.object({
   card_back: z.string().url("Invalid card back URL"),
 });
 
-const MemberSchema = z.object({
-  name: z.string().max(36, "Name's length exceeded").trim(),
-  grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
-  school: z.string().max(30, "School's name's length exceeded").trim(),
-  phone_number: z.string()
-    .max(10, "Phone number's length exceeded")
-    .min(7, "Phone number's length is too short")
-    .trim(),
-  email: z.string().email({ message: "Incorrect email format" }).trim(),
-  special_needs: z.string().optional(),
-  diet: z.string().optional(),
-  national_id: z.string().refine(
-    (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-    { message: "Invalid Taiwan national ID" }
-  ),
-  student_id: StudentIDSchema,
-  birth_date: z.preprocess((val) => {
-    if (typeof val === "string" || val instanceof Date) {
-      return new Date(val);
-    }
-  }, z.date()),
-  address: z.string(),
-  personal_affidavit: z.string().url("Invalid affidavit URL"),
-  shirt_size: z.enum(["S", "M", "L", "XL"]),
+const MemberSchema = z
+  .object({
+    name: z.string().max(36, "Name's length exceeded").trim(),
+    grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
+    school: z.string().max(30, "School's name's length exceeded").trim(),
+    phone_number: z
+      .string()
+      .max(10, "Phone number's length exceeded")
+      .min(7, "Phone number's length is too short")
+      .trim(),
+    email: z.string().email({ message: "Incorrect email format" }).trim(),
+    special_needs: z.string().optional(),
+    diet: z.string().optional(),
+    national_id: z
+      .string()
+      .refine(
+        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
+        { message: "Invalid Taiwan national ID" },
+      ),
+    student_id: StudentIDSchema,
+    birth_date: z.preprocess((val) => {
+      if (typeof val === "string" || val instanceof Date) {
+        return new Date(val);
+      }
+    }, z.date()),
+    address: z.string(),
+    personal_affidavit: z.string().url("Invalid affidavit URL"),
+    shirt_size: z.enum(["S", "M", "L", "XL"]),
 
-  emergency_contact_name: z.string().max(36, "Name's length exceeded").trim(),
-  emergency_contact_phone: z.string()
-    .max(10, "Emergency contact phone number's length exceeded")
-    .min(7, "Emergency contact phone number's length is too short")
-    .trim(),
-  emergency_contact_national_id: z.string().refine(
-    (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-    { message: "Invalid Taiwan national ID" }
-  ),
-}).strict();
+    emergency_contact_name: z.string().max(36, "Name's length exceeded").trim(),
+    emergency_contact_phone: z
+      .string()
+      .max(10, "Emergency contact phone number's length exceeded")
+      .min(7, "Emergency contact phone number's length is too short")
+      .trim(),
+    emergency_contact_national_id: z
+      .string()
+      .refine(
+        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
+        { message: "Invalid Taiwan national ID" },
+      ),
+  })
+  .strict();
 
-const TeacherSchema = z.object({
-  name: z.string().max(36, "Name's length exceeded").trim(),
-  school: z.string().max(30, "School's name's length exceeded").trim(),
-  phone_number: z.string()
-    .max(10, "Phone number's length exceeded")
-    .min(7, "Phone number's length is too short")
-    .trim(),
-  email: z.string().email({ message: "Incorrect email format" }).trim(),
-  special_needs: z.string().optional(),
-  diet: z.string().optional(),
-  national_id: z.string().refine(
-    (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-    { message: "Invalid Taiwan national ID" }
-  ),
-  birth_date: z.preprocess((val) => {
-    if (typeof val === "string" || val instanceof Date) {
-      return new Date(val);
-    }
-  }, z.date()),
-  address: z.string(),
-  will_attend: z.boolean(),
-  teacher_affidavit: z.string().url("Invalid affidavit URL"),
-  shirt_size: z.enum(["S", "M", "L", "XL"]),
-}).strict();
+const TeacherSchema = z
+  .object({
+    name: z.string().max(36, "Name's length exceeded").trim(),
+    school: z.string().max(30, "School's name's length exceeded").trim(),
+    phone_number: z
+      .string()
+      .max(10, "Phone number's length exceeded")
+      .min(7, "Phone number's length is too short")
+      .trim(),
+    email: z.string().email({ message: "Incorrect email format" }).trim(),
+    special_needs: z.string().optional(),
+    diet: z.string().optional(),
+    national_id: z
+      .string()
+      .refine(
+        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
+        { message: "Invalid Taiwan national ID" },
+      ),
+    birth_date: z.preprocess((val) => {
+      if (typeof val === "string" || val instanceof Date) {
+        return new Date(val);
+      }
+    }, z.date()),
+    address: z.string(),
+    will_attend: z.boolean(),
+    teacher_affidavit: z.string().url("Invalid affidavit URL"),
+    shirt_size: z.enum(["S", "M", "L", "XL"]),
+  })
+  .strict();
 
 export async function POST(
   request: Request,
@@ -175,11 +194,11 @@ export async function POST(
           return NextResponse.json(
             {
               message: "Validation failed",
-              errors: errorMessages
+              errors: errorMessages,
             },
             {
-              status: 400
-            }
+              status: 400,
+            },
           );
         }
 
@@ -205,22 +224,20 @@ export async function POST(
 
           emergency_contact_name: validatedData.emergency_contact_name,
           emergency_contact_phone: validatedData.emergency_contact_phone,
-          emergency_contact_national_id: validatedData.emergency_contact_national_id,
+          emergency_contact_national_id:
+            validatedData.emergency_contact_national_id,
 
-          ignore_encryption: memberIgnoreEncryption
-        }
+          ignore_encryption: memberIgnoreEncryption,
+        };
 
-        const databaseResponse = await fetch(
-          databaseURL,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(memberData),
-          }
-        );
+        const databaseResponse = await fetch(databaseURL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(memberData),
+        });
 
         if (!databaseResponse.ok) {
           const errorData = await databaseResponse.json();
@@ -231,7 +248,7 @@ export async function POST(
           throw error;
         }
 
-        returnedData = memberData
+        returnedData = memberData;
         break;
       }
 
@@ -260,7 +277,7 @@ export async function POST(
               "Content-Type": "application/json",
             },
             body: JSON.stringify(payload),
-          }
+          },
         );
         const checkResponseData = await checkResponse.json();
 
@@ -279,11 +296,11 @@ export async function POST(
           return NextResponse.json(
             {
               message: "Validation failed",
-              errors: errorMessages
+              errors: errorMessages,
             },
             {
-              status: 400
-            }
+              status: 400,
+            },
           );
         }
 
@@ -309,22 +326,20 @@ export async function POST(
 
           emergency_contact_name: validatedData.emergency_contact_name,
           emergency_contact_phone: validatedData.emergency_contact_phone,
-          emergency_contact_national_id: validatedData.emergency_contact_national_id,
+          emergency_contact_national_id:
+            validatedData.emergency_contact_national_id,
 
-          ignore_encryption: memberIgnoreEncryption
-        }
+          ignore_encryption: memberIgnoreEncryption,
+        };
 
-        const databaseResponse = await fetch(
-          databaseURL,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(leaderData),
-          }
-        );
+        const databaseResponse = await fetch(databaseURL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(leaderData),
+        });
 
         if (!databaseResponse.ok) {
           const errorData = await databaseResponse.json();
@@ -335,7 +350,7 @@ export async function POST(
           throw error;
         }
 
-        returnedData = leaderData
+        returnedData = leaderData;
         break;
       }
 
@@ -364,7 +379,7 @@ export async function POST(
               "Content-Type": "application/json",
             },
             body: JSON.stringify(payload),
-          }
+          },
         );
         const checkResponseData = await checkResponse.json();
 
@@ -383,11 +398,11 @@ export async function POST(
           return NextResponse.json(
             {
               message: "Validation failed",
-              errors: errorMessages
+              errors: errorMessages,
             },
             {
-              status: 400
-            }
+              status: 400,
+            },
           );
         }
 
@@ -409,19 +424,16 @@ export async function POST(
           teacher_affidavit: validatedData.teacher_affidavit,
 
           ignore_encryption: teacherIgnoreEncryption,
-        }
+        };
 
-        const databaseResponse = await fetch(
-          databaseURL,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(teacherData),
-          }
-        );
+        const databaseResponse = await fetch(databaseURL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(teacherData),
+        });
 
         if (!databaseResponse.ok) {
           const errorData = await databaseResponse.json();
@@ -432,7 +444,7 @@ export async function POST(
           throw error;
         }
 
-        returnedData = teacherData
+        returnedData = teacherData;
         break;
       }
 
@@ -447,16 +459,22 @@ export async function POST(
         data: returnedData,
         message: `${decodedJWT.role[0].toUpperCase() + decodedJWT.role.slice(1)} created successfully`, // INFO: lol, why is it so complex.
       },
-      { status: 400 }
+      {
+        status: 400,
+      },
     );
   } catch (error: unknown) {
     console.error("Error while creating a member:", error);
 
     if (error instanceof SyntaxError) {
-      return NextResponse.json({
-        status: 400,
-        message: "Invalid JSON in request body",
-      });
+      return NextResponse.json(
+        {
+          message: "Invalid JSON in request body",
+        },
+        {
+          status: 400,
+        },
+      );
     }
 
     if (error instanceof z.ZodError) {
@@ -471,22 +489,29 @@ export async function POST(
           errors: errorMessages,
         },
         {
-          status: 400
-        }
+          status: 400,
+        },
       );
     }
 
     if (error instanceof Error && (error as any).status) {
       return NextResponse.json(
-        { message: error.message },
-        { status: (error as any).status },
+        {
+          message: error.message,
+        },
+        {
+          status: (error as any).status,
+        },
       );
     }
 
     return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
+      {
+        message: "Internal server error",
+      },
+      {
+        status: 500,
+      },
     );
   }
 }
-

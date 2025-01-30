@@ -37,11 +37,11 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           message: "Validation failed",
-          errors: errorMessages
+          errors: errorMessages,
         },
         {
-          status: 400
-        }
+          status: 400,
+        },
       );
     }
 
@@ -103,25 +103,25 @@ export async function POST(request: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(teamName),
-      }
+      },
     );
 
     const teamNameCheckData = await teamNameCheckResponse.json();
 
     if (!teamNameCheckResponse.ok) {
       throw new Error(
-        teamNameCheckData.message || "Database API request failed"
+        teamNameCheckData.message || "Database API request failed",
       );
     }
 
     if (teamNameCheckData.data) {
       return NextResponse.json(
         {
-          message: "Team name already used.",
+          message: "Team name has been used already",
         },
         {
           status: 400,
-        }
+        },
       );
     }
 
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newTeam),
-      }
+      },
     );
 
     if (!databaseResponse.ok) {
@@ -152,10 +152,9 @@ export async function POST(request: Request) {
       },
       {
         status: 201,
-      }
+      },
     );
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     console.error("Error while creating a team:", error);
 
     if (error instanceof SyntaxError) {
@@ -165,7 +164,7 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
-        }
+        },
       );
     }
 
@@ -182,7 +181,7 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
-        }
+        },
       );
     }
 
@@ -196,7 +195,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
