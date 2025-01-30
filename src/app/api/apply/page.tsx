@@ -1,3 +1,4 @@
+import banner from "@/assets/banner.png";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,13 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import banner from "@/assets/banner.png";
 import Image from "next/image";
 
 export default function ApplyPage() {
   return (
     <div className="p-2">
-      <div className="flex justify-center content-center mt-5">
+      <div className="mt-5 flex content-center justify-center">
         <Image alt="test" src={banner} width={500} height={500}></Image>
 
         <Card className="max-w-[50rem]">
