@@ -89,7 +89,7 @@ export default function stepPage() {
           }}
           className="w-full"
         >
-          <div className="no-scrollbar mx-auto flex h-[800px] max-w-[450px] flex-col place-items-center overflow-y-scroll px-4">
+          <div className="no-scrollbar mx-auto mt-[40rem] flex max-w-[450px] flex-col px-4">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -99,305 +99,333 @@ export default function stepPage() {
                   隊長資料填寫
                 </label>
                 <p className="!mb-2 !mt-4 text-sm">* 為必填</p>
-                <FormField
-                  control={form.control}
-                  name="NameEn"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>英文名字 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Xiao Ming Wang"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div>
-                <FormField
-                  control={form.control}
-                  name={`NameZh`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>中文名字 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="王小明"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`grade`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>在學年級 *</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="高中一年級" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {grades.map((k) => {
-                              return (
-                                <SelectItem value={k} key={k}>
-                                  {k}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`school`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>在學學校 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="阿里山國中"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
+                  <h2 className="font-bold">個人資料</h2>
+                  <FormField
+                    control={form.control}
+                    name="NameEn"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>英文名字 *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Xiao Ming Wang"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`NameZh`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>中文名字 *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="王小明"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`grade`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>在學年級 *</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="高中一年級" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {grades.map((k) => {
+                                return (
+                                  <SelectItem value={k} key={k}>
+                                    {k}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`school`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>在學學校 *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="阿里山國中"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`telephone`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>電話號碼 *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="0900000000"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`email`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>常用電子郵件 *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="example@example.com"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`nationalID`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>身分證字號 (保險用) *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="A121212121"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`birthDate`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>生日 (保險用) *</FormLabel>
+                        <br />
+                        <FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground",
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>請選擇日期</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="center"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={new Date(field.value)}
+                                onSelect={field.onChange}
+                                fromYear={2006}
+                                toYear={2010}
+                                defaultMonth={
+                                  field.value
+                                    ? new Date(field.value)
+                                    : new Date("2009-01-01")
+                                }
+                                captionLayout="dropdown"
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <FormField
-                  control={form.control}
-                  name={`telephone`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>電話號碼 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="0900000000"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`email`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>常用電子郵件 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="example@example.com"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`emergencyContactName`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        <b>緊急聯絡人</b>中文名字 *
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="王大銘"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`emergencyContactTelephone`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        <b>緊急聯絡人</b>電話 *
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="0900121212"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`emergencyContactNationalID`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        <b>緊急聯絡人</b>身分證字號 *
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="A121212121"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`nationalID`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>身分證字號 (保險用) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="A121212121"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`birthDate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>生日 (保險用) *</FormLabel>
-                      <br />
-                      <FormControl>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground",
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>請選擇日期</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="center">
-                            <Calendar
-                              mode="single"
-                              selected={new Date(field.value)}
-                              onSelect={field.onChange}
-                              fromYear={2006}
-                              toYear={2010}
-                              defaultMonth={
-                                field.value
-                                  ? new Date(field.value)
-                                  : new Date("2009-01-01")
-                              }
-                              captionLayout="dropdown"
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`specialNeeds`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>特殊需求 (過敏、特殊疾病等)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="無" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`diet`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>食物過敏物</FormLabel>
-                      <FormControl>
-                        <Input placeholder="無" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
-                <FormField
-                  control={form.control}
-                  name={`teamLeader.tShirtSize`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>T 恤尺寸 *</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="M" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {tShirtSizes.map((k) => {
-                              return (
-                                <SelectItem value={k} key={k}>
-                                  {k}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* 緊急聯絡人資料 */}
+                <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
+                  <h2 className="font-bold">緊急聯絡人資料</h2>
+                  <FormField
+                    control={form.control}
+                    name={`emergencyContactName`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>緊急聯絡人中文名字 *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="王大銘"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`emergencyContactTelephone`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>緊急聯絡人電話 *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="0900121212"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`emergencyContactNationalID`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>緊急聯絡人身分證字號 (保險用) *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="A121212121"
+                            required={true}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
+                  <h2 className="font-bold">其他資料</h2>
+                  <FormField
+                    control={form.control}
+                    name={`specialNeeds`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>特殊需求 (過敏、特殊疾病等)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="無" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`diet`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>食物過敏物</FormLabel>
+                        <FormControl>
+                          <Input placeholder="無" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`teamLeader.tShirtSize`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>T 恤尺寸 *</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="M" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {tShirtSizes.map((k) => {
+                                return (
+                                  <SelectItem value={k} key={k}>
+                                    {k}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <div className="space-y-2">
+                <p className="text-lg font-bold leading-none">
+                    請詳閱xxxxxxxxxxx後在下方簽名
+                  </p>
+
                   <p className="text-sm font-medium leading-none">
-                    請在此簽名 *
+                    請本人在此簽名 (簽名及代表同意xxxxx)*
+                  </p>
+                  <div className="rounded-md bg-white">
+                    <SignatureCanvas
+                      penColor="black"
+                      canvasProps={{ width: 418 }}
+                      ref={sigRef}
+                      onEnd={handleSignatureEnd}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-lg font-bold leading-none">
+                    請監護人詳閱xxxxxxxxxxx後在下方簽名
+                  </p>
+                  <p className="text-sm font-medium leading-none">
+                    請監護人在此簽名 (簽名及代表同意xxxx) *
                   </p>
                   <div className="rounded-md bg-white">
                     <SignatureCanvas
