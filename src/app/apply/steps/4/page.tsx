@@ -17,7 +17,7 @@ export default function stepPage() {
   const { formData, updateFormData } = useMultistepFormContext();
 
   return (
-    <AnimatePresence onExitComplete={() => router.push("/signup/steps/2/")}>
+    <AnimatePresence onExitComplete={() => router.push("/apply/steps/2/")}>
       {show && (
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
