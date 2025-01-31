@@ -78,66 +78,62 @@ export default function StepPage() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, x: -100 }}
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
-          className="w-full"
+          className="mx-auto my-6 flex flex-col place-items-center overflow-y-auto [width:clamp(300px,450px,100vw)]"
         >
-          <div className="mx-auto flex h-[800px] max-w-[450px] flex-col place-items-center overflow-y-auto px-4">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="w-full space-y-8"
-              >
-                <label className="text-xl font-bold md:text-2xl">
-                  團隊名稱與參賽人數
-                </label>
-                <p className="!mb-2 !mt-4 text-sm">* 為必填</p>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="w-full space-y-8"
+            >
+              <label className="text-xl font-bold md:text-2xl">
+                團隊名稱與參賽人數
+              </label>
+              <p className="!mb-2 !mt-4 text-sm">* 為必填</p>
 
-                {/* 團隊名稱 */}
-                <FormField
-                  control={form.control}
-                  name="teamName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>團隊名稱 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="BanG Dream! It's MyGO!!!!!"
-                          required
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* 團隊名稱 */}
+              <FormField
+                control={form.control}
+                name="teamName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>團隊名稱 *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="BanG Dream! It's MyGO!!!!!"
+                        required
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="teamSize"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>團隊人數 (不包含指導老師) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="一個團隊可有 4 ~ 5 個人"
-                          type="number"
-                          required
-                          value={field.value}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="teamSize"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>團隊人數 (不包含指導老師) *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="一個團隊可有 4 ~ 5 個人"
+                        type="number"
+                        required
+                        value={field.value}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <Button type="submit" className="w-full">
-                  下一步
-                </Button>
-              </form>
-            </Form>
-          </div>
+              <Button type="submit" className="w-full">
+                下一步
+              </Button>
+            </form>
+          </Form>
         </motion.div>
       )}
     </AnimatePresence>
