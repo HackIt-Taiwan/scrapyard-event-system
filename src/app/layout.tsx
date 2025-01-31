@@ -1,4 +1,5 @@
 import Nav from "@/components/nav";
+import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
@@ -22,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} flex h-screen flex-col antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"
@@ -30,8 +31,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Nav />
-          <div className="flex h-full w-full grow place-items-center justify-center">
+          <Toaster />
+          <div className="flex min-h-screen flex-col">
+            <Nav />
             {children}
           </div>
         </ThemeProvider>
