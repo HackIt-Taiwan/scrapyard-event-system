@@ -84,7 +84,7 @@ export default function stepPage() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, x: -100 }}
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
-          className="mx-auto my-6 flex flex-col place-items-center overflow-y-auto [width:clamp(300px,450px,100vw)]"
+          className="mx-auto my-6 flex flex-col place-items-center overflow-y-auto [width:clamp(300px,450px,100vw)] p-2"
         >
           <Form {...form}>
             <form
@@ -277,6 +277,112 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="studentID.card_front"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>學生證 (正面) *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+
+                            const formData = new FormData();
+                            formData.append("image", file);
+
+                            try {
+                              const res = await fetch(
+                                process.env.NEXT_PUBLIC_DATABASE_API +
+                                  "/image/upload",
+                                {
+                                  method: "POST",
+                                  body: formData,
+                                },
+                              );
+                              const data = await res.json();
+
+                              if (data.data) {
+                                form.setValue(
+                                  "studentID.card_front",
+                                  data.data,
+                                ); // Set the URL for card front
+                              }
+                            } catch (error) {
+                              console.error("Upload failed", error);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      {form.getValues("studentID.card_front") && (
+                        <div>
+                          <img
+                            src={form.getValues("studentID.card_front")}
+                            alt="Student Card Front"
+                            style={{ width: "auto", height: "auto" }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="studentID.card_back"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>學生證 (背面) *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder=""
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+
+                            const formData = new FormData();
+                            formData.append("image", file);
+
+                            try {
+                              const res = await fetch(
+                                process.env.NEXT_PUBLIC_DATABASE_API +
+                                  "/image/upload",
+                                {
+                                  method: "POST",
+                                  body: formData,
+                                },
+                              );
+                              const data = await res.json();
+
+                              if (data.data) {
+                                form.setValue("studentID.card_back", data.data); // Set the URL for card back
+                              }
+                            } catch (error) {
+                              console.error("Upload failed", error);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      {form.getValues("studentID.card_back") && (
+                        <div>
+                          <img
+                            src={form.getValues("studentID.card_back")}
+                            alt="Student Card Back"
+                            style={{ width: "auto", height: "auto" }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* 緊急聯絡人資料 */}
@@ -423,7 +529,7 @@ export default function stepPage() {
                 <div className="rounded-md bg-white">
                   <SignatureCanvas
                     penColor="black"
-                    canvasProps={{ width: 450 }}
+                    canvasProps={{ width: "auto" }}
                     ref={sigRef}
                     onEnd={handleSignatureEnd}
                   />

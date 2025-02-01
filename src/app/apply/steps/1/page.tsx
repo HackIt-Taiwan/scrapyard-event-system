@@ -55,7 +55,8 @@ export default function StepPage() {
           description: errorMessage.message,
         });
       }
-
+      const bodyData = await response.json();
+      console.log(bodyData)
       // If the response is successful, directly take the user to the next page
 
       setShow(false);
