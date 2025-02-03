@@ -4,6 +4,13 @@ import { grades, memberDataSchema, tShirtSizes } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -26,44 +33,59 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DialogTitle } from "@radix-ui/react-dialog";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import SignatureCanvas from "react-signature-canvas";
+import SignaturePad from "react-signature-canvas";
 
 // FIXME: this page is currently broken due to lack of context (previous implementation was using a context provider)
 export default function stepPage() {
   const router = useRouter();
 
   // TODO: integrate with zod
-  const sigRef = useRef<SignatureCanvas | null>(null);
-  const [signature, setSignature] = useState<string | null>(null);
+  const sigRef = useRef<SignaturePad | null>(null);
+  const parentSignRef = useRef<SignaturePad | null>(null);
 
   const [show, setShow] = useState(true);
   const [back, setBack] = useState(false);
 
-  const handleSignatureEnd = () => {
-    if (sigRef.current) {
-      setSignature(sigRef.current.toDataURL());
-    }
-  };
-  const clearSignature = () => {
-    if (sigRef.current) {
-      sigRef.current.clear();
-    }
-    setSignature(null);
-  };
-
-  useEffect(() => {
-    console.log(signature);
-  }, [signature]);
-
   const form = useForm({
     resolver: zodResolver(memberDataSchema),
   });
+
+  const sing = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (sigRef.current) {
+      form.setValue("signature", sigRef.current.getTrimmedCanvas().toDataURL("image/png"))
+    }
+  }
+
+  const parentSing = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (parentSignRef.current) {
+      form.setValue("parentSignature", parentSignRef.current.getTrimmedCanvas().toDataURL("image/png"))
+    }
+  }
+
+  const singClear = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (sigRef.current) {
+      sigRef.current.clear();
+      form.setValue("signature", null)
+    }
+  }
+
+  const parentSingClear = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (parentSignRef.current) {
+      parentSignRef.current.clear();
+      form.setValue("parentSignature", null)
+    }
+  }
 
   // TODO: need to const the type
   const onSubmit = () => {
@@ -84,7 +106,7 @@ export default function stepPage() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, x: -100 }}
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
-          className="mx-auto my-6 flex flex-col place-items-center overflow-y-auto [width:clamp(300px,450px,100vw)] p-2"
+          className="mx-auto my-6 flex flex-col place-items-center overflow-y-auto p-2 [width:clamp(300px,450px,100vw)]"
         >
           <Form {...form}>
             <form
@@ -510,13 +532,18 @@ export default function stepPage() {
                   請本人在此簽名 (簽名及代表同意xxxxx) *
                 </p>
                 <div className="rounded-md bg-white">
-                  <SignatureCanvas
+                  <SignaturePad
+                    canvasProps={{
+                      className: "w-full aspect-[2/1]",
+                    }}
                     penColor="black"
-                    canvasProps={{ width: 450 }}
                     ref={sigRef}
-                    onEnd={handleSignatureEnd}
                   />
                 </div>
+                <div className="flex space-x-2">
+                    <Button className="grow" onClick={(e) => sing}>儲存</Button>
+                    <Button className="grow" onClick={(e) => singClear} variant="destructive">刪除</Button>
+                  </div>
               </div>
 
               <div className="space-y-2">
@@ -527,13 +554,18 @@ export default function stepPage() {
                   請監護人在此簽名 (簽名及代表同意xxxx) *
                 </p>
                 <div className="rounded-md bg-white">
-                  <SignatureCanvas
+                  <SignaturePad
+                    canvasProps={{
+                      className: "w-full aspect-[2/1]",
+                    }}
                     penColor="black"
-                    canvasProps={{ width: "auto" }}
                     ref={sigRef}
-                    onEnd={handleSignatureEnd}
                   />
                 </div>
+                <div className="flex space-x-2">
+                    <Button type="button" className="grow" onClick={(e) => parentSing}>儲存</Button>
+                    <Button type="button" className="grow" onClick={(e) => parentSingClear} variant="destructive">刪除</Button>
+                  </div>
               </div>
 
               <Button type="submit" className="w-full">
