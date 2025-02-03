@@ -4,13 +4,6 @@ import { grades, memberDataSchema, tShirtSizes } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormField,
@@ -33,12 +26,11 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DialogTitle } from "@radix-ui/react-dialog";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import SignaturePad from "react-signature-canvas";
 
@@ -60,32 +52,38 @@ export default function stepPage() {
   const sing = (e: React.FormEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (sigRef.current) {
-      form.setValue("signature", sigRef.current.getTrimmedCanvas().toDataURL("image/png"))
+      form.setValue(
+        "signature",
+        sigRef.current.getTrimmedCanvas().toDataURL("image/png"),
+      );
     }
-  }
+  };
 
   const parentSing = (e: React.FormEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (parentSignRef.current) {
-      form.setValue("parentSignature", parentSignRef.current.getTrimmedCanvas().toDataURL("image/png"))
+      form.setValue(
+        "parentSignature",
+        parentSignRef.current.getTrimmedCanvas().toDataURL("image/png"),
+      );
     }
-  }
+  };
 
   const singClear = (e: React.FormEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (sigRef.current) {
       sigRef.current.clear();
-      form.setValue("signature", null)
+      form.setValue("signature", null);
     }
-  }
+  };
 
   const parentSingClear = (e: React.FormEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (parentSignRef.current) {
       parentSignRef.current.clear();
-      form.setValue("parentSignature", null)
+      form.setValue("parentSignature", null);
     }
-  }
+  };
 
   // TODO: need to const the type
   const onSubmit = () => {
@@ -525,11 +523,14 @@ export default function stepPage() {
 
               <div className="space-y-2">
                 <p className="text-lg font-bold">
-                  請詳閱xxxxxxxxxxx後在下方簽名
+                  請詳閱
+                  <Affidavit />
+                  後在下方簽名
                 </p>
 
                 <p className="text-sm">
-                  請本人在此簽名 (簽名及代表同意xxxxx) *
+                  請本人在此簽名 (簽名及代表同意
+                  <Affidavit />) *
                 </p>
                 <div className="rounded-md bg-white">
                   <SignaturePad
@@ -541,17 +542,28 @@ export default function stepPage() {
                   />
                 </div>
                 <div className="flex space-x-2">
-                    <Button className="grow" onClick={(e) => sing}>儲存</Button>
-                    <Button className="grow" onClick={(e) => singClear} variant="destructive">刪除</Button>
-                  </div>
+                  <Button className="grow" onClick={(e) => sing}>
+                    儲存
+                  </Button>
+                  <Button
+                    className="grow"
+                    onClick={(e) => singClear}
+                    variant="destructive"
+                  >
+                    刪除
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-2">
                 <p className="text-lg font-bold">
-                  請監護人詳閱xxxxxxxxxxx後在下方簽名
+                  請監護人詳閱
+                  <ParentAffidavit />
+                  後在下方簽名
                 </p>
                 <p className="text-sm">
-                  請監護人在此簽名 (簽名及代表同意xxxx) *
+                  請監護人在此簽名 (簽名及代表同意
+                  <ParentAffidavit />) *
                 </p>
                 <div className="rounded-md bg-white">
                   <SignaturePad
@@ -563,9 +575,22 @@ export default function stepPage() {
                   />
                 </div>
                 <div className="flex space-x-2">
-                    <Button type="button" className="grow" onClick={(e) => parentSing}>儲存</Button>
-                    <Button type="button" className="grow" onClick={(e) => parentSingClear} variant="destructive">刪除</Button>
-                  </div>
+                  <Button
+                    type="button"
+                    className="grow"
+                    onClick={(e) => parentSing}
+                  >
+                    儲存
+                  </Button>
+                  <Button
+                    type="button"
+                    className="grow"
+                    onClick={(e) => parentSingClear}
+                    variant="destructive"
+                  >
+                    刪除
+                  </Button>
+                </div>
               </div>
 
               <Button type="submit" className="w-full">
@@ -586,5 +611,31 @@ export default function stepPage() {
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+function Affidavit() {
+  return (
+    <a
+      href="/2025%20Scrapyard%20Taiwan%20%E5%8F%83%E8%B3%BD%E8%80%85%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary hover:underline"
+    >
+      參賽者切結書
+    </a>
+  );
+}
+
+function ParentAffidavit() {
+  return (
+    <a
+      href="/2025%20Scrapyard%20Taiwan%20%E6%B3%95%E5%AE%9A%E4%BB%A3%E7%90%86%E4%BA%BA%E5%8F%8A%E6%8C%87%E5%B0%8E%E8%80%81%E5%B8%AB%E7%AB%B6%E8%B3%BD%E5%8F%83%E8%88%87%E8%88%87%E8%B2%AC%E4%BB%BB%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary hover:underline"
+    >
+      法定代理人及指導老師競賽參與與責任切結書
+    </a>
   );
 }
