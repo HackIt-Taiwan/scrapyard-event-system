@@ -30,40 +30,60 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import SignatureCanvas from "react-signature-canvas";
+import SignaturePad from "react-signature-canvas";
 
 // FIXME: this page is currently broken due to lack of context (previous implementation was using a context provider)
 export default function stepPage() {
   const router = useRouter();
 
   // TODO: integrate with zod
-  const sigRef = useRef<SignatureCanvas | null>(null);
-  const [signature, setSignature] = useState<string | null>(null);
+  const sigRef = useRef<SignaturePad | null>(null);
+  const parentSignRef = useRef<SignaturePad | null>(null);
 
   const [show, setShow] = useState(true);
   const [back, setBack] = useState(false);
 
-  const handleSignatureEnd = () => {
-    if (sigRef.current) {
-      setSignature(sigRef.current.toDataURL());
-    }
-  };
-  const clearSignature = () => {
-    if (sigRef.current) {
-      sigRef.current.clear();
-    }
-    setSignature(null);
-  };
-
-  useEffect(() => {
-    console.log(signature);
-  }, [signature]);
-
   const form = useForm({
     resolver: zodResolver(memberDataSchema),
   });
+
+  const sing = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (sigRef.current) {
+      form.setValue(
+        "signature",
+        sigRef.current.getTrimmedCanvas().toDataURL("image/png"),
+      );
+    }
+  };
+
+  const parentSing = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (parentSignRef.current) {
+      form.setValue(
+        "parentSignature",
+        parentSignRef.current.getTrimmedCanvas().toDataURL("image/png"),
+      );
+    }
+  };
+
+  const singClear = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (sigRef.current) {
+      sigRef.current.clear();
+      form.setValue("signature", null);
+    }
+  };
+
+  const parentSingClear = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (parentSignRef.current) {
+      parentSignRef.current.clear();
+      form.setValue("parentSignature", null);
+    }
+  };
 
   // TODO: need to const the type
   const onSubmit = () => {
@@ -84,7 +104,7 @@ export default function stepPage() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, x: -100 }}
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
-          className="mx-auto my-6 flex flex-col place-items-center overflow-y-auto [width:clamp(300px,450px,100vw)] p-2"
+          className="mx-auto my-6 flex flex-col place-items-center overflow-y-auto p-2 [width:clamp(300px,450px,100vw)]"
         >
           <Form {...form}>
             <form
@@ -503,36 +523,73 @@ export default function stepPage() {
 
               <div className="space-y-2">
                 <p className="text-lg font-bold">
-                  請詳閱xxxxxxxxxxx後在下方簽名
+                  請詳閱
+                  <Affidavit />
+                  後在下方簽名
                 </p>
 
                 <p className="text-sm">
-                  請本人在此簽名 (簽名及代表同意xxxxx) *
+                  請本人在此簽名 (簽名及代表同意
+                  <Affidavit />) *
                 </p>
                 <div className="rounded-md bg-white">
-                  <SignatureCanvas
+                  <SignaturePad
+                    canvasProps={{
+                      className: "w-full aspect-[2/1]",
+                    }}
                     penColor="black"
-                    canvasProps={{ width: 450 }}
                     ref={sigRef}
-                    onEnd={handleSignatureEnd}
                   />
+                </div>
+                <div className="flex space-x-2">
+                  <Button className="grow" onClick={(e) => sing}>
+                    儲存
+                  </Button>
+                  <Button
+                    className="grow"
+                    onClick={(e) => singClear}
+                    variant="destructive"
+                  >
+                    刪除
+                  </Button>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <p className="text-lg font-bold">
-                  請監護人詳閱xxxxxxxxxxx後在下方簽名
+                  請監護人詳閱
+                  <ParentAffidavit />
+                  後在下方簽名
                 </p>
                 <p className="text-sm">
-                  請監護人在此簽名 (簽名及代表同意xxxx) *
+                  請監護人在此簽名 (簽名及代表同意
+                  <ParentAffidavit />) *
                 </p>
                 <div className="rounded-md bg-white">
-                  <SignatureCanvas
+                  <SignaturePad
+                    canvasProps={{
+                      className: "w-full aspect-[2/1]",
+                    }}
                     penColor="black"
-                    canvasProps={{ width: "auto" }}
                     ref={sigRef}
-                    onEnd={handleSignatureEnd}
                   />
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    type="button"
+                    className="grow"
+                    onClick={(e) => parentSing}
+                  >
+                    儲存
+                  </Button>
+                  <Button
+                    type="button"
+                    className="grow"
+                    onClick={(e) => parentSingClear}
+                    variant="destructive"
+                  >
+                    刪除
+                  </Button>
                 </div>
               </div>
 
@@ -554,5 +611,31 @@ export default function stepPage() {
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+function Affidavit() {
+  return (
+    <a
+      href="/2025%20Scrapyard%20Taiwan%20%E5%8F%83%E8%B3%BD%E8%80%85%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary hover:underline"
+    >
+      參賽者切結書
+    </a>
+  );
+}
+
+function ParentAffidavit() {
+  return (
+    <a
+      href="/2025%20Scrapyard%20Taiwan%20%E6%B3%95%E5%AE%9A%E4%BB%A3%E7%90%86%E4%BA%BA%E5%8F%8A%E6%8C%87%E5%B0%8E%E8%80%81%E5%B8%AB%E7%AB%B6%E8%B3%BD%E5%8F%83%E8%88%87%E8%88%87%E8%B2%AC%E4%BB%BB%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary hover:underline"
+    >
+      法定代理人及指導老師競賽參與與責任切結書
+    </a>
   );
 }

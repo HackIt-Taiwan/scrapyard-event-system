@@ -38,6 +38,9 @@ export interface Member {
   emergency_contact_national_id: string;
 
   ignore_encryption: IgnoreEncryption;
+
+  signature: string;
+  parent_signature: string;
 }
 
 export const defaultIgnoreEncryption: IgnoreEncryption = {

@@ -65,6 +65,8 @@ export const memberDataSchema = z.object({
     .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
       message: "緊急聯絡人身份證字號格式錯誤",
     }),
+  signature: z.string().base64url("這看起來不太正確"),
+  parentSignature: z.string().base64url("這看起來不太正確").optional()
 });
 
 export type teamData = z.infer<typeof teamDataSchema>;
