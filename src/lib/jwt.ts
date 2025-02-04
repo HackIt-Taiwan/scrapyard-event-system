@@ -13,10 +13,23 @@ export const generateToken = (payload: TokenPayload): string => {
     {
       ...payload,
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3 * 7 * 24 * 60 * 60,
+      exp: Math.floor(Date.now() / 1000) + 3 * 7 * 24 * 60 * 60, // 21 days
     },
     SECRET_KEY
   );
+};
+
+export const generateEmailVerificationToken = (payload: TokenPayload): string => {
+  let token = jwt.sign(
+    {
+      ...payload,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 15 * 60, // 15 minutes
+    },
+    SECRET_KEY
+  );
+  return `${process.env.BASE_URL}/apply/email-verify/${token}`
+  // INFO: Don't we have a shortlink service?
 };
 
 export const verifyToken = (token: string): TokenPayload | null => {

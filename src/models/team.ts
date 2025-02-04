@@ -28,5 +28,3 @@ export const defaultIgnoreEncryption: IgnoreEncryption = {
   createdAt: true,
   updatedAt: true,
 };
-
-// TODO: add checks

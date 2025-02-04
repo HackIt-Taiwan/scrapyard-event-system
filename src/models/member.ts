@@ -14,10 +14,11 @@ export interface StudentID {
 export interface Member {
   _id: string; // uuidv4
   is_leader: boolean; // if a member is team leader
-  name: string;
+  name_en: string;
+  name_zh: string;
   grade: string;
   school: string;
-  phone_number: string;
+  telephone: string;
   email: string;
   email_verified: boolean;
   team_id: string; // points to team's id
@@ -33,7 +34,7 @@ export interface Member {
   updatedAt?: Date;
 
   emergency_contact_name: string;
-  emergency_contact_phone: string;
+  emergency_contact_telephone: string;
   emergency_contact_national_id: string;
 
   ignore_encryption: IgnoreEncryption;
@@ -46,5 +47,3 @@ export const defaultIgnoreEncryption: IgnoreEncryption = {
   createdAt: true,
   updatedAt: true,
 };
-
-// TODO: add checks
