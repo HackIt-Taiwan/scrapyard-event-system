@@ -1,4 +1,5 @@
-import { TokenPayload, verifyToken } from "@/lib/jwt";
+import { sendVerificationEmail } from "@/lib/email";
+import { TokenPayload, generateEmailVerificationToken, verifyToken } from "@/lib/jwt";
 import {
   Member,
   defaultIgnoreEncryption as memberIgnoreEncryption,
@@ -54,7 +55,7 @@ const MemberSchema = z
 
     // Emergency Contact Information
     emergency_contact_name: z.string().max(36, "Name's length exceeded").trim(),
-    emergencyContactTelephone: z
+    emergency_contact_telephone: z
       .string()
       .max(10, "Emergency contact phone number's length exceeded")
       .min(7, "Emergency contact phone number's length is too short")
@@ -147,6 +148,7 @@ export async function POST(
 
     const teamData = await databaseResponse.json();
     const requestedID = decodedJWT.userID;
+    let emailUpdated = false;
     let databaseURL = "";
     let returnedData;
 
@@ -210,15 +212,21 @@ export async function POST(
         }
 
         const validatedData = validationResult.data;
+
+        if (!checkResponseData.data || checkResponseData.data.email !== validatedData.email) {
+          emailUpdated = true;
+        }
+
         const memberData: Member = {
           _id: requestedID,
           is_leader: false,
-          name: validatedData.name,
+          name_en: validatedData.name_en,
+          name_zh: validatedData.name_zh,
           grade: validatedData.grade,
           school: validatedData.school,
-          phone_number: validatedData.phone_number,
+          telephone: validatedData.telephone,
           email: validatedData.email,
-          email_verified: false,
+          email_verified: !emailUpdated,
           team_id: team_uuid,
           diet: validatedData.diet,
           special_needs: validatedData.special_needs,
@@ -230,12 +238,30 @@ export async function POST(
           shirt_size: validatedData.shirt_size,
 
           emergency_contact_name: validatedData.emergency_contact_name,
-          emergency_contact_phone: validatedData.emergency_contact_phone,
+          emergency_contact_telephone: validatedData.emergency_contact_telephone,
           emergency_contact_national_id:
             validatedData.emergency_contact_national_id,
 
           ignore_encryption: memberIgnoreEncryption,
         };
+
+        // Send verification email if email updated
+        if (emailUpdated) {
+          const jwtPayload: TokenPayload = {
+            teamID: memberData.team_id,
+            userID: memberData._id,
+            role: "member",
+          }
+          const url = generateEmailVerificationToken(jwtPayload)
+          const emailResponse = await sendVerificationEmail(memberData.email, url, memberData.name_zh);
+          if (!emailResponse) {
+            console.log(`Error while sending verification email: ${emailResponse}`)
+            const error = new Error("Internal Server Error");
+            (error as any).status = 500;
+            (error as any).message = emailResponse;
+            throw error;
+          }
+        }
 
         const databaseResponse = await fetch(databaseURL, {
           method: "POST",
@@ -249,7 +275,7 @@ export async function POST(
         if (!databaseResponse.ok) {
           const errorData = await databaseResponse.json();
 
-          const error = new Error("Datbase API requested failed");
+          const error = new Error("Database API requested failed");
           (error as any).status = 401;
           (error as any).message = errorData;
           throw error;
@@ -292,6 +318,20 @@ export async function POST(
           ? `${process.env.DATABASE_API}/etc/edit/member`
           : `${process.env.DATABASE_API}/etc/create/member`;
 
+        // check if other members have already completed verification
+        if (!checkResponseData.data) {
+          const allEmailVerifiedResponse = await fetch(
+            `${process.env.BASE_URL}/api/apply/team/${team_uuid}?auth=${jwt}`,
+          );
+          const allEmailVerifiedResponseData = await allEmailVerifiedResponse.json();
+
+          if (!allEmailVerifiedResponseData.data[0].all_email_verified) {
+            const error = new Error("All members (except leader) and teacher must verify their email before proceeding!");
+            (error as any).status = 409;
+            throw error;
+          }
+        }
+
         // The actual upload part
         const validationResult = MemberSchema.safeParse(requestBody);
         if (!validationResult.success) {
@@ -312,15 +352,21 @@ export async function POST(
         }
 
         const validatedData = validationResult.data;
+
+        if (!checkResponseData.data || checkResponseData.data.email !== validatedData.email) {
+          emailUpdated = true;
+        }
+
         const leaderData: Member = {
           _id: requestedID,
           is_leader: true,
-          name: validatedData.name,
+          name_en: validatedData.name_en,
+          name_zh: validatedData.name_zh,
           grade: validatedData.grade,
           school: validatedData.school,
-          phone_number: validatedData.phone_number,
+          telephone: validatedData.telephone,
           email: validatedData.email,
-          email_verified: false,
+          email_verified: !emailUpdated,
           team_id: team_uuid,
           diet: validatedData.diet,
           special_needs: validatedData.special_needs,
@@ -332,12 +378,29 @@ export async function POST(
           shirt_size: validatedData.shirt_size,
 
           emergency_contact_name: validatedData.emergency_contact_name,
-          emergency_contact_phone: validatedData.emergency_contact_phone,
+          emergency_contact_telephone: validatedData.emergency_contact_telephone,
           emergency_contact_national_id:
             validatedData.emergency_contact_national_id,
 
           ignore_encryption: memberIgnoreEncryption,
         };
+
+        if (emailUpdated) {
+          const jwtPayload: TokenPayload = {
+            teamID: leaderData.team_id,
+            userID: leaderData._id,
+            role: "leader",
+          }
+          const url = generateEmailVerificationToken(jwtPayload)
+          const emailResponse = await sendVerificationEmail(leaderData.email, url, leaderData.name_zh);
+          if (!emailResponse) {
+            console.log(`Error while sending verification email: ${emailResponse}`)
+            const error = new Error("Internal Server Error");
+            (error as any).status = 500;
+            (error as any).message = emailResponse;
+            throw error;
+          }
+        }
 
         const databaseResponse = await fetch(databaseURL, {
           method: "POST",
@@ -351,7 +414,7 @@ export async function POST(
         if (!databaseResponse.ok) {
           const errorData = await databaseResponse.json();
 
-          const error = new Error("Datbase API requested failed");
+          const error = new Error("Database API requested failed");
           (error as any).status = 401;
           (error as any).message = errorData;
           throw error;
@@ -414,13 +477,18 @@ export async function POST(
         }
 
         const validatedData = validationResult.data;
+
+        if (!checkResponseData.data || checkResponseData.data.email !== validatedData.email) {
+          emailUpdated = true;
+        }
+
         const teacherData: Teacher = {
           _id: requestedID,
           name: validatedData.name,
           school: validatedData.school,
           phone_number: validatedData.phone_number,
           email: validatedData.email,
-          email_verified: false,
+          email_verified: !emailUpdated,
           team_id: team_uuid,
           diet: validatedData.diet,
           special_needs: validatedData.special_needs,
@@ -432,6 +500,23 @@ export async function POST(
 
           ignore_encryption: teacherIgnoreEncryption,
         };
+
+        if (emailUpdated) {
+          const jwtPayload: TokenPayload = {
+            teamID: teacherData.team_id,
+            userID: teacherData._id,
+            role: "teacher"
+          }
+          const url = generateEmailVerificationToken(jwtPayload)
+          const emailResponse = await sendVerificationEmail(teacherData.email, url, teacherData.name);
+          if (!emailResponse) {
+            console.log(`Error while sending verification email: ${emailResponse}`)
+            const error = new Error("Internal Server Error");
+            (error as any).status = 500;
+            (error as any).message = emailResponse;
+            throw error;
+          }
+        }
 
         const databaseResponse = await fetch(databaseURL, {
           method: "POST",
@@ -467,7 +552,7 @@ export async function POST(
         message: `${decodedJWT.role[0].toUpperCase() + decodedJWT.role.slice(1)} created successfully`, // INFO: lol, why is it so complex.
       },
       {
-        status: 400,
+        status: 201,
       },
     );
   } catch (error: unknown) {
