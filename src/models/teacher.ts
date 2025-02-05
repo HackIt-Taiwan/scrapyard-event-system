@@ -1,36 +1,22 @@
-export interface IgnoreEncryption {
-  _id: boolean;
-  will_attend: boolean;
-  email_verified: boolean;
-  createdAt: boolean;
-  updatedAt: boolean;
-}
+import { baseSchema, ignoreEncryptionSchema } from "@/models/common";
+import { z } from "zod";
 
-export interface Teacher {
-  _id: string; // uuidv4
-  name_zh: string;
-  school: string;
-  telephone: string;
-  email: string;
-  email_verified: boolean;
-  team_id: string; // points to team's id
-  diet?: string; // allergens or specific diet required
-  special_needs?: string;
-  national_id: string;
-  birth_date: Date;
-  address: string;
-  will_attend: boolean;
-  teacher_affidavit: string; // url points to s3
-  createdAt?: Date;
-  updatedAt?: Date;
+const teacherSchema = baseSchema.extend({
+  will_attend: z.boolean(),
+  teacher_affidavit: z.string().url("Invalid affidavit URL"),
+});
 
-  ignore_encryption: IgnoreEncryption;
-}
+const teacherDatabaseSchema = teacherSchema.extend({
+  _id: z.string(),
+  team_id: z.string(),
+  email_verified: z.boolean(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+  ignore_encryption: ignoreEncryptionSchema,
+});
 
-export const defaultIgnoreEncryption: IgnoreEncryption = {
-  _id: true,
-  will_attend: true,
-  email_verified: true,
-  createdAt: true,
-  updatedAt: true,
-};
+type teacherSchemaType = z.infer<typeof teacherSchema>;
+type teacherDatabaseSchemaType = z.infer<typeof teacherDatabaseSchema>;
+
+export { teacherDatabaseSchema, teacherSchema };
+export type { teacherDatabaseSchemaType, teacherSchemaType };

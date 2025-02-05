@@ -1,73 +1,10 @@
 import { sendVerificationEmail } from "@/lib/email";
 import { generateEmailVerificationToken, verifyToken } from "@/lib/jwt";
-import {
-  Member,
-  defaultIgnoreEncryption as memberIgnoreEncryption,
-} from "@/models/member";
-import {
-  Teacher,
-  defaultIgnoreEncryption as teacherIgnoreEncryption,
-} from "@/models/teacher";
+import { defaultIgnoreEncryption } from "@/models/common";
+import { memberDatabaseSchemaType, memberSchema } from "@/models/member";
+import { teacherDatabaseSchemaType, teacherSchema } from "@/models/teacher";
 import { databasePost } from "@/utils/databaseAPI";
 import { type NextRequest, NextResponse } from "next/server";
-import taiwanIdValidator from "taiwan-id-validator";
-import { z } from "zod";
-
-const baseSchema = z.object({
-  name_zh: z.string().max(6, "中文名字超過 6 個字元"),
-  school: z.string().trim().max(30, "學校名字超過 30 個字元"),
-  birth_date: z.preprocess(
-    (val) => {
-      if (typeof val === "string" || val instanceof Date) {
-        return new Date(val);
-      }
-    },
-    z.date({ message: "錯誤的生日格式" }),
-  ),
-  national_id: z
-    .string()
-    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
-      message: "無效的身分證字號",
-    }),
-  address: z.string(),
-  shirt_size: z.enum(["S", "M", "L", "XL"]),
-  telephone: z.string().trim().max(10, "電話號碼過長"),
-  email: z.string().trim().email({ message: "錯誤的電子郵件格式" }),
-  special_needs: z.string().optional(),
-  diet: z.string().optional(),
-});
-
-const memberSchema = baseSchema
-  .extend({
-    name_en: z.string().max(36, "英文名字超過 36 個字元"),
-    grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
-
-    personal_affidavit: z.string().url("學生證網址無效，請嘗試重新上傳"),
-
-    emergency_contact_name: z.string().trim().max(6, "中文名字超過 6 個字元"),
-    emergency_contact_telephone: z.string().trim().max(10, "電話號碼過長"),
-    emergency_contact_national_id: z
-      .string()
-      .refine(
-        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        { message: "無效的身分證字號" },
-      ),
-
-    signature: z.string(),
-    parent_signature: z.string(),
-    student_id: z.object({
-      card_front: z.string().url("Invalid card front URL"), // assuming S3 URLs
-      card_back: z.string().url("Invalid card back URL"),
-    }),
-  })
-  .strict();
-
-const teacherSchema = baseSchema
-  .extend({
-    will_attend: z.boolean(),
-    teacher_affidavit: z.string().url("Invalid affidavit URL"),
-  })
-  .strict();
 
 export async function POST(
   request: NextRequest,
@@ -164,7 +101,7 @@ export async function POST(
         );
       }
 
-      const memberData: Member = {
+      const memberData: memberDatabaseSchemaType = {
         _id: requestedID,
         ...validationResult.data,
         is_leader: false,
@@ -172,7 +109,7 @@ export async function POST(
           checkResponseData.data.email === validationResult.data.email,
         team_id: team_uuid,
 
-        ignore_encryption: memberIgnoreEncryption,
+        ignore_encryption: defaultIgnoreEncryption,
       };
 
       // Send verification email if email updated
@@ -252,7 +189,7 @@ export async function POST(
       }
 
       // The actual update / create member data in database part
-      const validationResult = memberSchema.safeParse(requestBody);
+      const validationResult = memberSchema.strict().safeParse(requestBody);
       if (!validationResult.success) {
         const errorMessages = validationResult.error.errors.map((err) => ({
           field: err.path.join("、"),
@@ -268,7 +205,7 @@ export async function POST(
         );
       }
 
-      const leaderData: Member = {
+      const leaderData: memberDatabaseSchemaType = {
         _id: requestedID,
         ...validationResult.data,
         is_leader: true,
@@ -276,7 +213,7 @@ export async function POST(
           checkResponseData.data.email === validationResult.data.email,
         team_id: team_uuid,
 
-        ignore_encryption: memberIgnoreEncryption,
+        ignore_encryption: defaultIgnoreEncryption,
       };
 
       if (checkResponseData.data.email === validationResult.data.email) {
@@ -340,7 +277,7 @@ export async function POST(
       const checkResponseData = await checkResponse.json();
 
       // The actual update / create member data in database part
-      const validationResult = teacherSchema.safeParse(requestBody);
+      const validationResult = teacherSchema.strict().safeParse(requestBody);
       if (!validationResult.success) {
         const errorMessages = validationResult.error.errors.map((err) => ({
           field: err.path.join("、"),
@@ -356,14 +293,14 @@ export async function POST(
         );
       }
 
-      const teacherData: Teacher = {
+      const teacherData: teacherDatabaseSchemaType = {
         _id: requestedID,
         ...validationResult.data,
         email_verified:
           checkResponseData.data.email === validationResult.data.email,
         team_id: team_uuid,
 
-        ignore_encryption: teacherIgnoreEncryption,
+        ignore_encryption: defaultIgnoreEncryption,
       };
 
       if (checkResponseData.data.email === validationResult.data.email) {
