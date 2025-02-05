@@ -1,156 +1,106 @@
-import { TokenPayload, verifyToken } from "@/lib/jwt";
-import { NextResponse } from "next/server";
+import { verifyToken } from "@/lib/jwt";
+import { databasePost } from "@/utils/databaseAPI";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { team_uuid: string; member_uuid: string } },
+  request: NextRequest,
+  {
+    params: { team_uuid, member_uuid },
+  }: { params: { team_uuid: string; member_uuid: string } },
 ) {
-  try {
-    // Verify required environment variables
-    if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
-      return NextResponse.json(
-        {
-          message: "Missing required environment variables",
-        },
-        {
-          status: 500,
-        },
-      );
-    }
-
-    const { team_uuid, member_uuid } = await params;
-    const url = new URL(request.url); // Create a URL object from the request
-    const jwt = url.searchParams.get("auth") || "";
-
-    const decodedJWT: TokenPayload | null = verifyToken(jwt);
-
-    // Include Authorization header only if conditions are met
-    if (
-      jwt === "" ||
-      !decodedJWT ||
-      decodedJWT.teamID != team_uuid ||
-      decodedJWT.userID != member_uuid
-    ) {
-      const error = new Error("Authorization Failed");
-      (error as any).status = 401;
-      throw error;
-    }
-
-    const payload = {
-      _id: member_uuid,
-      ignore_encryption: {
-        _id: true,
-      },
-    };
-    let returnedData;
-
-    switch (decodedJWT.role) {
-      case "leader":
-      case "member": {
-        const databaseResponse = await fetch(
-          `${process.env.DATABASE_API}/etc/get/member`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          },
-        );
-
-        if (!databaseResponse.ok) {
-          const errorData = await databaseResponse.json();
-          return NextResponse.json(
-            {
-              message: errorData.message || "Database API request failed",
-            },
-            {
-              status: 500,
-            },
-          );
-        }
-
-        returnedData = await databaseResponse.json();
-        break;
-      }
-
-      case "teacher": {
-        const databaseResponse = await fetch(
-          `${process.env.DATABASE_API}/etc/get/teacher`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${process.env.DATABASE_AUTH_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          },
-        );
-
-        if (!databaseResponse.ok) {
-          const errorData = await databaseResponse.json();
-          return NextResponse.json(
-            {
-              message: errorData.message || "Database API request failed",
-            },
-            {
-              status: 500,
-            },
-          );
-        }
-
-        returnedData = await databaseResponse.json();
-        break;
-      }
-
-      default:
-        const error = new Error("Incorrect role");
-        (error as any).status = 401;
-        throw error;
-    }
-
+  if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
     return NextResponse.json(
       {
-        message: `${decodedJWT.role[0].toUpperCase() + decodedJWT.role.slice(1)} acquired successfully`, // INFO: I love the complexity of this thing
-        data: returnedData,
+        success: false,
+        message:
+          "Internal Server Error, missing DATABASE_API and DATABASE_AUTH_KEY",
       },
-      {
-        status: 200,
-      },
-    );
-  } catch (error: unknown) {
-    console.error("Error while acquiring team", error);
-
-    if (error instanceof SyntaxError) {
-      return NextResponse.json(
-        {
-          message: "Invalid JSON in request body",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
-
-    if (error instanceof Error && (error as any).status) {
-      return NextResponse.json(
-        {
-          message: error.message,
-        },
-        {
-          status: (error as any).status,
-        },
-      );
-    }
-
-    return NextResponse.json(
-      {
-        message: "Internal server error",
-      },
-      {
-        status: 500,
-      },
+      { status: 500 },
     );
   }
+
+  const jwt = request.nextUrl.searchParams.get("auth");
+
+  if (!jwt)
+    return NextResponse.json(
+      {
+        success: false,
+        message: "JWT is missing",
+      },
+      { status: 403 },
+    );
+
+  const decodedJWT = verifyToken(jwt);
+
+  if (decodedJWT?.teamID !== team_uuid)
+    return NextResponse.json(
+      {
+        success: false,
+        message: "JWT and team_uuid mismatch",
+      },
+      { status: 403 },
+    );
+
+  let returnedData;
+
+  switch (decodedJWT.role) {
+    case "leader":
+    case "member": {
+      const databaseResponse = await databasePost("/etc/get/team", {
+        _id: member_uuid,
+        ignore_encryption: {
+          _id: true,
+        },
+      });
+
+      if (!databaseResponse.ok)
+        return NextResponse.json(
+          {
+            message:
+              (await databaseResponse.json()) || "Database API request failed",
+          },
+          { status: 500 },
+        );
+
+      returnedData = await databaseResponse.json();
+      break;
+    }
+
+    case "teacher": {
+      const databaseResponse = await databasePost("/etc/get/team", {
+        _id: member_uuid,
+        ignore_encryption: {
+          _id: true,
+        },
+      });
+
+      if (!databaseResponse.ok)
+        return NextResponse.json(
+          {
+            message:
+              (await databaseResponse.json()) || "Database API request failed",
+          },
+          { status: 500 },
+        );
+
+      returnedData = await databaseResponse.json();
+      break;
+    }
+
+    default:
+      return NextResponse.json({
+        error: true,
+        message: "Unknown role",
+      });
+  }
+
+  return NextResponse.json(
+    {
+      message: `${decodedJWT.role[0].toUpperCase() + decodedJWT.role.slice(1)} acquired successfully`, // INFO: I love the complexity of this thing
+      data: returnedData,
+    },
+    {
+      status: 200,
+    },
+  );
 }
