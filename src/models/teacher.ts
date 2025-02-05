@@ -8,9 +8,9 @@ export interface IgnoreEncryption {
 
 export interface Teacher {
   _id: string; // uuidv4
-  name: string;
+  name_zh: string;
   school: string;
-  phone_number: string;
+  telephone: string;
   email: string;
   email_verified: boolean;
   team_id: string; // points to team's id
