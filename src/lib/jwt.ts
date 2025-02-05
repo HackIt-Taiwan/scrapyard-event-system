@@ -28,7 +28,7 @@ export const generateEmailVerificationToken = (payload: TokenPayload): string =>
     },
     SECRET_KEY
   );
-  return `${process.env.BASE_URL}/apply/email-verify/${token}`
+  return `${process.env.BASE_URL}/apply/email-verify?auth=${token}`
   // INFO: Don't we have a shortlink service?
 };
 
