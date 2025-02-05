@@ -50,3 +50,11 @@ export const defaultIgnoreEncryption: IgnoreEncryption = {
   createdAt: true,
   updatedAt: true,
 };
+
+export interface MemberReturendData {
+  _id?: string
+  jwt?: string
+  name_zh?: string
+  name_en?: string
+  email_verified?: boolean
+}
