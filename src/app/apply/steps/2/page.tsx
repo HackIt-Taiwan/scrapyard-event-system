@@ -39,7 +39,7 @@ export default function stepPage() {
   const router = useRouter();
 
   // TODO: integrate with zod
-  const sigRef = useRef<SignaturePad | null>(null);
+  const signRef = useRef<SignaturePad | null>(null);
   const parentSignRef = useRef<SignaturePad | null>(null);
 
   const [show, setShow] = useState(true);
@@ -48,42 +48,6 @@ export default function stepPage() {
   const form = useForm({
     resolver: zodResolver(memberDataSchema),
   });
-
-  const sing = (e: React.FormEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (sigRef.current) {
-      form.setValue(
-        "signature",
-        sigRef.current.getTrimmedCanvas().toDataURL("image/png"),
-      );
-    }
-  };
-
-  const parentSing = (e: React.FormEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (parentSignRef.current) {
-      form.setValue(
-        "parentSignature",
-        parentSignRef.current.getTrimmedCanvas().toDataURL("image/png"),
-      );
-    }
-  };
-
-  const singClear = (e: React.FormEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (sigRef.current) {
-      sigRef.current.clear();
-      form.setValue("signature", null);
-    }
-  };
-
-  const parentSingClear = (e: React.FormEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (parentSignRef.current) {
-      parentSignRef.current.clear();
-      form.setValue("parentSignature", null);
-    }
-  };
 
   // TODO: need to const the type
   const onSubmit = () => {
@@ -538,16 +502,35 @@ export default function stepPage() {
                       className: "w-full aspect-[2/1]",
                     }}
                     penColor="black"
-                    ref={sigRef}
+                    ref={signRef}
                   />
                 </div>
                 <div className="flex space-x-2">
-                  <Button className="grow" onClick={(e) => sing}>
+                  <Button
+                    type="button"
+                    className="grow"
+                    onClick={(e) => {
+                      if (signRef.current) {
+                        form.setValue(
+                          "signature",
+                          signRef.current
+                            .getTrimmedCanvas()
+                            .toDataURL("image/png"),
+                        );
+                      }
+                    }}
+                  >
                     儲存
                   </Button>
                   <Button
+                    type="button"
                     className="grow"
-                    onClick={(e) => singClear}
+                    onClick={() => {
+                      if (signRef.current) {
+                        signRef.current.clear();
+                        form.setValue("signature", null);
+                      }
+                    }}
                     variant="destructive"
                   >
                     刪除
@@ -571,21 +554,35 @@ export default function stepPage() {
                       className: "w-full aspect-[2/1]",
                     }}
                     penColor="black"
-                    ref={sigRef}
+                    ref={parentSignRef}
                   />
                 </div>
                 <div className="flex space-x-2">
                   <Button
                     type="button"
                     className="grow"
-                    onClick={(e) => parentSing}
+                    onClick={() => {
+                      if (parentSignRef.current) {
+                        form.setValue(
+                          "parentSignature",
+                          parentSignRef.current
+                            .getTrimmedCanvas()
+                            .toDataURL("image/png"),
+                        );
+                      }
+                    }}
                   >
                     儲存
                   </Button>
                   <Button
                     type="button"
                     className="grow"
-                    onClick={(e) => parentSingClear}
+                    onClick={() => {
+                      if (parentSignRef.current) {
+                        parentSignRef.current.clear();
+                        form.setValue("signature", null);
+                      }
+                    }}
                     variant="destructive"
                   >
                     刪除
