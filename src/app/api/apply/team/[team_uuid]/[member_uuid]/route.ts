@@ -1,4 +1,6 @@
-import { TokenPayload, verifyToken } from "@/lib/jwt";
+import { generateToken, TokenPayload, verifyToken } from "@/lib/jwt";
+import { MemberReturendData } from "@/models/member";
+import { TeacherReturnedData } from "@/models/teacher";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -42,7 +44,7 @@ export async function GET(
         _id: true,
       },
     };
-    let returnedData;
+    let returnedData: MemberReturendData | TeacherReturnedData
 
     switch (decodedJWT.role) {
       case "leader":
@@ -71,7 +73,19 @@ export async function GET(
           );
         }
 
-        returnedData = await databaseResponse.json();
+        const databaseResponseJson = await databaseResponse.json();
+        const jwtPayload: TokenPayload = {
+          teamID: decodedJWT.teamID,
+          userID: member_uuid,
+          role: decodedJWT.role
+        }
+        returnedData = {
+          _id: databaseResponseJson.data[0]._id,
+          jwt: generateToken(jwtPayload),
+          name_zh: databaseResponseJson.data[0].name_zh,
+          name_en: databaseResponseJson.data[0].name_en,
+          email_verified: databaseResponseJson.data[0].email_verified
+        } as MemberReturendData
         break;
       }
 
@@ -100,7 +114,18 @@ export async function GET(
           );
         }
 
-        returnedData = await databaseResponse.json();
+        const databaseResponseJson = await databaseResponse.json();
+        const jwtPayload: TokenPayload = {
+          teamID: decodedJWT.teamID,
+          userID: member_uuid,
+          role: decodedJWT.role
+        }
+        returnedData = {
+          _id: databaseResponseJson.data[0]._id,
+          jwt: generateToken(jwtPayload),
+          name: databaseResponseJson.data[0].name,
+          email_verified: databaseResponseJson.data[0].email_verified
+        } as TeacherReturnedData
         break;
       }
 

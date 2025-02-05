@@ -62,6 +62,7 @@ export async function GET(
 
     // Acquiring team members/teacher's email verification status
     let data = await databaseResponse.json();
+    let membersStatus:any = {}
 
     const membersID = data.data[0].members_id;
     const teacherPayload = {
@@ -72,6 +73,7 @@ export async function GET(
     }
 
     for (const memberID of membersID) {
+      let isVerified = true
       const payload = {
         _id: memberID,
         ignore_encryption: {
@@ -99,13 +101,17 @@ export async function GET(
           }
         );
       }
-      
+
       const member = await memberResponse.json()
       if (!member.data || !member.data[0].email_verified) {
         allEmailVerified = false
+        isVerified = false
       }
+
+      membersStatus[memberID] = isVerified
     }
 
+    let isVerified = true
     const teacherResponse = await fetch(
       `${process.env.DATABASE_API}/etc/get/teacher`,
       {
@@ -130,11 +136,14 @@ export async function GET(
     const teacher = await teacherResponse.json()
     if (!teacher.data || !teacher.data[0].email_verified) {
       allEmailVerified = false
+      isVerified = false
     }
+    membersStatus[data.data[0].teacher_id] = isVerified
 
     // Adding that to returned data
     data = data.data
     data[0].all_email_verified = allEmailVerified
+    data[0].verified_status = membersStatus
 
     return NextResponse.json(
       {

@@ -34,3 +34,10 @@ export const defaultIgnoreEncryption: IgnoreEncryption = {
   createdAt: true,
   updatedAt: true,
 };
+
+export interface TeacherReturnedData {
+  _id?: string
+  jwt?: string
+  name?: string
+  email_verified?: boolean
+}
