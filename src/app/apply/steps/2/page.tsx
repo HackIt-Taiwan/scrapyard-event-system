@@ -38,6 +38,8 @@ import SignaturePad from "react-signature-canvas";
 export default function stepPage() {
   const router = useRouter();
 
+  // TODO: 需要查看他的auth=?然後去後端擷取他的資料(如果資料不對可能反回404之類的)
+
   // TODO: integrate with zod
   const signRef = useRef<SignaturePad | null>(null);
   const parentSignRef = useRef<SignaturePad | null>(null);
@@ -51,6 +53,7 @@ export default function stepPage() {
 
   // TODO: need to const the type
   const onSubmit = () => {
+    // TODO: 傳送資料給後端的部分
     localStorage.setItem("signup-form-last-page", "2");
     setShow(false);
     router.push("/apply/steps/3/");
