@@ -58,7 +58,7 @@ export default function StepPage() {
       const bodyData = await response.json();
       console.log(bodyData)
       // If the response is successful, directly take the user to the next page
-
+     // TODO: router.push到下一個step 2的部分（要加上auth=xxx (隊長的jwt)）
       setShow(false);
     } catch (error) {
       console.error("Error submitting team data:", error);
