@@ -116,8 +116,6 @@ export async function POST(
 
   const teamData = await databaseResponse.json();
   const requestedID = decodedJWT.userID;
-  let emailUpdated = false;
-  let databaseURL = "";
   let returnedData;
 
   switch (decodedJWT.role) {
@@ -178,7 +176,7 @@ export async function POST(
       };
 
       // Send verification email if email updated
-      if (emailUpdated) {
+      if (checkResponseData.data.email === validationResult.data.email) {
         const url = generateEmailVerificationToken({
           teamID: memberData.team_id,
           userID: memberData._id,
@@ -281,7 +279,7 @@ export async function POST(
         ignore_encryption: memberIgnoreEncryption,
       };
 
-      if (emailUpdated) {
+      if (checkResponseData.data.email === validationResult.data.email) {
         const url = generateEmailVerificationToken({
           teamID: leaderData.team_id,
           userID: leaderData._id,
@@ -341,12 +339,8 @@ export async function POST(
 
       const checkResponseData = await checkResponse.json();
 
-      databaseURL = checkResponseData.data
-        ? `${process.env.DATABASE_API}/etc/edit/teacher`
-        : `${process.env.DATABASE_API}/etc/create/teacher`;
-
       // The actual update / create member data in database part
-      const validationResult = MemberSchema.safeParse(requestBody);
+      const validationResult = TeacherSchema.safeParse(requestBody);
       if (!validationResult.success) {
         const errorMessages = validationResult.error.errors.map((err) => ({
           field: err.path.join("、"),
@@ -372,7 +366,7 @@ export async function POST(
         ignore_encryption: teacherIgnoreEncryption,
       };
 
-      if (emailUpdated) {
+      if (checkResponseData.data.email === validationResult.data.email) {
         const url = generateEmailVerificationToken({
           teamID: teacherData.team_id,
           userID: teacherData._id,
