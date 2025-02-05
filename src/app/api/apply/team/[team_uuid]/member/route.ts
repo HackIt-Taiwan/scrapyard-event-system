@@ -1,5 +1,9 @@
 import { sendVerificationEmail } from "@/lib/email";
-import { TokenPayload, generateEmailVerificationToken, verifyToken } from "@/lib/jwt";
+import {
+  TokenPayload,
+  generateEmailVerificationToken,
+  verifyToken,
+} from "@/lib/jwt";
 import {
   Member,
   defaultIgnoreEncryption as memberIgnoreEncryption,
@@ -12,93 +16,59 @@ import { NextResponse } from "next/server";
 import taiwanIdValidator from "taiwan-id-validator";
 import { z } from "zod";
 
-// Define Zod schema for request validation
-const StudentIDSchema = z.object({
-  card_front: z.string().url("Invalid card front URL"), // assuming S3 URLs
-  card_back: z.string().url("Invalid card back URL"),
-});
-
-const MemberSchema = z
-  .object({
-    // Personal Information
-    name_en: z.string().max(36, "English name's length exceeded"),
-    name_zh: z.string().max(6, "Chinese name's length exceeded"),
-    grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
-    school: z.string().max(30, "School's name's length exceeded").trim(),
-    birth_date: z.preprocess((val) => {
+const baseSchema = z.object({
+  name_zh: z.string().max(6, "中文名字超過 6 個字元"),
+  school: z.string().trim().max(30, "學校名字超過 30 個字元"),
+  birth_date: z.preprocess(
+    (val) => {
       if (typeof val === "string" || val instanceof Date) {
         return new Date(val);
       }
-    }, z.date()),
-    national_id: z
-      .string()
-      .refine(
-        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        { message: "Invalid Taiwan national ID" },
-      ),
-    student_id: StudentIDSchema,
-    address: z.string(),
-    shirt_size: z.enum(["S", "M", "L", "XL"]),
+    },
+    z.date({ message: "錯誤的生日格式" }),
+  ),
+  national_id: z
+    .string()
+    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
+      message: "無效的身分證字號",
+    }),
+  address: z.string(),
+  shirt_size: z.enum(["S", "M", "L", "XL"]),
+  telephone: z.string().trim().max(10, "電話號碼過長"),
+  email: z.string().trim().email({ message: "錯誤的電子郵件格式" }),
+  special_needs: z.string().optional(),
+  diet: z.string().optional(),
+});
 
-    // Contact Information
-    telephone: z
-      .string()
-      .max(10, "Phone number's length exceeded")
-      .min(7, "Phone number's length is too short")
-      .trim(),
-    email: z.string().email({ message: "Incorrect email format" }).trim(),
+const MemberSchema = baseSchema
+  .extend({
+    name_en: z.string().max(36, "英文名字超過 36 個字元"),
+    grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
 
-    // Special Needs & Additional Information
-    special_needs: z.string().optional(),
-    diet: z.string().optional(),
-    personal_affidavit: z.string().url("Invalid affidavit URL"),
+    personal_affidavit: z.string().url("學生證網址無效，請嘗試重新上傳"),
 
-    // Emergency Contact Information
-    emergency_contact_name: z.string().max(36, "Name's length exceeded").trim(),
-    emergency_contact_telephone: z
-      .string()
-      .max(10, "Emergency contact phone number's length exceeded")
-      .min(7, "Emergency contact phone number's length is too short")
-      .trim(),
+    emergency_contact_name: z.string().trim().max(6, "中文名字超過 6 個字元"),
+    emergency_contact_telephone: z.string().trim().max(10, "電話號碼過長"),
     emergency_contact_national_id: z
       .string()
       .refine(
         (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        { message: "Invalid Taiwan national ID" },
+        { message: "無效的身分證字號" },
       ),
 
     signature: z.string(),
-    parent_signature: z.string()
+    parent_signature: z.string(),
+    student_id: z.object({
+      card_front: z.string().url("Invalid card front URL"), // assuming S3 URLs
+      card_back: z.string().url("Invalid card back URL"),
+    }),
   })
   .strict();
 
-const TeacherSchema = z
-  .object({
-    name: z.string().max(36, "Name's length exceeded").trim(),
-    school: z.string().max(30, "School's name's length exceeded").trim(),
-    phone_number: z
-      .string()
-      .max(10, "Phone number's length exceeded")
-      .min(7, "Phone number's length is too short")
-      .trim(),
-    email: z.string().email({ message: "Incorrect email format" }).trim(),
-    special_needs: z.string().optional(),
-    diet: z.string().optional(),
-    national_id: z
-      .string()
-      .refine(
-        (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
-        { message: "Invalid Taiwan national ID" },
-      ),
-    birth_date: z.preprocess((val) => {
-      if (typeof val === "string" || val instanceof Date) {
-        return new Date(val);
-      }
-    }, z.date()),
-    address: z.string(),
+const TeacherSchema = baseSchema
+  .extend({
     will_attend: z.boolean(),
     teacher_affidavit: z.string().url("Invalid affidavit URL"),
-    shirt_size: z.enum(["S", "M", "L", "XL"]),
   })
   .strict();
 
@@ -216,7 +186,10 @@ export async function POST(
 
         const validatedData = validationResult.data;
 
-        if (!checkResponseData.data || checkResponseData.data.email !== validatedData.email) {
+        if (
+          !checkResponseData.data ||
+          checkResponseData.data.email !== validatedData.email
+        ) {
           emailUpdated = true;
         }
 
@@ -241,14 +214,15 @@ export async function POST(
           shirt_size: validatedData.shirt_size,
 
           emergency_contact_name: validatedData.emergency_contact_name,
-          emergency_contact_telephone: validatedData.emergency_contact_telephone,
+          emergency_contact_telephone:
+            validatedData.emergency_contact_telephone,
           emergency_contact_national_id:
             validatedData.emergency_contact_national_id,
 
           ignore_encryption: memberIgnoreEncryption,
 
           signature: validatedData.signature,
-          parent_signature: validatedData.parent_signature
+          parent_signature: validatedData.parent_signature,
         };
 
         // Send verification email if email updated
@@ -257,11 +231,17 @@ export async function POST(
             teamID: memberData.team_id,
             userID: memberData._id,
             role: "member",
-          }
-          const url = generateEmailVerificationToken(jwtPayload)
-          const emailResponse = await sendVerificationEmail(memberData.email, url, memberData.name_zh);
+          };
+          const url = generateEmailVerificationToken(jwtPayload);
+          const emailResponse = await sendVerificationEmail(
+            memberData.email,
+            url,
+            memberData.name_zh,
+          );
           if (!emailResponse) {
-            console.log(`Error while sending verification email: ${emailResponse}`)
+            console.log(
+              `Error while sending verification email: ${emailResponse}`,
+            );
             const error = new Error("Internal Server Error");
             (error as any).status = 500;
             (error as any).message = emailResponse;
@@ -329,10 +309,13 @@ export async function POST(
           const allEmailVerifiedResponse = await fetch(
             `${process.env.BASE_URL}/api/apply/team/${team_uuid}?auth=${jwt}`,
           );
-          const allEmailVerifiedResponseData = await allEmailVerifiedResponse.json();
+          const allEmailVerifiedResponseData =
+            await allEmailVerifiedResponse.json();
 
           if (!allEmailVerifiedResponseData.data[0].all_email_verified) {
-            const error = new Error("All members (except leader) and teacher must verify their email before proceeding!");
+            const error = new Error(
+              "All members (except leader) and teacher must verify their email before proceeding!",
+            );
             (error as any).status = 409;
             throw error;
           }
@@ -359,7 +342,10 @@ export async function POST(
 
         const validatedData = validationResult.data;
 
-        if (!checkResponseData.data || checkResponseData.data.email !== validatedData.email) {
+        if (
+          !checkResponseData.data ||
+          checkResponseData.data.email !== validatedData.email
+        ) {
           emailUpdated = true;
         }
 
@@ -384,13 +370,15 @@ export async function POST(
           shirt_size: validatedData.shirt_size,
 
           emergency_contact_name: validatedData.emergency_contact_name,
-          emergency_contact_telephone: validatedData.emergency_contact_telephone,
-          emergency_contact_national_id: validatedData.emergency_contact_national_id,
+          emergency_contact_telephone:
+            validatedData.emergency_contact_telephone,
+          emergency_contact_national_id:
+            validatedData.emergency_contact_national_id,
 
           ignore_encryption: memberIgnoreEncryption,
 
           signature: validatedData.signature,
-          parent_signature: validatedData.parent_signature
+          parent_signature: validatedData.parent_signature,
         };
 
         if (emailUpdated) {
@@ -398,11 +386,17 @@ export async function POST(
             teamID: leaderData.team_id,
             userID: leaderData._id,
             role: "leader",
-          }
-          const url = generateEmailVerificationToken(jwtPayload)
-          const emailResponse = await sendVerificationEmail(leaderData.email, url, leaderData.name_zh);
+          };
+          const url = generateEmailVerificationToken(jwtPayload);
+          const emailResponse = await sendVerificationEmail(
+            leaderData.email,
+            url,
+            leaderData.name_zh,
+          );
           if (!emailResponse) {
-            console.log(`Error while sending verification email: ${emailResponse}`)
+            console.log(
+              `Error while sending verification email: ${emailResponse}`,
+            );
             const error = new Error("Internal Server Error");
             (error as any).status = 500;
             (error as any).message = emailResponse;
@@ -486,7 +480,10 @@ export async function POST(
 
         const validatedData = validationResult.data;
 
-        if (!checkResponseData.data || checkResponseData.data.email !== validatedData.email) {
+        if (
+          !checkResponseData.data ||
+          checkResponseData.data.email !== validatedData.email
+        ) {
           emailUpdated = true;
         }
 
@@ -513,12 +510,18 @@ export async function POST(
           const jwtPayload: TokenPayload = {
             teamID: teacherData.team_id,
             userID: teacherData._id,
-            role: "teacher"
-          }
-          const url = generateEmailVerificationToken(jwtPayload)
-          const emailResponse = await sendVerificationEmail(teacherData.email, url, teacherData.name);
+            role: "teacher",
+          };
+          const url = generateEmailVerificationToken(jwtPayload);
+          const emailResponse = await sendVerificationEmail(
+            teacherData.email,
+            url,
+            teacherData.name,
+          );
           if (!emailResponse) {
-            console.log(`Error while sending verification email: ${emailResponse}`)
+            console.log(
+              `Error while sending verification email: ${emailResponse}`,
+            );
             const error = new Error("Internal Server Error");
             (error as any).status = 500;
             (error as any).message = emailResponse;
