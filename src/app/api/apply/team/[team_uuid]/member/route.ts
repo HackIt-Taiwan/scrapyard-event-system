@@ -37,7 +37,7 @@ const baseSchema = z.object({
   diet: z.string().optional(),
 });
 
-const MemberSchema = baseSchema
+const memberSchema = baseSchema
   .extend({
     name_en: z.string().max(36, "英文名字超過 36 個字元"),
     grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
@@ -62,7 +62,7 @@ const MemberSchema = baseSchema
   })
   .strict();
 
-const TeacherSchema = baseSchema
+const teacherSchema = baseSchema
   .extend({
     will_attend: z.boolean(),
     teacher_affidavit: z.string().url("Invalid affidavit URL"),
@@ -148,7 +148,7 @@ export async function POST(
       const checkResponseData = await checkResponse.json();
 
       // The actual update / create member data in database part
-      const validationResult = MemberSchema.safeParse(requestBody);
+      const validationResult = memberSchema.safeParse(requestBody);
       if (!validationResult.success) {
         const errorMessages = validationResult.error.errors.map((err) => ({
           field: err.path.join("、"),
@@ -252,7 +252,7 @@ export async function POST(
       }
 
       // The actual update / create member data in database part
-      const validationResult = MemberSchema.safeParse(requestBody);
+      const validationResult = memberSchema.safeParse(requestBody);
       if (!validationResult.success) {
         const errorMessages = validationResult.error.errors.map((err) => ({
           field: err.path.join("、"),
@@ -340,7 +340,7 @@ export async function POST(
       const checkResponseData = await checkResponse.json();
 
       // The actual update / create member data in database part
-      const validationResult = TeacherSchema.safeParse(requestBody);
+      const validationResult = teacherSchema.safeParse(requestBody);
       if (!validationResult.success) {
         const errorMessages = validationResult.error.errors.map((err) => ({
           field: err.path.join("、"),
