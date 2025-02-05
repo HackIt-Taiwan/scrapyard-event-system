@@ -66,6 +66,9 @@ const MemberSchema = z
         (id) => taiwanIdValidator.isNationalIdentificationNumberValid(id),
         { message: "Invalid Taiwan national ID" },
       ),
+
+    signature: z.string(),
+    parent_signature: z.string()
   })
   .strict();
 
@@ -243,6 +246,9 @@ export async function POST(
             validatedData.emergency_contact_national_id,
 
           ignore_encryption: memberIgnoreEncryption,
+
+          signature: validatedData.signature,
+          parent_signature: validatedData.parent_signature
         };
 
         // Send verification email if email updated
@@ -379,10 +385,12 @@ export async function POST(
 
           emergency_contact_name: validatedData.emergency_contact_name,
           emergency_contact_telephone: validatedData.emergency_contact_telephone,
-          emergency_contact_national_id:
-            validatedData.emergency_contact_national_id,
+          emergency_contact_national_id: validatedData.emergency_contact_national_id,
 
           ignore_encryption: memberIgnoreEncryption,
+
+          signature: validatedData.signature,
+          parent_signature: validatedData.parent_signature
         };
 
         if (emailUpdated) {

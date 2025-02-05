@@ -6,13 +6,12 @@ import {
   defaultIgnoreEncryption as teacherIgnoreEncryption,
 } from "@/models/teacher";
 
-export default async function VerifyEmail(request: Request) {
-  const url = new URL(request.url);
-  const jwt = url.searchParams.get("auth") || "";
+export default async function VerifyEmail({ searchParams }: { searchParams: { auth?: string } }) {
+  const jwt = searchParams.auth || "";
 
   // verify JWT and get user ID
   const payload: TokenPayload | null = verifyToken(jwt);
-  if (jwt === "" || !payload) {
+  if (!payload) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-center">
