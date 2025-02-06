@@ -12,6 +12,7 @@ export default function stepPage() {
   const router = useRouter();
   const [show, setShow] = useState(true);
 
+  // TODO: 根據auth給的jwt獲取team data返回到下方的部分，如果沒有全線的話可以返回404 or something
   const { formData, updateFormData } = useMultistepFormContext();
 
   return (
