@@ -11,7 +11,7 @@ const memberSchema = baseSchema.extend({
     card_back: z.string().url("Invalid card back URL"),
   }),
 
-  personal_affidavit: z.string().url("學生證網址無效，請嘗試重新上傳"),
+  personal_affidavit: z.string().url("切結書網址無效，請嘗試重新上傳"),
 
   emergency_contact_name: z.string().trim().max(6, "中文名字超過 6 個字元"),
   emergency_contact_telephone: z.string().trim().max(10, "電話號碼過長"),
