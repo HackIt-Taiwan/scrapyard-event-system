@@ -1,6 +1,6 @@
 "use client";
 
-import { memberDataSchema, tShirtSizes } from "@/app/apply/types";
+import { memberDataSchema, teacherData, tShirtSizes } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,39 +25,77 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useRouter } from "next/navigation";
+import { notFound, useParams, useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import SignaturePad from "react-signature-canvas";
+import useSWR from "swr";
+import * as changeKeys from "change-case/keys";
+import { toast } from "@/hooks/use-toast";
 
 // FIXME: this page is currently broken due to lack of context (previous implementation was using a context provider)
 export default function stepPage() {
+  const searchParams = useSearchParams();
+  const authJwt = searchParams.get("auth");
+  const params = useParams();
+  const { team_uuid } = params;
   const router = useRouter();
 
-  // TODO: 需要查看他的auth=?然後去後端擷取他的資料(如果資料不對可能反回404之類的)
-
-  // TODO: integrate with zod
-  const signRef = useRef<SignaturePad | null>(null);
-  const parentSignRef = useRef<SignaturePad | null>(null);
+  if (!authJwt) {
+    return notFound();
+  }
 
   const [show, setShow] = useState(true);
   const [back, setBack] = useState(false);
 
-  const form = useForm({
+  const {
+    data: memberData_,
+    error,
+    isLoading,
+  } = useSWR([`/api/apply/team/${team_uuid}/member?auth=${authJwt}`], ([url]) =>
+    fetcher(url),
+  );
+
+  if (error) {
+    return notFound();
+  }
+
+  const form = useForm<teacherData>({
     resolver: zodResolver(memberDataSchema),
+    defaultValues: changeKeys.camelCase(memberData_, 5) || {},
   });
 
-  // TODO: need to const the type
-  const onSubmit = () => {
-    // TODO: 傳送資料給後端的部分
-    localStorage.setItem("signup-form-last-page", "2");
+  const onSubmit = async (data: teacherData) => {
+    try {
+      const transformedData = changeKeys.snakeCase(data, 5);
+
+      const response = await fetch(`/api/apply/team/${team_uuid}/member`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(transformedData),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        return toast({
+          title: "送出表單時發生了一些問題",
+          description: errorMessage.message,
+        });
+      }
+
+      setShow(false);
+    } catch (error) {
+      console.error("Error submitting team data:", error);
+    }
     setShow(false);
-    router.push("/apply/steps/3/");
   };
 
   return (
@@ -87,7 +125,7 @@ export default function stepPage() {
                 <h2 className="font-bold">個人資料</h2>
                 <FormField
                   control={form.control}
-                  name="NameEn"
+                  name="nameEn"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>英文名字 *</FormLabel>
@@ -104,7 +142,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`NameZh`}
+                  name={`nameZh`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>中文名字 *</FormLabel>
@@ -139,7 +177,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`attend`}
+                  name={`email`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>電子郵件 *</FormLabel>
@@ -156,7 +194,7 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`email`}
+                  name={`attend`}
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -289,9 +327,9 @@ export default function stepPage() {
                   )}
                 />
 
-                <FormField
+                {/* <FormField
                   control={form.control}
-                  name={`teamLeader.tShirtSize`}
+                  name={`tShirtSize`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>T 恤尺寸 *</FormLabel>
@@ -317,7 +355,7 @@ export default function stepPage() {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
               </div>
 
               <Button type="submit" className="w-full">

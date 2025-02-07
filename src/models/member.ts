@@ -20,9 +20,6 @@ const memberSchema = baseSchema.extend({
     .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
       message: "無效的身分證字號",
     }),
-
-  signature: z.string(),
-  parent_signature: z.string(),
 });
 
 const memberDatabaseSchema = memberSchema.extend({

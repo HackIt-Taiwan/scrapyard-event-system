@@ -49,8 +49,6 @@ export const memberDataSchema = z.object({
   // Special Needs & Additional Information
   diet: z.string().optional(),
   specialNeeds: z.string().optional(),
-  personalAffidavit: z.string().url("無效的base64 url"),
-  parentAffidavit: z.string().url("無效的base64 url"),
 
   // Emergency Contact Information
   emergencyContactName: z
