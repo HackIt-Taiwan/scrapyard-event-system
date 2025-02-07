@@ -1,8 +1,9 @@
 "use client";
 
-import { grades, memberDataSchema, tShirtSizes } from "@/app/apply/types";
+import { memberDataSchema, tShirtSizes } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -79,7 +80,7 @@ export default function stepPage() {
               className="w-full space-y-6"
             >
               <label className="text-xl font-bold md:text-2xl">
-                隊長資料填寫
+                指導老師資料填寫
               </label>
               <p className="!mb-2 !mt-4 text-sm">* 為必填</p>
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
@@ -118,58 +119,13 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name={`grade`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>在學年級 *</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="高中一年級" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {grades.map((k) => {
-                              return (
-                                <SelectItem value={k} key={k}>
-                                  {k}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`school`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>在學學校 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="阿里山國中"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={form.control}
                   name={`telephone`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>電話號碼 *</FormLabel>
+                      <FormLabel>聯絡電話 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="0900000000"
@@ -183,10 +139,10 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`email`}
+                  name={`attend`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>常用電子郵件 *</FormLabel>
+                      <FormLabel>電子郵件 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="example@example.com"
@@ -198,6 +154,40 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name={`email`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="items-top flex space-x-2">
+                          <Checkbox
+                            id="terms1"
+                            required={true}
+                            onCheckedChange={() => field.onChange(!field.value)}
+                          />
+                          <div className="grid gap-1.5 leading-none">
+                            <label
+                              htmlFor="terms1"
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              是否出席此次黑客松?
+                            </label>
+                            <p className="text-sm text-muted-foreground">
+                              如果有需要更改的話請在3/8號前Email我們!
+                            </p>
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* 保險相關資料 */}
+              <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
+                <h2 className="font-bold">保險相關資料</h2>
                 <FormField
                   control={form.control}
                   name={`nationalID`}
@@ -264,160 +254,15 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
-                  name="studentID.card_front"
+                  name={`nationalID`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>學生證 (正面) *</FormLabel>
+                      <FormLabel>通訊地址 (保險用) *</FormLabel>
                       <FormControl>
                         <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-
-                            const formData = new FormData();
-                            formData.append("image", file);
-
-                            try {
-                              const res = await fetch(
-                                process.env.NEXT_PUBLIC_DATABASE_API +
-                                  "/image/upload",
-                                {
-                                  method: "POST",
-                                  body: formData,
-                                },
-                              );
-                              const data = await res.json();
-
-                              if (data.data) {
-                                form.setValue(
-                                  "studentID.card_front",
-                                  data.data,
-                                ); // Set the URL for card front
-                              }
-                            } catch (error) {
-                              console.error("Upload failed", error);
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      {form.getValues("studentID.card_front") && (
-                        <div>
-                          <img
-                            src={form.getValues("studentID.card_front")}
-                            alt="Student Card Front"
-                            style={{ width: "auto", height: "auto" }}
-                          />
-                        </div>
-                      )}
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="studentID.card_back"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>學生證 (背面) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder=""
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-
-                            const formData = new FormData();
-                            formData.append("image", file);
-
-                            try {
-                              const res = await fetch(
-                                process.env.NEXT_PUBLIC_DATABASE_API +
-                                  "/image/upload",
-                                {
-                                  method: "POST",
-                                  body: formData,
-                                },
-                              );
-                              const data = await res.json();
-
-                              if (data.data) {
-                                form.setValue("studentID.card_back", data.data); // Set the URL for card back
-                              }
-                            } catch (error) {
-                              console.error("Upload failed", error);
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      {form.getValues("studentID.card_back") && (
-                        <div>
-                          <img
-                            src={form.getValues("studentID.card_back")}
-                            alt="Student Card Back"
-                            style={{ width: "auto", height: "auto" }}
-                          />
-                        </div>
-                      )}
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* 緊急聯絡人資料 */}
-              <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
-                <h2 className="font-bold">緊急聯絡人資料</h2>
-                <FormField
-                  control={form.control}
-                  name={`emergencyContactName`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>緊急聯絡人中文名字 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="王大銘"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`emergencyContactTelephone`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>緊急聯絡人電話 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="0900121212"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`emergencyContactNationalID`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>緊急聯絡人身分證字號 (保險用) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="A121212121"
+                          placeholder="臺北市信義區信義路5段7號"
                           required={true}
                           {...field}
                         />
@@ -432,23 +277,10 @@ export default function stepPage() {
                 <h2 className="font-bold">其他資料</h2>
                 <FormField
                   control={form.control}
-                  name={`specialNeeds`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>特殊需求 (過敏、特殊疾病等)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="無" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name={`diet`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>食物過敏物</FormLabel>
+                      <FormLabel>食物相關需求(如素食等)</FormLabel>
                       <FormControl>
                         <Input placeholder="無" {...field} />
                       </FormControl>
@@ -486,111 +318,6 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-lg font-bold">
-                  請詳閱
-                  <Affidavit />
-                  後在下方簽名
-                </p>
-
-                <p className="text-sm">
-                  請本人在此簽名 (簽名及代表同意
-                  <Affidavit />) *
-                </p>
-                <div className="rounded-md bg-white">
-                  <SignaturePad
-                    canvasProps={{
-                      className: "w-full aspect-[2/1]",
-                    }}
-                    penColor="black"
-                    ref={signRef}
-                  />
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    type="button"
-                    className="grow"
-                    onClick={(e) => {
-                      if (signRef.current) {
-                        form.setValue(
-                          "signature",
-                          signRef.current
-                            .getTrimmedCanvas()
-                            .toDataURL("image/png"),
-                        );
-                      }
-                    }}
-                  >
-                    儲存
-                  </Button>
-                  <Button
-                    type="button"
-                    className="grow"
-                    onClick={() => {
-                      if (signRef.current) {
-                        signRef.current.clear();
-                        form.setValue("signature", null);
-                      }
-                    }}
-                    variant="destructive"
-                  >
-                    刪除
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-lg font-bold">
-                  請監護人詳閱
-                  <ParentAffidavit />
-                  後在下方簽名
-                </p>
-                <p className="text-sm">
-                  請監護人在此簽名 (簽名及代表同意
-                  <ParentAffidavit />) *
-                </p>
-                <div className="rounded-md bg-white">
-                  <SignaturePad
-                    canvasProps={{
-                      className: "w-full aspect-[2/1]",
-                    }}
-                    penColor="black"
-                    ref={parentSignRef}
-                  />
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    type="button"
-                    className="grow"
-                    onClick={() => {
-                      if (parentSignRef.current) {
-                        form.setValue(
-                          "parentSignature",
-                          parentSignRef.current
-                            .getTrimmedCanvas()
-                            .toDataURL("image/png"),
-                        );
-                      }
-                    }}
-                  >
-                    儲存
-                  </Button>
-                  <Button
-                    type="button"
-                    className="grow"
-                    onClick={() => {
-                      if (parentSignRef.current) {
-                        parentSignRef.current.clear();
-                        form.setValue("signature", null);
-                      }
-                    }}
-                    variant="destructive"
-                  >
-                    刪除
-                  </Button>
-                </div>
               </div>
 
               <Button type="submit" className="w-full">
