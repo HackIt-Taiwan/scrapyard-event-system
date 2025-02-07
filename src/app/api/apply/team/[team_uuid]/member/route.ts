@@ -360,6 +360,7 @@ export async function POST(
 }
 
 export async function GET(
+  // TODO: fix this
   request: NextRequest,
   context: { params: { team_uuid?: string } }
 ) {
