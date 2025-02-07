@@ -24,7 +24,7 @@ export default function StepPage() {
   const [show, setShow] = useState(true);
   const { toast } = useToast();
 
-  const [teamData, setTeamData] = useState<any>()
+  const [teamData_, setTeamData] = useState<any>()
 
   const form = useForm<teamData>({
     resolver: zodResolver(teamDataSchema),
@@ -72,7 +72,7 @@ export default function StepPage() {
       // When the exit animation is complete, navigate to the next page.
       // We need to ensure only the exit animation will ONLY trigger if the form is submitted successfully
       onExitComplete={() => {
-        router.push("/apply/steps/member?auth=" + teamData.data.leader_link);
+        router.push(`/apply/steps/${teamData_.data._id}/member?auth=${teamData_.data.leader_link}`);
       }}
     >
       {show && (
