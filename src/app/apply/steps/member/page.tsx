@@ -186,79 +186,13 @@ export default function stepPage() {
                   name={`email`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>常用電子郵件 *</FormLabel>
+                      <FormLabel>電子郵件 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="example@example.com"
                           required={true}
                           {...field}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`nationalID`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>身分證字號 (保險用) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="A121212121"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`birthDate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>生日 (保險用) *</FormLabel>
-                      <br />
-                      <FormControl>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground",
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>請選擇日期</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="center">
-                            <Calendar
-                              mode="single"
-                              selected={new Date(field.value)}
-                              onSelect={field.onChange}
-                              fromYear={2006}
-                              toYear={2010}
-                              defaultMonth={
-                                field.value
-                                  ? new Date(field.value)
-                                  : new Date("2009-01-01")
-                              }
-                              captionLayout="dropdown"
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -372,6 +306,94 @@ export default function stepPage() {
                 />
               </div>
 
+              {/* 保險相關資料 */}
+              <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
+                <h2 className="font-bold">保險相關資料</h2>
+                <FormField
+                  control={form.control}
+                  name={`nationalID`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>身分證字號 (保險用) *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="A121212121"
+                          required={true}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`birthDate`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>生日 (保險用) *</FormLabel>
+                      <br />
+                      <FormControl>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground",
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>請選擇日期</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="center">
+                            <Calendar
+                              mode="single"
+                              selected={new Date(field.value)}
+                              onSelect={field.onChange}
+                              fromYear={2006}
+                              toYear={2010}
+                              defaultMonth={
+                                field.value
+                                  ? new Date(field.value)
+                                  : new Date("2009-01-01")
+                              }
+                              captionLayout="dropdown"
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`nationalID`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>通訊地址 (保險用) *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="臺北市信義區信義路5段7號"
+                          required={true}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               {/* 緊急聯絡人資料 */}
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
                 <h2 className="font-bold">緊急聯絡人資料</h2>
@@ -411,13 +433,13 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`emergencyContactNationalID`}
+                  name={`emergencyContactRelation`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>緊急聯絡人身分證字號 (保險用) *</FormLabel>
+                      <FormLabel>緊急聯絡人關係 *</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="A121212121"
+                          placeholder="父/母"
                           required={true}
                           {...field}
                         />
@@ -486,111 +508,6 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-lg font-bold">
-                  請詳閱
-                  <Affidavit />
-                  後在下方簽名
-                </p>
-
-                <p className="text-sm">
-                  請本人在此簽名 (簽名及代表同意
-                  <Affidavit />) *
-                </p>
-                <div className="rounded-md bg-white">
-                  <SignaturePad
-                    canvasProps={{
-                      className: "w-full aspect-[2/1]",
-                    }}
-                    penColor="black"
-                    ref={signRef}
-                  />
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    type="button"
-                    className="grow"
-                    onClick={(e) => {
-                      if (signRef.current) {
-                        form.setValue(
-                          "signature",
-                          signRef.current
-                            .getTrimmedCanvas()
-                            .toDataURL("image/png"),
-                        );
-                      }
-                    }}
-                  >
-                    儲存
-                  </Button>
-                  <Button
-                    type="button"
-                    className="grow"
-                    onClick={() => {
-                      if (signRef.current) {
-                        signRef.current.clear();
-                        form.setValue("signature", null);
-                      }
-                    }}
-                    variant="destructive"
-                  >
-                    刪除
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-lg font-bold">
-                  請監護人詳閱
-                  <ParentAffidavit />
-                  後在下方簽名
-                </p>
-                <p className="text-sm">
-                  請監護人在此簽名 (簽名及代表同意
-                  <ParentAffidavit />) *
-                </p>
-                <div className="rounded-md bg-white">
-                  <SignaturePad
-                    canvasProps={{
-                      className: "w-full aspect-[2/1]",
-                    }}
-                    penColor="black"
-                    ref={parentSignRef}
-                  />
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    type="button"
-                    className="grow"
-                    onClick={() => {
-                      if (parentSignRef.current) {
-                        form.setValue(
-                          "parentSignature",
-                          parentSignRef.current
-                            .getTrimmedCanvas()
-                            .toDataURL("image/png"),
-                        );
-                      }
-                    }}
-                  >
-                    儲存
-                  </Button>
-                  <Button
-                    type="button"
-                    className="grow"
-                    onClick={() => {
-                      if (parentSignRef.current) {
-                        parentSignRef.current.clear();
-                        form.setValue("signature", null);
-                      }
-                    }}
-                    variant="destructive"
-                  >
-                    刪除
-                  </Button>
-                </div>
               </div>
 
               <Button type="submit" className="w-full">
