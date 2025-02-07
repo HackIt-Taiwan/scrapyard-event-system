@@ -1,60 +1,42 @@
-export interface IgnoreEncryption {
-  _id: boolean;
-  is_leader: boolean;
-  email_verified: boolean;
-  createdAt: boolean;
-  updatedAt: boolean;
-}
+import { baseSchema, ignoreEncryptionSchema } from "@/models/common";
+import taiwanIdValidator from "taiwan-id-validator";
+import { z } from "zod";
 
-export interface StudentID {
-  card_front: string; // points to s3
-  card_back: string; // points to s3
-}
+const memberSchema = baseSchema.extend({
+  name_en: z.string().max(36, "英文名字超過 36 個字元"),
+  grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
 
-export interface Member {
-  _id: string; // uuidv4
-  is_leader: boolean; // if a member is team leader
-  name_en: string;
-  name_zh: string;
-  grade: string;
-  school: string;
-  telephone: string;
-  email: string;
-  email_verified: boolean;
-  team_id: string; // points to team's id
-  diet?: string; // allergens or specific diet required
-  special_needs?: string;
-  national_id: string;
-  student_id: StudentID;
-  birth_date: Date;
-  address: string;
-  personal_affidavit: string; // url points to s3
-  shirt_size: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  student_id: z.object({
+    card_front: z.string().url("Invalid card front URL"), // assuming S3 URLs
+    card_back: z.string().url("Invalid card back URL"),
+  }),
 
-  emergency_contact_name: string;
-  emergency_contact_telephone: string;
-  emergency_contact_national_id: string;
+  personal_affidavit: z.string().url("學生證網址無效，請嘗試重新上傳"),
 
-  ignore_encryption: IgnoreEncryption;
+  emergency_contact_name: z.string().trim().max(6, "中文名字超過 6 個字元"),
+  emergency_contact_telephone: z.string().trim().max(10, "電話號碼過長"),
+  emergency_contact_national_id: z
+    .string()
+    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
+      message: "無效的身分證字號",
+    }),
 
-  signature: string;
-  parent_signature: string;
-}
+  signature: z.string(),
+  parent_signature: z.string(),
+});
 
-export const defaultIgnoreEncryption: IgnoreEncryption = {
-  _id: true,
-  is_leader: true,
-  email_verified: true,
-  createdAt: true,
-  updatedAt: true,
-};
+const memberDatabaseSchema = memberSchema.extend({
+  _id: z.string(),
+  team_id: z.string(),
+  is_leader: z.boolean(),
+  email_verified: z.boolean(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+  ignore_encryption: ignoreEncryptionSchema,
+});
 
-export interface MemberReturendData {
-  _id?: string
-  jwt?: string
-  name_zh?: string
-  name_en?: string
-  email_verified?: boolean
-}
+type memberSchemaType = z.infer<typeof memberSchema>;
+type memberDatabaseSchemaType = z.infer<typeof memberDatabaseSchema>;
+
+export { memberDatabaseSchema, memberSchema };
+export type { memberDatabaseSchemaType, memberSchemaType };
