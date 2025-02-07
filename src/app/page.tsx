@@ -22,7 +22,7 @@ export default function Home() {
       </h2>
 
       <Button variant="default" className="w-full" asChild>
-        <Link href="/apply/steps/1">立即報名</Link>
+        <Link href="/apply/steps/create-team">立即報名</Link>
       </Button>
     </div>
   );

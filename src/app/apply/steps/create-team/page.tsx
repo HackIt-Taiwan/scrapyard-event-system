@@ -24,6 +24,8 @@ export default function StepPage() {
   const [show, setShow] = useState(true);
   const { toast } = useToast();
 
+  const [teamData, setTeamData] = useState<any>()
+
   const form = useForm<teamData>({
     resolver: zodResolver(teamDataSchema),
     defaultValues: {
@@ -57,8 +59,8 @@ export default function StepPage() {
       }
       const bodyData = await response.json();
       console.log(bodyData)
-      // If the response is successful, directly take the user to the next page
-     // TODO: router.push到下一個step 2的部分（要加上auth=xxx (隊長的jwt)）
+
+      setTeamData(bodyData)
       setShow(false);
     } catch (error) {
       console.error("Error submitting team data:", error);
@@ -70,7 +72,7 @@ export default function StepPage() {
       // When the exit animation is complete, navigate to the next page.
       // We need to ensure only the exit animation will ONLY trigger if the form is submitted successfully
       onExitComplete={() => {
-        router.push("/apply/steps/2");
+        router.push("/apply/steps/member?auth=" + teamData.data.leader_link);
       }}
     >
       {show && (
