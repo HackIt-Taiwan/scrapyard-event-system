@@ -39,8 +39,6 @@ export default function stepPage() {
   } = useSWR([`/api/apply/team?auth=${authJwt}`], ([url]) => fetcher(url));
   if (error) return notFound();
 
-  console.log(teamData);
-
   return (
     <AnimatePresence onExitComplete={() => router.push("/apply/steps/2/")}>
       {!isLoading && show && (
@@ -54,7 +52,7 @@ export default function stepPage() {
           }}
           className="w-full"
         >
-          <div className="no-scrollbar mx-auto h-[800px] max-w-[450px] overflow-y-scroll px-4">
+          <div className="no-scrollbar mx-auto max-w-[450px] overflow-y-scroll px-4">
             <h2 className="text-xl font-bold md:text-2xl">
               請將填寫連結傳送給你的組員!
             </h2>
@@ -65,16 +63,97 @@ export default function stepPage() {
                 <div className="space-y-2">
                   <div>
                     <label className="text-sm text-gray-500">團隊名稱</label>
-                    <p className="text-lg">test</p>
+                    <p className="text-lg">{teamData.data.team_name}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500">團隊人數</label>
-                    <p className="text-lg">test 人</p>
+                    <p className="text-lg">{teamData.data.team_size} 人</p>
                   </div>
                 </div>
               </section>
             </div>
-            <TeamStatus></TeamStatus>
+
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex w-full items-center gap-4">
+                <div className="flex-[2] rounded-lg px-4 py-2 text-left">
+                  成員名稱
+                </div>
+                <div className="flex-[1] rounded-lg px-4 py-2 text-left">
+                  填寫狀態
+                </div>
+                <div className="flex-[2] rounded-lg px-4 py-2 text-left">
+                  複製連結
+                </div>
+              </div>
+              <div className="flex w-full items-center gap-4">
+                <div className="flex-[2] rounded-lg border px-4 py-2 text-center">
+                  {teamData.data.member_name[teamData.data.leader_id]
+                    ? teamData.data.member_name[teamData.data.leader_id]
+                    : "隊長"}
+                </div>
+                <div
+                  className={twMerge(
+                    "bg- flex-[1] rounded-lg border px-4 py-2 text-center text-black",
+                    teamData.data.verified_status[teamData.data.leader_id]
+                      ? "bg-primary"
+                      : "bg-destructive",
+                  )}
+                >
+                  {teamData.data.verified_status[teamData.data.leader_id]
+                    ? "未完成"
+                    : "已完成"}
+                </div>
+                <button className="flex-[2] rounded-lg border px-4 py-2">
+                  複製連結
+                </button>
+              </div>
+              {teamData.data.members_id.map((id: any, index: any) => (
+                <div key={index} className="flex w-full items-center gap-4">
+                  <div className="flex-[2] rounded-lg border px-4 py-2 text-center">
+                    {teamData.data.member_name[id]
+                      ? teamData.data.member_name[id]
+                      : "未知成員"}
+                  </div>
+                  <div
+                    className={twMerge(
+                      "bg- flex-[1] rounded-lg border px-4 py-2 text-center text-black",
+                      teamData.data.verified_status[id]
+                        ? "bg-primary"
+                        : "bg-destructive",
+                    )}
+                  >
+                    {teamData.data.verified_status[id] ? "未完成" : "已完成"}
+                  </div>
+                  <button className="flex-[2] rounded-lg border px-4 py-2">
+                    複製連結
+                  </button>
+                </div>
+              ))}
+
+              <div className="flex w-full items-center gap-4">
+                <div className="flex-[2] rounded-lg border px-4 py-2 text-center">
+                  {teamData.data.member_name[teamData.data.teacher_id]
+                    ? teamData.data.member_name[teamData.data.teacher_id]
+                    : "指導老師"}
+                </div>
+                <div
+                  className={twMerge(
+                    "bg- flex-[1] rounded-lg border px-4 py-2 text-center text-black",
+                    teamData.data.verified_status[teamData.data.teacher_id]
+                      ? "bg-primary"
+                      : "bg-destructive",
+                  )}
+                >
+                  {teamData.data.verified_status[teamData.data.teacher_id]
+                    ? "未完成"
+                    : "已完成"}
+                </div>
+                <button className="flex-[2] rounded-lg border px-4 py-2">
+                  複製連結
+                </button>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-4 py-5">
               <div className="flex flex-col gap-4">
                 <label className="font-bold">
@@ -183,7 +262,12 @@ function TeamStatus() {
           <div className="flex-[2] rounded-lg border px-4 py-2 text-center">
             {member.name}
           </div>
-          <div className={twMerge("bg- flex-[1] rounded-lg border px-4 py-2 text-center text-black", member.status === "完成" ? "bg-primary" : "bg-destructive")}>
+          <div
+            className={twMerge(
+              "bg- flex-[1] rounded-lg border px-4 py-2 text-center text-black",
+              member.status === "完成" ? "bg-primary" : "bg-destructive",
+            )}
+          >
             {member.status}
           </div>
           <button className="flex-[2] rounded-lg border px-4 py-2">
