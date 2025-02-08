@@ -1,8 +1,9 @@
-// app/api/teams/affidavits_upload/route.ts
+// app/api/teams/complete/route.ts
 import { TokenPayload, verifyToken } from "@/lib/jwt";
 import { TeamAffidavitSchema, teamDatabaseSchemaType } from "@/models/team";
 import { databasePost } from "@/utils/databaseAPI";
 import { NextResponse } from "next/server";
+import { decode } from "punycode";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
     const jwt = url.searchParams.get("auth") || "";
     const decodedJWT: TokenPayload | null = verifyToken(jwt);
 
-    if (!jwt || !decodedJWT)
+    if (!jwt || !decodedJWT || decodedJWT.role != "leader")
       return NextResponse.json(
         {
           success: false,
@@ -31,7 +32,6 @@ export async function POST(request: Request) {
         },
         { status: 403 },
       );
-
 
     const teamPayload = {
       _id: decodedJWT.teamID,
@@ -67,7 +67,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: add checks here
+    // Checking if all members have already completed verification
+    if (!teamData.data[0].all_email_verified)
+      return NextResponse.json(
+      {
+        success: false,
+        message: "非團隊領導人以外的成員與老師都必須先完成信箱驗證",
+      },
+      {
+        status: 400
+      }
+    );
 
     // Parse and validate request body
     const requestBody = await request.json();
@@ -90,6 +100,8 @@ export async function POST(request: Request) {
       );
     }
 
+    // WARN: not sure if this works
+    teamData.data[0].status = "資料確認中"
     const editedTeam: teamDatabaseSchemaType = {
       ...teamData,
       ...validationResult.data
@@ -110,7 +122,7 @@ export async function POST(request: Request) {
         data: editedTeam,
       },
       {
-        status: 201,
+        status: 200,
       },
     );
   } catch (error: unknown) {

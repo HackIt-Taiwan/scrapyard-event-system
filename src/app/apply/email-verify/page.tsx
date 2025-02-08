@@ -1,10 +1,5 @@
 import { verifyToken, TokenPayload } from "@/lib/jwt";
-import {
-  defaultIgnoreEncryption as memberIgnoreEncryption,
-} from "@/models/member";
-import {
-  defaultIgnoreEncryption as teacherIgnoreEncryption,
-} from "@/models/teacher";
+import { defaultIgnoreEncryption } from "@/models/common";
 
 export default async function VerifyEmail({ searchParams }: { searchParams: { auth?: string } }) {
   const jwt = searchParams.auth || "";
@@ -29,7 +24,7 @@ export default async function VerifyEmail({ searchParams }: { searchParams: { au
       const memberData = {
         "_id": payload.userID,
         "email_verified": true,
-        "ignore_encryption": memberIgnoreEncryption
+        "ignore_encryption": defaultIgnoreEncryption
       }
 
       const databaseResponse = await fetch(`${process.env.DATABASE_API}/etc/edit/member`, {
@@ -61,7 +56,7 @@ export default async function VerifyEmail({ searchParams }: { searchParams: { au
       const teacherData = {
         "_id": payload.userID,
         "email_verified": true,
-        "ignore_encryption": teacherIgnoreEncryption
+        "ignore_encryption": defaultIgnoreEncryption
       }
 
       const databaseResponse = await fetch(`${process.env.DATABASE_API}/etc/edit/teacher`, {

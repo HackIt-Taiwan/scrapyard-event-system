@@ -33,10 +33,22 @@ const TeamDatabaseSchema = TeamSchema.extend({
 
 const TeamAffidavitSchema = z
   .object({
+    below_eighteen: z.boolean(),
     team_affidavit: z.string().url("團隊切結書網址無效，請嘗試重新上傳"),
-    parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳").optional(),
+    parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳"),
   })
-  .strict();
+  .strict()
+  .refine(
+    data => !data.below_eighteen || !!data.parents_affidavit,
+    {
+      message: "未成年者須提供法定代理人切結書",
+      path: ["parents_affidavit"],
+    }
+  )
+  .transform(data => {
+    const { below_eighteen, ...rest } = data;
+    return rest;
+  });
 
 type teamSchemaType = z.infer<typeof TeamSchema>;
 type teamAffidavitSchemaType = z.infer<typeof TeamAffidavitSchema>;
