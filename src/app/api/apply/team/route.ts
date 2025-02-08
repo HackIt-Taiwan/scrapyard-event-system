@@ -4,10 +4,10 @@ import { defaultIgnoreEncryption } from "@/models/common";
 import { teamDatabaseSchemaType, TeamSchema } from "@/models/team";
 import { databasePost } from "@/utils/databaseAPI";
 import { randomUUID } from "crypto";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     // Verify required environment variables
     if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
@@ -175,7 +175,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     // Verify required environment variables
     if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
@@ -203,6 +203,7 @@ export async function GET(request: Request) {
         },
         { status: 403 },
       );
+
     if (decodedJWT.role != "leader") 
       return NextResponse.json(
         {
@@ -211,8 +212,8 @@ export async function GET(request: Request) {
         },
         { status: 403 },
       );
-    
-    // Acquiring team members/teacher's email verification status
+
+    // Acquiring team members/teacher's email verification status / get names
     const teamPayload = {
       _id: decodedJWT.teamID,
       ignore_encryption: {
@@ -236,6 +237,9 @@ export async function GET(request: Request) {
 
     let teamData = await teamResponse.json();
 
+    let membersStatus: any = {};
+    let memberName: any = {};
+
     if (!teamData.data) {
       return NextResponse.json(
         {
@@ -247,9 +251,6 @@ export async function GET(request: Request) {
       );
     }
 
-    let membersStatus: any = {};
-    let memberName: any = {};
-
     const membersID = teamData.data[0].members_id;
     const teacherPayload = {
       _id: teamData.data[0].teacher_id,
@@ -257,6 +258,8 @@ export async function GET(request: Request) {
         _id: true,
       },
     };
+
+    let isVerified = true;
 
     for (const memberID of membersID) {
       let isVerified = true;
@@ -295,7 +298,7 @@ export async function GET(request: Request) {
       membersStatus[memberID] = isVerified;
     }
 
-    let isVerified = true;
+    isVerified = true;
     const teacherResponse = await databasePost(
       `/etc/get/teacher`,
       teacherPayload,
