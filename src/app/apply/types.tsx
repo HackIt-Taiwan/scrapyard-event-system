@@ -26,7 +26,7 @@ export const memberDataSchema = z.object({
   grade: z.enum(grades),
   school: z.string().max(30, "學校名稱太長了，最多只能 30 個字"),
   studentID: StudentIDSchema,
-  tShirtSize: z.enum(tShirtSizes),
+  shirtSize: z.enum(tShirtSizes),
 
   // Contact Information
   telephone: z

@@ -8,7 +8,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
-  { params: { team_uuid } }: { params: { team_uuid: string } },
+  context: { params: { team_uuid?: string } }
 ) {
   if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
     return NextResponse.json(
@@ -20,15 +20,15 @@ export async function POST(
       { status: 500 },
     );
   }
-
+  const { team_uuid } = await Promise.resolve(context.params);
   const jwt = request.nextUrl.searchParams.get("auth");
   const requestBody = await request.json();
 
-  if (!jwt)
+  if (!jwt || !team_uuid)
     return NextResponse.json(
       {
         success: false,
-        message: "JWT is missing",
+        message: "JWT or team_uuid is missing",
       },
       { status: 403 },
     );

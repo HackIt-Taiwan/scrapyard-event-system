@@ -78,7 +78,7 @@ export default function stepPage() {
     try {
       const transformedData = changeKeys.snakeCase(data, 5);
 
-      const response = await fetch(`/api/apply/team/${team_uuid}/member`, {
+      const response = await fetch(`/api/apply/team/${team_uuid}/member?auth=${authJwt}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -525,7 +525,7 @@ export default function stepPage() {
 
                 <FormField
                   control={form.control}
-                  name={`tShirtSize`}
+                  name={`shirtSize`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>T 恤尺寸 *</FormLabel>
