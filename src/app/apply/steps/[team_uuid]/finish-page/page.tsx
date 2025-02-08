@@ -32,7 +32,7 @@ export default function stepPage() {
     data: teamData,
     error,
     isLoading,
-  } = useSWR([`/api/apply/team/${team_uuid}?auth=${authJwt}`], ([url]) =>
+  } = useSWR([`/api/apply/team?auth=${authJwt}`], ([url]) =>
     fetcher(url),
   );
   if (error) return notFound();

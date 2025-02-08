@@ -1,11 +1,11 @@
 // app/api/teams/route.ts
-import { NextResponse } from "next/server";
-import { TeamSchema, teamDatabaseSchemaType } from "@/models/team";
-import { randomUUID } from "crypto";
-import { z } from "zod";
 import { generateToken, TokenPayload, verifyToken } from "@/lib/jwt";
 import { defaultIgnoreEncryption } from "@/models/common";
+import { teamDatabaseSchemaType, TeamSchema } from "@/models/team";
 import { databasePost } from "@/utils/databaseAPI";
+import { randomUUID } from "crypto";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function POST(request: Request) {
   try {
@@ -42,9 +42,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const teamID = randomUUID()
-    const teacherID = randomUUID()
-    const leaderID = randomUUID()
+    const teamID = randomUUID();
+    const teacherID = randomUUID();
+    const leaderID = randomUUID();
 
     const membersID: string[] = [];
     for (let i = 0; i < validationResult.data.team_size - 1; i++) {
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
       }),
       members_link: teamMembersLink,
 
-      ignore_encryption: defaultIgnoreEncryption
+      ignore_encryption: defaultIgnoreEncryption,
     };
 
     const teamName = {
@@ -91,11 +91,8 @@ export async function POST(request: Request) {
     };
 
     // Check if the team_name has already been used
-    const teamNameCheckResponse = await databasePost(
-      `/etc/get/team`,
-      teamName,
-    );
-    console.log(teamNameCheckResponse)
+    const teamNameCheckResponse = await databasePost(`/etc/get/team`, teamName);
+    console.log(teamNameCheckResponse);
     const teamNameCheckData = await teamNameCheckResponse.json();
 
     if (!teamNameCheckResponse.ok) {
@@ -116,10 +113,7 @@ export async function POST(request: Request) {
     }
 
     // Send to database API
-    const databaseResponse = await databasePost(
-      `/etc/create/team`,
-      newTeam,
-    );
+    const databaseResponse = await databasePost(`/etc/create/team`, newTeam);
 
     if (!databaseResponse.ok) {
       const errorData = await databaseResponse.json();
@@ -183,7 +177,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request: Request ) {
+export async function GET(request: Request) {
   try {
     // Verify required environment variables
     if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
@@ -206,7 +200,6 @@ export async function GET(request: Request ) {
       "Content-Type": "application/json",
     };
 
-
     if (!jwt || !decodedJWT)
       return NextResponse.json(
         {
@@ -216,7 +209,6 @@ export async function GET(request: Request ) {
         { status: 403 },
       );
 
-
     // Acquiring team members/teacher's email verification status
     const teamPayload = {
       _id: decodedJWT.teamID,
@@ -225,10 +217,7 @@ export async function GET(request: Request ) {
       },
     };
 
-    const teamResponse = await databasePost(
-      `/etc/get/team`,
-      teamPayload
-    );
+    const teamResponse = await databasePost(`/etc/get/team`, teamPayload);
 
     if (!teamResponse.ok) {
       const errorData = await teamResponse.json();
@@ -243,18 +232,18 @@ export async function GET(request: Request ) {
     }
 
     let teamData = await teamResponse.json();
-    let membersStatus:any = {}
+    let membersStatus: any = {};
 
     const membersID = teamData.data[0].members_id;
     const teacherPayload = {
       _id: teamData.data[0].teacher_id,
       ignore_encryption: {
-        _id: true
-      }
-    }
+        _id: true,
+      },
+    };
 
     for (const memberID of membersID) {
-      let isVerified = true
+      let isVerified = true;
       const memberPayload = {
         _id: memberID,
         ignore_encryption: {
@@ -264,7 +253,7 @@ export async function GET(request: Request ) {
 
       const memberResponse = await databasePost(
         `/etc/get/member`,
-        memberPayload
+        memberPayload,
       );
 
       if (!memberResponse.ok) {
@@ -275,27 +264,23 @@ export async function GET(request: Request ) {
           },
           {
             status: 500,
-          }
+          },
         );
       }
 
-      const memberData = await memberResponse.json()
+      const memberData = await memberResponse.json();
       if (!memberData.data || !memberData.data[0].email_verified) {
-        allEmailVerified = false
-        isVerified = false
+        allEmailVerified = false;
+        isVerified = false;
       }
 
-      membersStatus[memberID] = isVerified
+      membersStatus[memberID] = isVerified;
     }
 
-    let isVerified = true
-    const teacherResponse = await fetch(
+    let isVerified = true;
+    const teacherResponse = await databasePost(
       `/etc/get/teacher`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify(teacherPayload),
-      }
+      teacherPayload,
     );
 
     if (!teacherResponse.ok) {
@@ -306,21 +291,21 @@ export async function GET(request: Request ) {
         },
         {
           status: 500,
-        }
+        },
       );
     }
 
-    const teacher = await teacherResponse.json()
+    const teacher = await teacherResponse.json();
     if (!teacher.data || !teacher.data[0].email_verified) {
-      allEmailVerified = false
-      isVerified = false
+      allEmailVerified = false;
+      isVerified = false;
     }
-    membersStatus[teamData.data[0].teacher_id] = isVerified
+    membersStatus[teamData.data[0].teacher_id] = isVerified;
 
     // Adding that to returned data
-    teamData = teamData.data
-    teamData[0].all_email_verified = allEmailVerified
-    teamData[0].verified_status = membersStatus
+    teamData = teamData.data;
+    teamData[0].all_email_verified = allEmailVerified;
+    teamData[0].verified_status = membersStatus;
 
     return NextResponse.json(
       {
