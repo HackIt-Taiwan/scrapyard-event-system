@@ -17,7 +17,7 @@ const TeamDatabaseSchema = TeamSchema.extend({
     leader_id: z.string(),
     teacher_id: z.string(),
     members_id: z.array(z.string()),
-    status: z.string().optional(),
+    status: z.string(), // 填寫資料中, 資料確認中, 待繳費, 入選
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
 

@@ -3,7 +3,6 @@ import { z } from "zod";
 
 const teacherSchema = baseSchema.extend({
   will_attend: z.boolean(),
-  teacher_affidavit: z.string().url("Invalid affidavit URL"),
 });
 
 const teacherDatabaseSchema = teacherSchema.extend({

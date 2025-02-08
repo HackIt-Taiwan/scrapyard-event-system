@@ -65,6 +65,7 @@ export async function POST(request: Request) {
     const newTeam: teamDatabaseSchemaType = {
       _id: teamID,
       ...validationResult.data,
+      status: "填寫資料中",
       leader_id: leaderID,
       teacher_id: teacherID,
       members_id: membersID,

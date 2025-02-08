@@ -67,6 +67,8 @@ export async function POST(request: Request) {
       );
     }
 
+    // TODO: add checks here
+
     // Parse and validate request body
     const requestBody = await request.json();
     const validationResult = TeamAffidavitSchema.safeParse(requestBody);
@@ -88,7 +90,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: add parents check
     const editedTeam: teamDatabaseSchemaType = {
       ...teamData,
       ...validationResult.data
