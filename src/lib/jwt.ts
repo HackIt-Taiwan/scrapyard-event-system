@@ -24,7 +24,7 @@ export const generateEmailVerificationToken = (payload: TokenPayload): string =>
     {
       ...payload,
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 15 * 60, // 15 minutes
+      exp: Math.floor(Date.now() / 1000) + 3 * 7 * 24 * 60 * 60, // 21 days
     },
     SECRET_KEY
   );

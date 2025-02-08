@@ -42,7 +42,7 @@ export function EmailVerification({
 
         <Text style={{ color: "#555", fontSize: "16px", textAlign: "center" }}>
           {userName ? `你好 ${userName}，` : "你好，"}
-          請按下方的按鈕來驗證你的電子郵件，此郵件的有效期限15分鐘
+          請按下方的按鈕來驗證你的電子郵件
         </Text>
 
         <Section style={{ textAlign: "center", margin: "20px 0" }}>
