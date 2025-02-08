@@ -9,10 +9,6 @@ const TeamSchema = z
       .max(24, "隊伍名稱必須小於24個字")
       .trim(),
     team_size: z.union([z.literal(4), z.literal(5)]),
-
-    team_affidavit: z.string().url("切結書網址無效，請嘗試重新上傳").optional(),
-    parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳").optional(),
-
   })
   .strict();
 
@@ -29,11 +25,22 @@ const TeamDatabaseSchema = TeamSchema.extend({
     members_link: z.array(z.string()),
     teacher_link: z.string().optional(),
 
+    team_affidavit: z.string().url("團隊切結書網址無效，請嘗試重新上傳").optional(),
+    parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳").optional(),
+
     ignore_encryption: ignoreEncryptionSchema,
 })
 
+const TeamAffidavitSchema = z
+  .object({
+    team_affidavit: z.string().url("團隊切結書網址無效，請嘗試重新上傳"),
+    parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳").optional(),
+  })
+  .strict();
+
 type teamSchemaType = z.infer<typeof TeamSchema>;
+type teamAffidavitSchemaType = z.infer<typeof TeamAffidavitSchema>;
 type teamDatabaseSchemaType = z.infer<typeof TeamDatabaseSchema>;
 
-export { TeamSchema, TeamDatabaseSchema };
-export type { teamSchemaType, teamDatabaseSchemaType };
+export { TeamSchema, TeamDatabaseSchema, TeamAffidavitSchema };
+export type { teamSchemaType, teamDatabaseSchemaType, teamAffidavitSchemaType };

@@ -1,5 +1,4 @@
 import { baseSchema, ignoreEncryptionSchema } from "@/models/common";
-import taiwanIdValidator from "taiwan-id-validator";
 import { z } from "zod";
 
 const memberSchema = baseSchema.extend({
@@ -15,11 +14,7 @@ const memberSchema = baseSchema.extend({
 
   emergency_contact_name: z.string().trim().max(6, "中文名字超過 6 個字元"),
   emergency_contact_telephone: z.string().trim().max(10, "電話號碼過長"),
-  emergency_contact_national_id: z
-    .string()
-    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
-      message: "無效的身分證字號",
-    }),
+  emergency_contact_relation: z.string().trim().max(10, "緊急連絡人關係過長"),
 });
 
 const memberDatabaseSchema = memberSchema.extend({

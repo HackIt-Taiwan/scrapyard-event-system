@@ -153,6 +153,7 @@ export async function POST(
     }
 
     case "leader": {
+      // This will be created as a team completion signal
       const roleID = teamData.data[0].leader_id;
 
       if (requestedID != roleID)
@@ -344,7 +345,7 @@ export async function POST(
 
     default:
       return NextResponse.json({
-        error: true,
+        success: false,
         message: "Unknown role",
       });
   }
@@ -352,7 +353,6 @@ export async function POST(
   return NextResponse.json(
     {
       success: true,
-      message: `${decodedJWT.role[0].toUpperCase() + decodedJWT.role.slice(1)} created successfully`,
       data: returnedData,
     },
     { status: 200 },

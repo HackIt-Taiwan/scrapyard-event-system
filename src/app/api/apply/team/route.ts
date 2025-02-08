@@ -123,8 +123,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        success: true,
-        message: "Team created successfully",
         data: newTeam,
       },
       {
@@ -196,9 +194,6 @@ export async function GET(request: Request) {
     let allEmailVerified = true;
 
     const decodedJWT: TokenPayload | null = verifyToken(jwt);
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
 
     if (!jwt || !decodedJWT)
       return NextResponse.json(
@@ -232,6 +227,18 @@ export async function GET(request: Request) {
     }
 
     let teamData = await teamResponse.json();
+
+    if (!teamData.data) {
+      return NextResponse.json(
+        {
+          message: "Team does not exist!",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
     let membersStatus: any = {};
 
     const membersID = teamData.data[0].members_id;
@@ -309,7 +316,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Team acquired successfully",
         data: teamData,
       },
       {
