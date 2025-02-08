@@ -25,19 +25,8 @@ export const memberDataSchema = z.object({
   nameZh: z.string().max(6, "你的中文名字太長了，最多只能 6 個字"),
   grade: z.enum(grades),
   school: z.string().max(30, "學校名稱太長了，最多只能 30 個字"),
-  nationalID: z
-    .string()
-    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
-      message: "你的身份證字號格式錯誤",
-    }),
-  birthDate: z.preprocess((k) => {
-    if (typeof k === "string" || k instanceof Date) {
-      return new Date(k);
-    }
-  }, z.date()),
-  address: z.string(),
   studentID: StudentIDSchema,
-  tShirtSize: z.enum(tShirtSizes),
+  shirtSize: z.enum(tShirtSizes),
 
   // Contact Information
   telephone: z
@@ -62,24 +51,25 @@ export const memberDataSchema = z.object({
     .string()
     .max(10, "緊急聯絡人關係太長了")
     .min(1, "緊急聯絡人關係太短了"),
+  
+  // 保險資料
+  // address: z.string(),
+  // nationalID: z
+  //   .string()
+  //   .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
+  //     message: "你的身份證字號格式錯誤",
+  //   }),
+  // birthDate: z.preprocess((k) => {
+  //   if (typeof k === "string" || k instanceof Date) {
+  //     return new Date(k);
+  //   }
+  // }, z.date()),
 });
 
 export const teacherDataSchema = z.object({
   // Personal information
   nameEn: z.string().max(36, "你的英文名字太長了，最多只能 36 個字"),
   nameZh: z.string().max(6, "你的中文名字太長了，最多只能 6 個字"),
-
-  nationalID: z
-    .string()
-    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
-      message: "你的身份證字號格式錯誤",
-    }),
-    birthDate: z.preprocess((k) => {
-    if (typeof k === "string" || k instanceof Date) {
-      return new Date(k);
-    }
-  }, z.date()),
-  address: z.string(),
 
   // Contact Information
   telephone: z

@@ -8,7 +8,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
-  { params: { team_uuid } }: { params: { team_uuid: string } },
+  context: { params: { team_uuid?: string } }
 ) {
   if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
     return NextResponse.json(
@@ -20,15 +20,15 @@ export async function POST(
       { status: 500 },
     );
   }
-
+  const { team_uuid } = await Promise.resolve(context.params);
   const jwt = request.nextUrl.searchParams.get("auth");
   const requestBody = await request.json();
 
-  if (!jwt)
+  if (!jwt || !team_uuid)
     return NextResponse.json(
       {
         success: false,
-        message: "JWT is missing",
+        message: "JWT or team_uuid is missing",
       },
       { status: 403 },
     );
@@ -106,14 +106,14 @@ export async function POST(
         ...validationResult.data,
         is_leader: false,
         email_verified:
-          checkResponseData.data.email === validationResult.data.email,
+          (checkResponseData?.data?.email ?? null) === validationResult.data.email,
         team_id: team_uuid,
 
         ignore_encryption: defaultIgnoreEncryption,
       };
 
       // Send verification email if email updated
-      if (checkResponseData.data.email === validationResult.data.email) {
+      if (!checkResponseData.data || checkResponseData.data.email != validationResult.data.email) {
         const url = generateEmailVerificationToken({
           teamID: memberData.team_id,
           userID: memberData._id,
@@ -153,6 +153,7 @@ export async function POST(
     }
 
     case "leader": {
+      // This will be created as a team completion signal
       const roleID = teamData.data[0].leader_id;
 
       if (requestedID != roleID)
@@ -172,21 +173,6 @@ export async function POST(
       });
 
       const checkResponseData = await checkResponse.json();
-
-      // check if other members have already completed verification
-      if (!checkResponseData.data) {
-        const allEmailVerifiedResponse = await fetch(
-          `${process.env.BASE_URL}/api/apply/team/${team_uuid}?auth=${jwt}`,
-        );
-        const allEmailVerifiedResponseData =
-          await allEmailVerifiedResponse.json();
-
-        if (!allEmailVerifiedResponseData.data[0].all_email_verified)
-          return NextResponse.json({
-            success: false,
-            message: "非團隊領導人以外的成員與老師都必須先完成信箱驗證",
-          });
-      }
 
       // The actual update / create member data in database part
       const validationResult = memberSchema.strict().safeParse(requestBody);
@@ -210,13 +196,13 @@ export async function POST(
         ...validationResult.data,
         is_leader: true,
         email_verified:
-          checkResponseData.data.email === validationResult.data.email,
+          (checkResponseData?.data?.email ?? null) === validationResult.data.email,
         team_id: team_uuid,
 
         ignore_encryption: defaultIgnoreEncryption,
       };
 
-      if (checkResponseData.data.email === validationResult.data.email) {
+      if (!checkResponseData.data || checkResponseData.data.email != validationResult.data.email) {
         const url = generateEmailVerificationToken({
           teamID: leaderData.team_id,
           userID: leaderData._id,
@@ -297,17 +283,17 @@ export async function POST(
         _id: requestedID,
         ...validationResult.data,
         email_verified:
-          checkResponseData.data.email === validationResult.data.email,
+          (checkResponseData?.data?.email ?? null) === validationResult.data.email,
         team_id: team_uuid,
 
         ignore_encryption: defaultIgnoreEncryption,
       };
 
-      if (checkResponseData.data.email === validationResult.data.email) {
+      if (!checkResponseData.data || checkResponseData.data.email === validationResult.data.email) {
         const url = generateEmailVerificationToken({
           teamID: teacherData.team_id,
           userID: teacherData._id,
-          role: "member",
+          role: "teacher",
         });
         const emailSuccess = await sendVerificationEmail(
           teacherData.email,
@@ -325,7 +311,7 @@ export async function POST(
       }
 
       const databaseResponse = await databasePost(
-        `/etc/${checkResponseData.data ? "edit" : "create"}/member`,
+        `/etc/${checkResponseData.data ? "edit" : "create"}/teacher`,
         teacherData,
       );
 
@@ -344,7 +330,7 @@ export async function POST(
 
     default:
       return NextResponse.json({
-        error: true,
+        success: false,
         message: "Unknown role",
       });
   }
@@ -352,7 +338,6 @@ export async function POST(
   return NextResponse.json(
     {
       success: true,
-      message: `${decodedJWT.role[0].toUpperCase() + decodedJWT.role.slice(1)} created successfully`,
       data: returnedData,
     },
     { status: 200 },

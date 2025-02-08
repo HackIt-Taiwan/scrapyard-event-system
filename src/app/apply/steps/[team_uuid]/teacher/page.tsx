@@ -128,7 +128,7 @@ export default function stepPage() {
                   name="nameEn"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>英文名字 *</FormLabel>
+                      <FormLabel>英文姓名 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Xiao Ming Wang"
@@ -145,7 +145,7 @@ export default function stepPage() {
                   name={`nameZh`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>中文名字 *</FormLabel>
+                      <FormLabel>中文姓名 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="王小明"
@@ -224,7 +224,7 @@ export default function stepPage() {
               </div>
 
               {/* 保險相關資料 */}
-              <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
+              {/* <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
                 <h2 className="font-bold">保險相關資料</h2>
                 <FormField
                   control={form.control}
@@ -309,7 +309,7 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
 
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
                 <h2 className="font-bold">其他資料</h2>
@@ -318,7 +318,7 @@ export default function stepPage() {
                   name={`diet`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>食物相關需求(如素食等)</FormLabel>
+                      <FormLabel>食物相關需求(如素食等，如須出席才須填寫)</FormLabel>
                       <FormControl>
                         <Input placeholder="無" {...field} />
                       </FormControl>

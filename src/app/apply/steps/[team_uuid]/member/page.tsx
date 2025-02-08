@@ -7,7 +7,6 @@ import {
   tShirtSizes,
 } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -18,11 +17,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -30,11 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as changeKeys from "change-case/keys";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   notFound,
@@ -87,7 +78,7 @@ export default function stepPage() {
     try {
       const transformedData = changeKeys.snakeCase(data, 5);
 
-      const response = await fetch(`/api/apply/team/${team_uuid}/member`, {
+      const response = await fetch(`/api/apply/team/${team_uuid}/member?auth=${authJwt}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,7 +135,7 @@ export default function stepPage() {
                   name="nameEn"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>英文名字 *</FormLabel>
+                      <FormLabel>英文姓名 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Xiao Ming Wang"
@@ -161,7 +152,7 @@ export default function stepPage() {
                   name={`nameZh`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>中文名字 *</FormLabel>
+                      <FormLabel>中文姓名 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="王小明"
@@ -362,6 +353,8 @@ export default function stepPage() {
               </div>
 
               {/* 保險相關資料 */}
+
+              {/* 
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
                 <h2 className="font-bold">保險相關資料</h2>
                 <FormField
@@ -447,7 +440,7 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
 
               {/* 緊急聯絡人資料 */}
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
@@ -532,7 +525,7 @@ export default function stepPage() {
 
                 <FormField
                   control={form.control}
-                  name={`tShirtSize`}
+                  name={`shirtSize`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>T 恤尺寸 *</FormLabel>
@@ -579,31 +572,5 @@ export default function stepPage() {
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-function Affidavit() {
-  return (
-    <a
-      href="/2025%20Scrapyard%20Taiwan%20%E5%8F%83%E8%B3%BD%E8%80%85%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-primary hover:underline"
-    >
-      參賽者切結書
-    </a>
-  );
-}
-
-function ParentAffidavit() {
-  return (
-    <a
-      href="/2025%20Scrapyard%20Taiwan%20%E6%B3%95%E5%AE%9A%E4%BB%A3%E7%90%86%E4%BA%BA%E5%8F%8A%E6%8C%87%E5%B0%8E%E8%80%81%E5%B8%AB%E7%AB%B6%E8%B3%BD%E5%8F%83%E8%88%87%E8%88%87%E8%B2%AC%E4%BB%BB%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-primary hover:underline"
-    >
-      法定代理人及指導老師競賽參與與責任切結書
-    </a>
   );
 }
