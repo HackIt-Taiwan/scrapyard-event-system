@@ -135,7 +135,7 @@ export default function stepPage() {
                   name="nameEn"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>英文名字 *</FormLabel>
+                      <FormLabel>英文姓名 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Xiao Ming Wang"
@@ -152,7 +152,7 @@ export default function stepPage() {
                   name={`nameZh`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>中文名字 *</FormLabel>
+                      <FormLabel>中文姓名 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="王小明"
@@ -572,31 +572,5 @@ export default function stepPage() {
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-function Affidavit() {
-  return (
-    <a
-      href="/2025%20Scrapyard%20Taiwan%20%E5%8F%83%E8%B3%BD%E8%80%85%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-primary hover:underline"
-    >
-      參賽者切結書
-    </a>
-  );
-}
-
-function ParentAffidavit() {
-  return (
-    <a
-      href="/2025%20Scrapyard%20Taiwan%20%E6%B3%95%E5%AE%9A%E4%BB%A3%E7%90%86%E4%BA%BA%E5%8F%8A%E6%8C%87%E5%B0%8E%E8%80%81%E5%B8%AB%E7%AB%B6%E8%B3%BD%E5%8F%83%E8%88%87%E8%88%87%E8%B2%AC%E4%BB%BB%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-primary hover:underline"
-    >
-      法定代理人及指導老師競賽參與與責任切結書
-    </a>
   );
 }
