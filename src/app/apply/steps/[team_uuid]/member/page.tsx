@@ -7,7 +7,6 @@ import {
   tShirtSizes,
 } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -18,11 +17,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -30,11 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as changeKeys from "change-case/keys";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   notFound,
@@ -362,6 +353,8 @@ export default function stepPage() {
               </div>
 
               {/* 保險相關資料 */}
+
+              {/* 
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
                 <h2 className="font-bold">保險相關資料</h2>
                 <FormField
@@ -447,7 +440,7 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
 
               {/* 緊急聯絡人資料 */}
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
