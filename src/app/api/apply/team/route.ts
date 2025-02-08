@@ -365,6 +365,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
+        message: "Team acquired successfully",
         data: teamData[0],
       },
       {
