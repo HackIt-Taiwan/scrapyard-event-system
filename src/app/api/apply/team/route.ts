@@ -92,10 +92,10 @@ export async function POST(request: Request) {
 
     // Check if the team_name has already been used
     const teamNameCheckResponse = await databasePost(
-      `${process.env.DATABASE_API}/etc/get/team`,
+      `/etc/get/team`,
       teamName,
     );
-
+    console.log(teamNameCheckResponse)
     const teamNameCheckData = await teamNameCheckResponse.json();
 
     if (!teamNameCheckResponse.ok) {
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
 
     // Send to database API
     const databaseResponse = await databasePost(
-      `${process.env.DATABASE_API}/etc/create/team`,
+      `/etc/create/team`,
       newTeam,
     );
 
@@ -226,7 +226,7 @@ export async function GET(request: Request ) {
     };
 
     const teamResponse = await databasePost(
-      `${process.env.DATABASE_API}/etc/get/team`,
+      `/etc/get/team`,
       teamPayload
     );
 
@@ -263,7 +263,7 @@ export async function GET(request: Request ) {
       };
 
       const memberResponse = await databasePost(
-        `${process.env.DATABASE_API}/etc/get/member`,
+        `/etc/get/member`,
         memberPayload
       );
 
@@ -290,7 +290,7 @@ export async function GET(request: Request ) {
 
     let isVerified = true
     const teacherResponse = await fetch(
-      `${process.env.DATABASE_API}/etc/get/teacher`,
+      `/etc/get/teacher`,
       {
         method: "POST",
         headers,

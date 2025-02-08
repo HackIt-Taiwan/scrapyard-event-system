@@ -10,7 +10,7 @@ const TeamSchema = z
       .trim(),
     team_size: z.union([z.literal(4), z.literal(5)]),
 
-    team_affidavit: z.string().url("切結書網址無效，請嘗試重新上傳"),
+    team_affidavit: z.string().url("切結書網址無效，請嘗試重新上傳").optional(),
     parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳").optional(),
 
   })
