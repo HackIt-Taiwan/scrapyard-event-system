@@ -359,7 +359,7 @@ export async function GET(
       { status: 500 },
     );
   }
-  const team_uuid = context.params?.team_uuid; // ✅ 確保 `params` 可用
+  const team_uuid = await context.params?.team_uuid; // ✅ 確保 `params` 可用
 
   const jwt = request.nextUrl.searchParams.get("auth");
 
@@ -388,7 +388,6 @@ export async function GET(
 
   switch (decodedJWT.role) {
     case "leader": {
-      console.log("test")
       const databaseResponse = await databasePost("/etc/get/member", {
         _id: member_uuid,
         ignore_encryption: {
@@ -460,8 +459,7 @@ export async function GET(
 
   return NextResponse.json(
     {
-      message: `${decodedJWT.role[0].toUpperCase() + decodedJWT.role.slice(1)} acquired successfully`, // INFO: I love the complexity of this thing
-      data: returnedData,
+      data: returnedData.data[0],
     },
     {
       status: 200,

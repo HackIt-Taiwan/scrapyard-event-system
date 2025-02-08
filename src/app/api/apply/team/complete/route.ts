@@ -3,7 +3,6 @@ import { TokenPayload, verifyToken } from "@/lib/jwt";
 import { TeamAffidavitSchema, teamDatabaseSchemaType } from "@/models/team";
 import { databasePost } from "@/utils/databaseAPI";
 import { NextResponse } from "next/server";
-import { decode } from "punycode";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -72,7 +71,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
       {
         success: false,
-        message: "非團隊領導人以外的成員與老師都必須先完成信箱驗證",
+        message: "所有成員與老師都必須先完成信箱驗證才能註冊隊伍",
       },
       {
         status: 400
