@@ -6,9 +6,9 @@ export const grades = ["高中一年級", "高中二年級", "高中三年級"] 
 export const tShirtSizes = ["S", "M", "L", "XL"] as const;
 
 // Define Zod schema for request validation
-const StudentIDSchema = z.object({
-  card_front: z.string().url("Invalid card front URL"), // assuming S3 URLs
-  card_back: z.string().url("Invalid card back URL"),
+const StudentIdSchema = z.object({
+  cardFront: z.string().url("Invalid card front URL"), // assuming S3 URLs
+  cardBack: z.string().url("Invalid card back URL"),
 });
 
 export const teamDataSchema = z.object({
@@ -25,7 +25,7 @@ export const memberDataSchema = z.object({
   nameZh: z.string().max(6, "你的中文名字太長了，最多只能 6 個字"),
   grade: z.enum(grades),
   school: z.string().max(30, "學校名稱太長了，最多只能 30 個字"),
-  studentID: StudentIDSchema,
+  studentId: StudentIdSchema,
   shirtSize: z.enum(tShirtSizes),
 
   // Contact Information
@@ -36,8 +36,8 @@ export const memberDataSchema = z.object({
   email: z.string().email({ message: "這不是有效的電子郵件格式" }),
 
   // Special Needs & Additional Information
-  diet: z.string().optional(),
-  specialNeeds: z.string().optional(),
+  diet: z.string().max(100, "最多只能填寫100字!").optional(),
+  specialNeeds: z.string().max(100, "最多只能填寫100字!").optional(),
 
   // Emergency Contact Information
   emergencyContactName: z
@@ -65,6 +65,14 @@ export const memberDataSchema = z.object({
   //   }
   // }, z.date()),
 });
+
+  
+const TeamAffidavitSchema = z
+.object({
+  team_affidavit: z.string().url("團隊切結書網址無效，請嘗試重新上傳"),
+  parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳"),
+})
+.strict();
 
 export const teacherDataSchema = z.object({
   // Personal information

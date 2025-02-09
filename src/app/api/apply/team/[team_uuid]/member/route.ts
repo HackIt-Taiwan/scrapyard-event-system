@@ -195,32 +195,29 @@ export async function POST(
         _id: requestedID,
         ...validationResult.data,
         is_leader: true,
-        email_verified:
-          (checkResponseData?.data?.email ?? null) === validationResult.data.email,
+        email_verified: true,  // Leaders don't need email verification to access finish page
         team_id: team_uuid,
 
         ignore_encryption: defaultIgnoreEncryption,
       };
 
+      // Still send verification email but don't block access
       if (!checkResponseData.data || checkResponseData.data.email != validationResult.data.email) {
         const url = generateEmailVerificationToken({
           teamID: leaderData.team_id,
           userID: leaderData._id,
           role: "leader",
         });
-        const emailSuccess = await sendVerificationEmail(
+        // Generate finish page URL
+        const finishPageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/apply/steps/${team_uuid}/finish-page?auth=${jwt}`;
+        // Send email with both URLs
+        await sendVerificationEmail(
           leaderData.email,
           url,
           leaderData.name_zh,
+          true,  // isLeader
+          finishPageUrl,
         );
-        if (!emailSuccess)
-          return NextResponse.json(
-            {
-              success: false,
-              message: "發送驗證信件至此信箱時發生問題",
-            },
-            { status: 500 },
-          );
       }
 
       const databaseResponse = await databasePost(
@@ -359,7 +356,7 @@ export async function GET(
       { status: 500 },
     );
   }
-  const team_uuid = await context.params?.team_uuid; // ✅ 確保 `params` 可用
+  const { team_uuid } = await Promise.resolve(context.params);
 
   const jwt = request.nextUrl.searchParams.get("auth");
 
@@ -405,7 +402,10 @@ export async function GET(
         );
 
       returnedData = await databaseResponse.json();
-      console.log(returnedData)
+      // Add finish page link for leaders
+      if (returnedData.data && returnedData.data[0]) {
+        returnedData.data[0].is_leader = true;
+      }
       break;
     }
     case "member": {
@@ -459,7 +459,8 @@ export async function GET(
 
   return NextResponse.json(
     {
-      data: returnedData.data[0],
+      message: `${decodedJWT.role[0].toUpperCase() + decodedJWT.role.slice(1)} acquired successfully`, // INFO: I love the complexity of this thing
+      data: returnedData.data ? returnedData.data[0] : {},
     },
     {
       status: 200,

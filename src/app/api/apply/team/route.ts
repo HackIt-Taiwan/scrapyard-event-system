@@ -256,17 +256,19 @@ export async function GET(request: NextRequest) {
       _id: teamData.data[0].teacher_id,
       ignore_encryption: {
         _id: true,
+        email_verified: true,
+        name_zh: true,
       },
     };
 
-    let isVerified = true;
-
+    // Check members verification
     for (const memberID of membersID) {
-      let isVerified = true;
       const memberPayload = {
         _id: memberID,
         ignore_encryption: {
           _id: true,
+          email_verified: true,
+          name_zh: true,
         },
       };
 
@@ -290,15 +292,16 @@ export async function GET(request: NextRequest) {
       const memberData = await memberResponse.json();
       if (!memberData.data || !memberData.data[0].email_verified) {
         allEmailVerified = false;
-        isVerified = false;
-      } else {
-        memberName[memberID] = memberData.data[0].name_zh
       }
-
-      membersStatus[memberID] = isVerified;
+      if (memberData.data) {
+        memberName[memberID] = memberData.data[0].name_zh;
+        membersStatus[memberID] = memberData.data[0].email_verified || false;
+      } else {
+        membersStatus[memberID] = false;
+      }
     }
 
-    isVerified = true;
+    // Check teacher verification
     const teacherResponse = await databasePost(
       `/etc/get/teacher`,
       teacherPayload,
@@ -316,10 +319,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const teacher = await teacherResponse.json();
+    if (!teacher.data || !teacher.data[0].email_verified) {
+      allEmailVerified = false;
+    }
+    if (teacher.data) {
+      memberName[teamData.data[0].teacher_id] = teacher.data[0].name_zh;
+      membersStatus[teamData.data[0].teacher_id] = teacher.data[0].email_verified || false;
+    } else {
+      membersStatus[teamData.data[0].teacher_id] = false;
+    }
+
+    // Check leader verification
     const leaderPayload = {
       _id: teamData.data[0].leader_id,
       ignore_encryption: {
         _id: true,
+        email_verified: true,
+        name_zh: true,
       },
     };
 
@@ -339,29 +356,20 @@ export async function GET(request: NextRequest) {
         },
       );
     }
-    const teacher = await teacherResponse.json();
-    const leader = await leaderResponse.json();
-    if (!teacher.data || !teacher.data[0].email_verified || !leader.data || !leader?.data[0]?.email_verified) {
-      allEmailVerified = false;
-      isVerified = false;
-    }
-    if (teacher.data) {
-      membersStatus[teamData.data[0].teacher_id] = teacher.data[0].name_zh;
-    }
 
-    membersStatus[teamData.data[0].teacher_id] = isVerified;
+    const leader = await leaderResponse.json();
     if (leader.data) {
-      membersStatus[teamData.data[0].leader_id] = leader?.data[0]?.email_verified || false;
-      memberName[teamData.data[0].leader_id] = leader.data[0].name_zh
+      memberName[teamData.data[0].leader_id] = leader.data[0].name_zh;
+      membersStatus[teamData.data[0].leader_id] = leader.data[0].email_verified || false;
     } else {
-      membersStatus[teamData.data[0].leader_id] = false
+      membersStatus[teamData.data[0].leader_id] = false;
     }
 
     // Adding that to returned data
     teamData = teamData.data;
     teamData[0].all_email_verified = allEmailVerified;
     teamData[0].verified_status = membersStatus;
-    teamData[0].member_name = memberName
+    teamData[0].member_name = memberName;
 
     return NextResponse.json(
       {

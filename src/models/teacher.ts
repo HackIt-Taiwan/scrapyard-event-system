@@ -2,7 +2,7 @@ import { baseSchema, ignoreEncryptionSchema } from "@/models/common";
 import { z } from "zod";
 
 const teacherSchema = baseSchema.extend({
-  will_attend: z.boolean(),
+  attend: z.boolean(),
 });
 
 const teacherDatabaseSchema = teacherSchema.extend({
