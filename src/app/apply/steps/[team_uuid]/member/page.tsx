@@ -213,10 +213,10 @@ export default function stepPage() {
                   name={`school`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>在學學校 *</FormLabel>
+                      <FormLabel>在學學校(全名) *</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="阿里山國中"
+                          placeholder="臺北市市立第一女子高級中學"
                           required={true}
                           {...field}
                         />
@@ -558,7 +558,7 @@ export default function stepPage() {
                   name={`diet`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>食物過敏物</FormLabel>
+                      <FormLabel>飲食習慣 (素食、不吃豬肉等)</FormLabel>
                       <FormControl>
                         <Input placeholder="無" {...field} />
                       </FormControl>
