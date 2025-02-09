@@ -385,7 +385,6 @@ export async function GET(
 
   switch (decodedJWT.role) {
     case "leader": {
-      console.log("test")
       const databaseResponse = await databasePost("/etc/get/member", {
         _id: member_uuid,
         ignore_encryption: {

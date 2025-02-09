@@ -3,7 +3,6 @@ import { TokenPayload, verifyToken } from "@/lib/jwt";
 import { TeamAffidavitSchema, teamDatabaseSchemaType } from "@/models/team";
 import { databasePost } from "@/utils/databaseAPI";
 import { NextResponse } from "next/server";
-import { decode } from "punycode";
 import { z } from "zod";
 
 export async function POST(request: Request) {

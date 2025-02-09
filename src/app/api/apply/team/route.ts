@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     if (teamNameCheckData.data) {
       return NextResponse.json(
         {
-          message: "Team name has been used already",
+          message: "團隊名稱已被使用！",
         },
         {
           status: 400,
