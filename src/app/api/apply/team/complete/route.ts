@@ -67,17 +67,89 @@ export async function POST(request: Request) {
       );
     }
 
-    // Checking if all members have already completed verification
-    if (!teamData.data[0].all_email_verified)
-      return NextResponse.json(
-      {
-        success: false,
-        message: "非團隊領導人以外的成員與老師都必須先完成信箱驗證",
-      },
-      {
-        status: 400
+    // Check verification status for all members
+    let allEmailVerified = true;
+
+    // Check members verification
+    const membersID = teamData.data[0].members_id;
+    for (const memberID of membersID) {
+      const memberPayload = {
+        _id: memberID,
+        ignore_encryption: {
+          _id: true,
+          email_verified: true,
+        },
+      };
+
+      const memberResponse = await databasePost(
+        `/etc/get/member`,
+        memberPayload,
+      );
+
+      if (!memberResponse.ok) {
+        const errorData = await memberResponse.json();
+        return NextResponse.json(
+          {
+            message: errorData.message || "Database API request failed",
+          },
+          {
+            status: 500,
+          },
+        );
       }
-    );
+
+      const memberData = await memberResponse.json();
+      if (!memberData.data || !memberData.data[0].email_verified) {
+        allEmailVerified = false;
+        break;
+      }
+    }
+
+    // Check teacher verification if members are verified
+    if (allEmailVerified) {
+      const teacherPayload = {
+        _id: teamData.data[0].teacher_id,
+        ignore_encryption: {
+          _id: true,
+          email_verified: true,
+        },
+      };
+
+      const teacherResponse = await databasePost(
+        `/etc/get/teacher`,
+        teacherPayload,
+      );
+
+      if (!teacherResponse.ok) {
+        const errorData = await teacherResponse.json();
+        return NextResponse.json(
+          {
+            message: errorData.message || "Database API request failed",
+          },
+          {
+            status: 500,
+          },
+        );
+      }
+
+      const teacher = await teacherResponse.json();
+      if (!teacher.data || !teacher.data[0].email_verified) {
+        allEmailVerified = false;
+      }
+    }
+
+    // If not all verified, return error
+    if (!allEmailVerified) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "所有成員（包含指導老師）都必須先完成信箱驗證",
+        },
+        {
+          status: 400
+        }
+      );
+    }
 
     // Parse and validate request body
     const requestBody = await request.json();
@@ -101,10 +173,10 @@ export async function POST(request: Request) {
     }
 
     // WARN: not sure if this works
-    teamData.data[0].status = "資料確認中"
     const editedTeam: teamDatabaseSchemaType = {
-      ...teamData,
-      ...validationResult.data
+      ...teamData.data[0],  // Include all existing team data
+      status: "資料確認中",
+      ...validationResult.data,  // Override with new affidavit data
     }
 
     // Send to database API

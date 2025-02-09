@@ -23,7 +23,7 @@ const baseSchema = z.object({
   // shirt_size: z.enum(["S", "M", "L", "XL"]),
   telephone: z.string().trim().max(10, "電話號碼過長"),
   email: z.string().trim().email({ message: "錯誤的電子郵件格式" }),
-  diet: z.string().optional(),
+  diet: z.string().max(100, "最多只能填寫100字!").optional(),
 });
 type BaseSchemaType = z.infer<typeof baseSchema>;
 

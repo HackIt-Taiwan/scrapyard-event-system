@@ -9,15 +9,17 @@ import {
   Hr,
 } from "@react-email/components";
 
-interface EmailVerificationProps {
+interface LeaderEmailVerificationProps {
   verificationUrl: string;
+  finishPageUrl: string;
   userName?: string;
 }
 
-export function EmailVerification({
+export function LeaderEmailVerification({
   verificationUrl,
+  finishPageUrl,
   userName,
-}: EmailVerificationProps) {
+}: LeaderEmailVerificationProps) {
   return (
     <Html lang="en">
       <Container
@@ -42,13 +44,13 @@ export function EmailVerification({
 
         <Text style={{ color: "#555", fontSize: "16px", textAlign: "center" }}>
           {userName ? `你好 ${userName}，` : "你好，"}
-          請按下方的按鈕來驗證你的電子郵件
+          作為團隊隊長，你除了驗證電子郵件以外還需要傳送填寫的連結給隊友以及傳送切結書：
         </Text>
 
         <Section style={{ textAlign: "center", margin: "20px 0" }}>
           <table align="center" role="presentation" border={0} cellSpacing={0} cellPadding={0}>
             <tr>
-              <td align="center" style={{ backgroundColor: "#007bff", borderRadius: "5px" }}>
+              <td align="center" style={{ backgroundColor: "#007bff", borderRadius: "5px", marginBottom: "16px" }}>
                 <a
                   href={verificationUrl}
                   style={{
@@ -69,11 +71,46 @@ export function EmailVerification({
           </table>
         </Section>
 
+        <Text style={{ color: "#555", fontSize: "16px", textAlign: "center", marginTop: "24px" }}>
+          完成驗證後，你可以前往完成頁面上傳切結書：
+        </Text>
+
+        <Section style={{ textAlign: "center", margin: "20px 0" }}>
+          <table align="center" role="presentation" border={0} cellSpacing={0} cellPadding={0}>
+            <tr>
+              <td align="center" style={{ backgroundColor: "#28a745", borderRadius: "5px" }}>
+                <a
+                  href={finishPageUrl}
+                  style={{
+                    display: "inline-block",
+                    color: "#ffffff",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    textDecoration: "none",
+                    padding: "12px 24px",
+                    borderRadius: "5px",
+                    backgroundColor: "#28a745",
+                  }}
+                >
+                  前往完成頁面
+                </a>
+              </td>
+            </tr>
+          </table>
+        </Section>
+
         <Text style={{ color: "#555", fontSize: "14px", textAlign: "center", wordBreak: "break-word" }}>
           或點擊以下網址：
           <br />
           <a href={verificationUrl} style={{ color: "#007bff", textDecoration: "underline" }}>
             {verificationUrl}
+          </a>
+          <br />
+          <br />
+          完成頁面網址：
+          <br />
+          <a href={finishPageUrl} style={{ color: "#28a745", textDecoration: "underline" }}>
+            {finishPageUrl}
           </a>
         </Text>
 
@@ -105,5 +142,4 @@ export function EmailVerification({
       </Container>
     </Html>
   );
-}
-
+} 

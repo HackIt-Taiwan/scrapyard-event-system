@@ -24,12 +24,11 @@ export const generateEmailVerificationToken = (payload: TokenPayload): string =>
     {
       ...payload,
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 15 * 60, // 15 minutes
+      exp: Math.floor(Date.now() / 1000) + 3 * 7 * 24 * 60 * 60, // 3 weeks
     },
     SECRET_KEY
   );
-  return `${process.env.BASE_URL}/apply/email-verify?auth=${token}`
-  // INFO: Don't we have a shortlink service?
+  return `${process.env.NEXT_PUBLIC_BASE_URL}/apply/email-verify?auth=${token}`
 };
 
 export const verifyToken = (token: string): TokenPayload | null => {

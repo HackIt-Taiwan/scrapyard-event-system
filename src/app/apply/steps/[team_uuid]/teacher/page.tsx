@@ -1,8 +1,7 @@
 "use client";
 
-import { memberDataSchema, teacherData, tShirtSizes } from "@/app/apply/types";
+import { teacherData, teacherDataSchema } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
@@ -13,31 +12,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { fetcher } from "@/lib/fetcher";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { notFound, useParams, useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import SignaturePad from "react-signature-canvas";
-import useSWR from "swr";
-import * as changeKeys from "change-case/keys";
 import { toast } from "@/hooks/use-toast";
+import { fetcher } from "@/lib/fetcher";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as changeKeys from "change-case/keys";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  notFound,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
 
 // FIXME: this page is currently broken due to lack of context (previous implementation was using a context provider)
 export default function stepPage() {
@@ -46,7 +34,7 @@ export default function stepPage() {
   const params = useParams();
   const { team_uuid } = params;
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
   if (!authJwt) {
     return notFound();
   }
@@ -55,34 +43,52 @@ export default function stepPage() {
   const [back, setBack] = useState(false);
 
   const {
-    data: memberData_,
+    data: teacherData_,
     error,
     isLoading,
   } = useSWR([`/api/apply/team/${team_uuid}/member?auth=${authJwt}`], ([url]) =>
     fetcher(url),
   );
 
-  if (error) {
-    return notFound();
-  }
-
   const form = useForm<teacherData>({
-    resolver: zodResolver(memberDataSchema),
-    defaultValues: changeKeys.camelCase(memberData_, 5) || {},
+    resolver: zodResolver(teacherDataSchema),
+    defaultValues: {
+      nameEn: "",
+      nameZh: "",
+      telephone: "",
+      email: "",
+      attend: false,
+      diet: "",
+    },
   });
 
+  // 當 memberData_ 載入完成後，更新 form 的值
+  useEffect(() => {
+    if (teacherData_) {
+      const transformedData = changeKeys.camelCase(
+        teacherData_.data,
+        5,
+      ) as teacherData;
+      form.reset(transformedData); // 使用 reset 方法更新整個表單的值
+    }
+  }, [teacherData_, form]);
+
   const onSubmit = async (data: teacherData) => {
+    setLoading(true);
     try {
       const transformedData = changeKeys.snakeCase(data, 5);
 
-      const response = await fetch(`/api/apply/team/${team_uuid}/member`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `/api/apply/team/${team_uuid}/member?auth=${authJwt}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(transformedData),
         },
-        body: JSON.stringify(transformedData),
-      });
-
+      );
+      setLoading(false);
       if (!response.ok) {
         const errorMessage = await response.json();
         return toast({
@@ -90,12 +96,21 @@ export default function stepPage() {
           description: errorMessage.message,
         });
       }
-
-      setShow(false);
+      const bodyData = await response.json();
+      console.log(bodyData);
+      if (!bodyData.data.is_leader) {
+        toast({
+          title: "成功填寫完成!",
+          description:
+            "你的資料已經成功填寫完成，已經寄送驗證信箱到email，也歡迎隨時回來這個網頁更改!",
+        });
+      } else {
+        router.push(`/apply/steps/${team_uuid}/finish-page?auth=${authJwt}`);
+        setShow(false);
+      }
     } catch (error) {
       console.error("Error submitting team data:", error);
     }
-    setShow(false);
   };
 
   return (
@@ -104,7 +119,7 @@ export default function stepPage() {
         router.push(back ? "/apply/steps/1/" : "/apply/steps/3/")
       }
     >
-      {show && (
+      {!isLoading && show ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -128,7 +143,7 @@ export default function stepPage() {
                   name="nameEn"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>英文姓名 *</FormLabel>
+                      <FormLabel>英文名字 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Xiao Ming Wang"
@@ -145,7 +160,7 @@ export default function stepPage() {
                   name={`nameZh`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>中文姓名 *</FormLabel>
+                      <FormLabel>中文名字 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="王小明"
@@ -194,15 +209,15 @@ export default function stepPage() {
                 />
                 <FormField
                   control={form.control}
-                  name={`attend`}
+                  name="attend"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <div className="items-top flex space-x-2">
                           <Checkbox
                             id="terms1"
-                            required={true}
-                            onCheckedChange={() => field.onChange(!field.value)}
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
                           />
                           <div className="grid gap-1.5 leading-none">
                             <label
@@ -223,94 +238,6 @@ export default function stepPage() {
                 />
               </div>
 
-              {/* 保險相關資料 */}
-              {/* <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
-                <h2 className="font-bold">保險相關資料</h2>
-                <FormField
-                  control={form.control}
-                  name={`nationalID`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>身分證字號 (保險用) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="A121212121"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`birthDate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>生日 (保險用) *</FormLabel>
-                      <br />
-                      <FormControl>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground",
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>請選擇日期</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="center">
-                            <Calendar
-                              mode="single"
-                              selected={new Date(field.value)}
-                              onSelect={field.onChange}
-                              fromYear={2006}
-                              toYear={2010}
-                              defaultMonth={
-                                field.value
-                                  ? new Date(field.value)
-                                  : new Date("2009-01-01")
-                              }
-                              captionLayout="dropdown"
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`nationalID`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>通訊地址 (保險用) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="臺北市信義區信義路5段7號"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div> */}
-
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
                 <h2 className="font-bold">其他資料</h2>
                 <FormField
@@ -318,7 +245,7 @@ export default function stepPage() {
                   name={`diet`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>食物相關需求(如素食等，如須出席才須填寫)</FormLabel>
+                      <FormLabel>食物相關需求(如素食等)</FormLabel>
                       <FormControl>
                         <Input placeholder="無" {...field} />
                       </FormControl>
@@ -358,8 +285,30 @@ export default function stepPage() {
                 /> */}
               </div>
 
-              <Button type="submit" className="w-full">
-                下一步
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <div role="status">
+                    <svg
+                      aria-hidden="true"
+                      className="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+                      viewBox="0 0 100 101"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentFill"
+                      />
+                    </svg>
+                    <span className="sr-only">Loading...</span>
+                  </div>
+                ) : (
+                  "下一步"
+                )}
               </Button>
             </form>
           </Form>
@@ -374,33 +323,14 @@ export default function stepPage() {
             上一步 (此頁的更改將不會儲存)
           </Button>
         </motion.div>
+      ) : (
+        <div className="flex h-screen items-center justify-center">
+          <div className="relative">
+            <div className="h-24 w-24 rounded-full border-b-8 border-t-8 border-gray-200"></div>
+            <div className="absolute left-0 top-0 h-24 w-24 animate-spin rounded-full border-b-8 border-t-8 border-blue-500"></div>
+          </div>
+        </div>
       )}
     </AnimatePresence>
-  );
-}
-
-function Affidavit() {
-  return (
-    <a
-      href="/2025%20Scrapyard%20Taiwan%20%E5%8F%83%E8%B3%BD%E8%80%85%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-primary hover:underline"
-    >
-      參賽者切結書
-    </a>
-  );
-}
-
-function ParentAffidavit() {
-  return (
-    <a
-      href="/2025%20Scrapyard%20Taiwan%20%E6%B3%95%E5%AE%9A%E4%BB%A3%E7%90%86%E4%BA%BA%E5%8F%8A%E6%8C%87%E5%B0%8E%E8%80%81%E5%B8%AB%E7%AB%B6%E8%B3%BD%E5%8F%83%E8%88%87%E8%88%87%E8%B2%AC%E4%BB%BB%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-primary hover:underline"
-    >
-      法定代理人及指導老師競賽參與與責任切結書
-    </a>
   );
 }
