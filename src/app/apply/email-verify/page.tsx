@@ -1,12 +1,12 @@
 import { verifyToken, TokenPayload } from "@/lib/jwt";
 import { defaultIgnoreEncryption } from "@/models/common";
 
-export default async function VerifyEmail({
+export default async function Page({
   searchParams,
 }: {
-  searchParams: { auth?: string };
+  searchParams?: Promise<{ auth: string }>;
 }) {
-  const jwt = searchParams.auth || "";
+  const jwt = (await searchParams)?.auth || "";
 
   // verify JWT and get user ID
   const payload: TokenPayload | null = verifyToken(jwt);
