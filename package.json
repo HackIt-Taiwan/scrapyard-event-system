@@ -20,6 +20,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.6",
     "@react-email/components": "^0.0.32",
+    "browser-image-compression": "^2.0.2",
     "change-case": "^5.4.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -4,6 +4,13 @@ import { teacherData, teacherDataSchema } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -35,6 +42,7 @@ export default function stepPage() {
   const { team_uuid } = params;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   if (!authJwt) {
     return notFound();
   }
@@ -99,11 +107,7 @@ export default function stepPage() {
       const bodyData = await response.json();
       console.log(bodyData);
       if (!bodyData.data.is_leader) {
-        toast({
-          title: "成功填寫完成!",
-          description:
-            "你的資料已經成功填寫完成，已經寄送驗證信箱到email，也歡迎隨時回來這個網頁更改!",
-        });
+        setShowSuccessDialog(true);
       } else {
         router.push(`/apply/steps/${team_uuid}/finish-page?auth=${authJwt}`);
         setShow(false);
@@ -119,6 +123,24 @@ export default function stepPage() {
         router.push(back ? "/apply/steps/1/" : "/apply/steps/3/")
       }
     >
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>成功填寫完成!</DialogTitle>
+            <DialogDescription className="space-y-2">
+              <p>你的資料已經成功填寫完成，我們已經寄送驗證信到你的信箱。</p>
+              <p>請記得檢查你的信箱並點擊驗證連結。</p>
+              <p className="text-muted-foreground">你隨時可以回到這個頁面修改資料。</p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={() => setShowSuccessDialog(false)}>
+              我知道了
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {!isLoading && show ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}

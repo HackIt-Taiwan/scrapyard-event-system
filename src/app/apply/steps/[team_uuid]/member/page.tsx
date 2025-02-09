@@ -8,6 +8,13 @@ import {
 } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -36,12 +43,31 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
+import imageCompression from "browser-image-compression";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
     if (!res.ok) throw new Error("Failed to fetch member data");
     return res.json();
   });
+
+// Add compression options
+const compressionOptions = {
+  maxSizeMB: 1,
+  maxWidthOrHeight: 1920,
+  useWebWorker: true,
+};
+
+// Add helper function for image compression
+async function compressImage(file: File) {
+  try {
+    const compressedFile = await imageCompression(file, compressionOptions);
+    return compressedFile;
+  } catch (error) {
+    console.error("Error compressing image:", error);
+    throw error;
+  }
+}
 
 export default function stepPage() {
   const searchParams = useSearchParams();
@@ -52,6 +78,7 @@ export default function stepPage() {
   const [loading, setLoading] = useState(false);
   const [uploadingCardFront, setUploadingCardFront] = useState(false);
   const [uploadingCardBack, setUploadingCardBack] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   if (!authJwt) {
     return notFound();
   }
@@ -110,11 +137,7 @@ export default function stepPage() {
       const bodyData = await response.json();
       console.log(bodyData);
       if (!bodyData.data.is_leader) {
-        toast({
-          title: "成功填寫完成!",
-          description:
-            "你的資料已經成功填寫完成，已經寄送驗證信箱到email，也歡迎隨時回來這個網頁更改!",
-        });
+        setShowSuccessDialog(true);
       } else {
         router.push(`/apply/steps/${team_uuid}/finish-page?auth=${authJwt}`);
         setShow(false);
@@ -126,6 +149,24 @@ export default function stepPage() {
 
   return (
     <>
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>成功填寫完成!</DialogTitle>
+            <DialogDescription className="space-y-2">
+              <p>你的資料已經成功填寫完成，我們已經寄送驗證信到你的信箱。</p>
+              <p>請記得檢查你的信箱並點擊驗證連結。</p>
+              <p className="text-muted-foreground">你隨時可以回到這個頁面修改資料。</p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={() => setShowSuccessDialog(false)}>
+              我知道了
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {!isLoading && show ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -191,7 +232,7 @@ export default function stepPage() {
                           defaultValue={field.value}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="高中一年級" />
+                            <SelectValue placeholder="請填寫在學年級" />
                           </SelectTrigger>
                           <SelectContent>
                             {grades.map((k) => {
@@ -276,10 +317,12 @@ export default function stepPage() {
                               if (!file) return;
 
                               setUploadingCardFront(true);
-                              const formData = new FormData();
-                              formData.append("image", file);
-
                               try {
+                                // Compress the image before uploading
+                                const compressedFile = await compressImage(file);
+                                const formData = new FormData();
+                                formData.append("image", compressedFile);
+
                                 const res = await fetch(
                                   process.env.NEXT_PUBLIC_DATABASE_API +
                                     "/image/upload",
@@ -336,7 +379,6 @@ export default function stepPage() {
                       <FormControl>
                         <div className="relative">
                           <Input
-                            placeholder=""
                             type="file"
                             accept="image/*"
                             onChange={async (e) => {
@@ -344,10 +386,12 @@ export default function stepPage() {
                               if (!file) return;
 
                               setUploadingCardBack(true);
-                              const formData = new FormData();
-                              formData.append("image", file);
-
                               try {
+                                // Compress the image before uploading
+                                const compressedFile = await compressImage(file);
+                                const formData = new FormData();
+                                formData.append("image", compressedFile);
+
                                 const res = await fetch(
                                   process.env.NEXT_PUBLIC_DATABASE_API +
                                     "/image/upload",
@@ -579,7 +623,7 @@ export default function stepPage() {
                           defaultValue={field.value}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="M" />
+                            <SelectValue placeholder="請輸入T恤尺寸" />
                           </SelectTrigger>
                           <SelectContent>
                             {tShirtSizes.map((k) => {
