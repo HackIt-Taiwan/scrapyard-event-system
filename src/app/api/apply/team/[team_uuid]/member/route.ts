@@ -114,7 +114,13 @@ export async function POST(
       };
 
       // Send verification email if email updated
-      if (!checkResponseData.data || checkResponseData.data.email != validationResult.data.email) {
+      // Only send verification email if:
+      // 1. This is a new member (no existing data) OR
+      // 2. The email has been changed from the existing one
+      const isNewMember = !checkResponseData.data;
+      const emailChanged = checkResponseData.data && checkResponseData.data.email !== validationResult.data.email;
+      
+      if (isNewMember || emailChanged) {
         const url = generateEmailVerificationToken({
           teamID: memberData.team_id,
           userID: memberData._id,
@@ -196,14 +202,20 @@ export async function POST(
         _id: requestedID,
         ...validationResult.data,
         is_leader: true,
-        email_verified: (checkResponseData?.data?.email ?? null) === validationResult.data.email,  // Leaders should verify email like others
+        email_verified: (checkResponseData?.data?.email ?? null) === validationResult.data.email,
         team_id: team_uuid,
 
         ignore_encryption: defaultIgnoreEncryption,
       };
 
       // Send verification email if email updated
-      if (!checkResponseData.data || checkResponseData.data.email != validationResult.data.email) {
+      // Only send verification email if:
+      // 1. This is a new leader (no existing data) OR
+      // 2. The email has been changed from the existing one
+      const isNewLeader = !checkResponseData.data;
+      const emailChanged = checkResponseData.data && checkResponseData.data.email !== validationResult.data.email;
+      
+      if (isNewLeader || emailChanged) {
         const url = generateEmailVerificationToken({
           teamID: leaderData.team_id,
           userID: leaderData._id,
@@ -295,7 +307,13 @@ export async function POST(
         ignore_encryption: defaultIgnoreEncryption,
       };
 
-      if (!checkResponseData.data || checkResponseData.data.email === validationResult.data.email) {
+      // Only send verification email if:
+      // 1. This is a new teacher (no existing data) OR
+      // 2. The email has been changed from the existing one
+      const isNewTeacher = !checkResponseData.data;
+      const emailChanged = checkResponseData.data && checkResponseData.data.email !== validationResult.data.email;
+      
+      if (isNewTeacher || emailChanged) {
         const url = generateEmailVerificationToken({
           teamID: teacherData.team_id,
           userID: teacherData._id,
