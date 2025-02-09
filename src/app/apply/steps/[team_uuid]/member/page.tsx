@@ -50,6 +50,8 @@ export default function stepPage() {
   const { team_uuid } = params;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploadingCardFront, setUploadingCardFront] = useState(false);
+  const [uploadingCardBack, setUploadingCardBack] = useState(false);
   if (!authJwt) {
     return notFound();
   }
@@ -265,35 +267,51 @@ export default function stepPage() {
                     <FormItem>
                       <FormLabel>學生證 (正面) *</FormLabel>
                       <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
+                        <div className="relative">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
 
-                            const formData = new FormData();
-                            formData.append("image", file);
+                              setUploadingCardFront(true);
+                              const formData = new FormData();
+                              formData.append("image", file);
 
-                            try {
-                              const res = await fetch(
-                                process.env.NEXT_PUBLIC_DATABASE_API +
-                                  "/image/upload",
-                                {
-                                  method: "POST",
-                                  body: formData,
-                                },
-                              );
-                              const data = await res.json();
+                              try {
+                                const res = await fetch(
+                                  process.env.NEXT_PUBLIC_DATABASE_API +
+                                    "/image/upload",
+                                  {
+                                    method: "POST",
+                                    body: formData,
+                                  },
+                                );
+                                const data = await res.json();
 
-                              if (data.data) {
-                                form.setValue("studentId.cardFront", data.data); // Set the URL for card front
+                                if (data.data) {
+                                  form.setValue("studentId.cardFront", data.data);
+                                }
+                              } catch (error) {
+                                console.error("Upload failed", error);
+                                toast({
+                                  title: "上傳失敗",
+                                  description: "請稍後再試",
+                                  variant: "destructive",
+                                });
+                              } finally {
+                                setUploadingCardFront(false);
                               }
-                            } catch (error) {
-                              console.error("Upload failed", error);
-                            }
-                          }}
-                        />
+                            }}
+                            disabled={uploadingCardFront}
+                          />
+                          {uploadingCardFront && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                       {form.getValues("studentId.cardFront") && (
@@ -316,36 +334,52 @@ export default function stepPage() {
                     <FormItem>
                       <FormLabel>學生證 (背面) *</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder=""
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
+                        <div className="relative">
+                          <Input
+                            placeholder=""
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
 
-                            const formData = new FormData();
-                            formData.append("image", file);
+                              setUploadingCardBack(true);
+                              const formData = new FormData();
+                              formData.append("image", file);
 
-                            try {
-                              const res = await fetch(
-                                process.env.NEXT_PUBLIC_DATABASE_API +
-                                  "/image/upload",
-                                {
-                                  method: "POST",
-                                  body: formData,
-                                },
-                              );
-                              const data = await res.json();
+                              try {
+                                const res = await fetch(
+                                  process.env.NEXT_PUBLIC_DATABASE_API +
+                                    "/image/upload",
+                                  {
+                                    method: "POST",
+                                    body: formData,
+                                  },
+                                );
+                                const data = await res.json();
 
-                              if (data.data) {
-                                form.setValue("studentId.cardBack", data.data); // Set the URL for card back
+                                if (data.data) {
+                                  form.setValue("studentId.cardBack", data.data);
+                                }
+                              } catch (error) {
+                                console.error("Upload failed", error);
+                                toast({
+                                  title: "上傳失敗",
+                                  description: "請稍後再試",
+                                  variant: "destructive",
+                                });
+                              } finally {
+                                setUploadingCardBack(false);
                               }
-                            } catch (error) {
-                              console.error("Upload failed", error);
-                            }
-                          }}
-                        />
+                            }}
+                            disabled={uploadingCardBack}
+                          />
+                          {uploadingCardBack && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                       {form.getValues("studentId.cardBack") && (
@@ -586,21 +620,11 @@ export default function stepPage() {
                     <span className="sr-only">Loading...</span>
                   </div>
                 ) : (
-                  "下一步"
+                  "儲存資料"
                 )}
               </Button>
             </form>
           </Form>
-          <Button
-            variant="secondary"
-            className="mt-4 w-full"
-            onClick={() => {
-              setBack(true);
-              setShow(false);
-            }}
-          >
-            上一步 (此頁的更改將不會儲存)
-          </Button>
         </motion.div>
       ) : (
         <div className="flex gap-3">

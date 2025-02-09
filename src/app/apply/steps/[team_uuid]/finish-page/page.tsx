@@ -42,6 +42,8 @@ export default function stepPage() {
   const router = useRouter();
   const [show, setShow] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [uploadingTeamAffidavit, setUploadingTeamAffidavit] = useState(false);
+  const [uploadingParentsAffidavit, setUploadingParentsAffidavit] = useState(false);
 
   const form = useForm<teamAffidavitSchemaType>({
     resolver: zodResolver(TeamAffidavitSchema),
@@ -321,34 +323,50 @@ export default function stepPage() {
                               請全隊簽署完成 <Affidavit /> 後上傳 *
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                type="file"
-                                accept="application/pdf"
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0];
-                                  if (!file) return;
+                              <div className="relative">
+                                <Input
+                                  type="file"
+                                  accept="application/pdf"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
 
-                                  const formData = new FormData();
-                                  formData.append("pdf", file);
+                                    setUploadingTeamAffidavit(true);
+                                    const formData = new FormData();
+                                    formData.append("pdf", file);
 
-                                  try {
-                                    const res = await fetch(
-                                      process.env.NEXT_PUBLIC_DATABASE_API + "/pdf/upload",
-                                      {
-                                        method: "POST",
-                                        body: formData,
-                                      },
-                                    );
-                                    const data = await res.json();
+                                    try {
+                                      const res = await fetch(
+                                        process.env.NEXT_PUBLIC_DATABASE_API + "/pdf/upload",
+                                        {
+                                          method: "POST",
+                                          body: formData,
+                                        },
+                                      );
+                                      const data = await res.json();
 
-                                    if (data.data) {
-                                      field.onChange(data.data);
+                                      if (data.data) {
+                                        field.onChange(data.data);
+                                      }
+                                    } catch (error) {
+                                      console.error("Upload failed", error);
+                                      toast({
+                                        title: "上傳失敗",
+                                        description: "請稍後再試",
+                                        variant: "destructive",
+                                      });
+                                    } finally {
+                                      setUploadingTeamAffidavit(false);
                                     }
-                                  } catch (error) {
-                                    console.error("Upload failed", error);
-                                  }
-                                }}
-                              />
+                                  }}
+                                  disabled={uploadingTeamAffidavit}
+                                />
+                                {uploadingTeamAffidavit && (
+                                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+                                  </div>
+                                )}
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -366,34 +384,50 @@ export default function stepPage() {
                               請全隊簽署完成 <ParentAffidavit /> 後上傳 *
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                type="file"
-                                accept="application/pdf"
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0];
-                                  if (!file) return;
+                              <div className="relative">
+                                <Input
+                                  type="file"
+                                  accept="application/pdf"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
 
-                                  const formData = new FormData();
-                                  formData.append("pdf", file);
+                                    setUploadingParentsAffidavit(true);
+                                    const formData = new FormData();
+                                    formData.append("pdf", file);
 
-                                  try {
-                                    const res = await fetch(
-                                      process.env.NEXT_PUBLIC_DATABASE_API + "/pdf/upload",
-                                      {
-                                        method: "POST",
-                                        body: formData,
-                                      },
-                                    );
-                                    const data = await res.json();
+                                    try {
+                                      const res = await fetch(
+                                        process.env.NEXT_PUBLIC_DATABASE_API + "/pdf/upload",
+                                        {
+                                          method: "POST",
+                                          body: formData,
+                                        },
+                                      );
+                                      const data = await res.json();
 
-                                    if (data.data) {
-                                      field.onChange(data.data);
+                                      if (data.data) {
+                                        field.onChange(data.data);
+                                      }
+                                    } catch (error) {
+                                      console.error("Upload failed", error);
+                                      toast({
+                                        title: "上傳失敗",
+                                        description: "請稍後再試",
+                                        variant: "destructive",
+                                      });
+                                    } finally {
+                                      setUploadingParentsAffidavit(false);
                                     }
-                                  } catch (error) {
-                                    console.error("Upload failed", error);
-                                  }
-                                }}
-                              />
+                                  }}
+                                  disabled={uploadingParentsAffidavit}
+                                />
+                                {uploadingParentsAffidavit && (
+                                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+                                  </div>
+                                )}
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -426,15 +460,6 @@ export default function stepPage() {
                           "確認無誤！ 黑客松，啟動！"
                         )}
                       </Button>
-                      <Button
-                        variant="secondary"
-                        className="mt-4 w-full"
-                        onClick={() => {
-                          setShow(false);
-                        }}
-                      >
-                        上一步
-                      </Button>
                     </div>
                   </form>
                 </Form>
@@ -457,7 +482,7 @@ export default function stepPage() {
 function Affidavit() {
   return (
     <a
-      href="/2025%20Scrapyard%20Taiwan%20%E5%8F%83%E8%B3%BD%E8%80%85%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
+      href="/2025%20Scrapyard%20Taiwan%20%E5%8F%83%E8%B3%BD%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
       target="_blank"
       rel="noopener noreferrer"
       className="text-primary hover:underline"

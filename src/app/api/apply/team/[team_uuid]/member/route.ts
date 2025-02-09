@@ -4,11 +4,11 @@ import { defaultIgnoreEncryption } from "@/models/common";
 import { memberDatabaseSchemaType, memberSchema } from "@/models/member";
 import { teacherDatabaseSchemaType, teacherSchema } from "@/models/teacher";
 import { databasePost } from "@/utils/databaseAPI";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
-  context: { params: { team_uuid?: string } }
+  { params }: { params: Promise<{ team_uuid: string }> }
 ) {
   if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
     return NextResponse.json(
@@ -20,7 +20,8 @@ export async function POST(
       { status: 500 },
     );
   }
-  const { team_uuid } = await Promise.resolve(context.params);
+  const param = await params;
+  const team_uuid = param.team_uuid;
   const jwt = request.nextUrl.searchParams.get("auth");
   const requestBody = await request.json();
 
@@ -195,13 +196,13 @@ export async function POST(
         _id: requestedID,
         ...validationResult.data,
         is_leader: true,
-        email_verified: true,  // Leaders don't need email verification to access finish page
+        email_verified: (checkResponseData?.data?.email ?? null) === validationResult.data.email,  // Leaders should verify email like others
         team_id: team_uuid,
 
         ignore_encryption: defaultIgnoreEncryption,
       };
 
-      // Still send verification email but don't block access
+      // Send verification email if email updated
       if (!checkResponseData.data || checkResponseData.data.email != validationResult.data.email) {
         const url = generateEmailVerificationToken({
           teamID: leaderData.team_id,
@@ -211,13 +212,21 @@ export async function POST(
         // Generate finish page URL
         const finishPageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/apply/steps/${team_uuid}/finish-page?auth=${jwt}`;
         // Send email with both URLs
-        await sendVerificationEmail(
+        const emailSuccess = await sendVerificationEmail(
           leaderData.email,
           url,
           leaderData.name_zh,
           true,  // isLeader
           finishPageUrl,
         );
+        if (!emailSuccess)
+          return NextResponse.json(
+            {
+              success: false,
+              message: "發送驗證信件至此信箱時發生問題",
+            },
+            { status: 500 },
+          );
       }
 
       const databaseResponse = await databasePost(
@@ -342,9 +351,8 @@ export async function POST(
 }
 
 export async function GET(
-  // TODO: fix this
   request: NextRequest,
-  context: { params: { team_uuid?: string } }
+  { params }: { params: Promise<{ team_uuid: string }> }
 ) {
   if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
     return NextResponse.json(
@@ -356,7 +364,8 @@ export async function GET(
       { status: 500 },
     );
   }
-  const { team_uuid } = await Promise.resolve(context.params);
+  const param = await params;
+  const team_uuid = param.team_uuid;
 
   const jwt = request.nextUrl.searchParams.get("auth");
 

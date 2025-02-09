@@ -27,7 +27,7 @@ export async function sendVerificationEmail(
     );
 
     const options = {
-      from: "", // not sure if this is necessary, keep it if used.
+      from: "scrapyard@mail.hackit.tw",
       to: to,
       subject: "scrapyard - 驗證電子郵件",
       html: emailHtml,
