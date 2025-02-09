@@ -11,6 +11,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as changeKeys from "change-case/keys";
@@ -18,6 +25,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+
+const teamSizes = [4, 5];
 
 export default function StepPage() {
   const router = useRouter();
@@ -123,13 +132,21 @@ export default function StepPage() {
                   <FormItem>
                     <FormLabel>團隊人數 (不包含指導老師) *</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="一個團隊可有 4 ~ 5 個人"
-                        type="number"
-                        required
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
+                      <Select
+                        onValueChange={(value) => field.onChange(Number(value))}
+                        defaultValue={field.value.toString()}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="請選擇團隊人數" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {teamSizes.map((size) => (
+                            <SelectItem key={size} value={size.toString()}>
+                              {size} 人
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
