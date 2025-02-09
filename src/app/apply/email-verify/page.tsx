@@ -1,7 +1,11 @@
 import { verifyToken, TokenPayload } from "@/lib/jwt";
 import { defaultIgnoreEncryption } from "@/models/common";
 
-export default async function VerifyEmail({ searchParams }: { searchParams: { auth?: string } }) {
+export default async function VerifyEmail({
+  searchParams,
+}: {
+  searchParams: { auth?: string };
+}) {
   const jwt = searchParams.auth || "";
 
   // verify JWT and get user ID
@@ -36,8 +40,7 @@ export default async function VerifyEmail({ searchParams }: { searchParams: { au
         body: JSON.stringify(memberData),
       });
 
-      const success = databaseResponse.ok;
-      if (!success) {
+      if (!databaseResponse.ok) {
         return (
           <div className="flex justify-center items-center min-h-screen">
             <div className="text-center">
@@ -68,8 +71,7 @@ export default async function VerifyEmail({ searchParams }: { searchParams: { au
         body: JSON.stringify(teacherData),
       });
 
-      const success = databaseResponse.ok;
-      if (!success) {
+      if (!databaseResponse.ok) {
         return (
           <div className="flex justify-center items-center min-h-screen">
             <div className="text-center">

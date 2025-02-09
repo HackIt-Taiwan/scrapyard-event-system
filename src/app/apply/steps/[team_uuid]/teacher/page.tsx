@@ -307,21 +307,11 @@ export default function stepPage() {
                     <span className="sr-only">Loading...</span>
                   </div>
                 ) : (
-                  "下一步"
+                  "儲存資料"
                 )}
               </Button>
             </form>
           </Form>
-          <Button
-            variant="secondary"
-            className="mt-4 w-full"
-            onClick={() => {
-              setBack(true);
-              setShow(false);
-            }}
-          >
-            上一步 (此頁的更改將不會儲存)
-          </Button>
         </motion.div>
       ) : (
         <div className="flex h-screen items-center justify-center">
