@@ -26,6 +26,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -44,6 +51,7 @@ export default function stepPage() {
   const [loading, setLoading] = useState(false);
   const [uploadingTeamAffidavit, setUploadingTeamAffidavit] = useState(false);
   const [uploadingParentsAffidavit, setUploadingParentsAffidavit] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const form = useForm<teamAffidavitSchemaType>({
     resolver: zodResolver(TeamAffidavitSchema),
@@ -97,11 +105,7 @@ export default function stepPage() {
       }
       const bodyData = await response.json();
       console.log(bodyData);
-      toast({
-        title: "成功填寫完成!",
-        description: "你的資料已經成功填寫完成，感謝你的參與！",
-      });
-      router.push("/");
+      setShowSuccessDialog(true);
     } catch (error) {
       console.error("Error submitting team data:", error);
       setLoading(false);
@@ -115,6 +119,27 @@ export default function stepPage() {
 
   return (
     <>
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>報名成功！</DialogTitle>
+            <DialogDescription className="space-y-2">
+              <p>感謝你完成 Scrapyard 黑客松的報名！</p>
+              <p>我們已經寄送一封確認信到所有團隊成員的信箱，請按照信件中的指示進行。</p>
+              <p>你隨時可以回到這個頁面修改資料，直到報名截止日期為止。</p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={() => {
+              setShowSuccessDialog(false);
+              router.push("/");
+            }}>
+              我知道了
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {!isLoading && show ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}

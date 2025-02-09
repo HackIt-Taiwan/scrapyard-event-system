@@ -230,18 +230,17 @@ export default function stepPage() {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          value={field.value}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="請填寫在學年級" />
                           </SelectTrigger>
                           <SelectContent>
-                            {grades.map((k) => {
-                              return (
-                                <SelectItem value={k} key={k}>
-                                  {k}
-                                </SelectItem>
-                              );
-                            })}
+                            {grades.map((grade) => (
+                              <SelectItem key={`grade-${grade}`} value={grade}>
+                                {grade}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -621,18 +620,17 @@ export default function stepPage() {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          value={field.value}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="請輸入T恤尺寸" />
                           </SelectTrigger>
                           <SelectContent>
-                            {tShirtSizes.map((k) => {
-                              return (
-                                <SelectItem value={k} key={k}>
-                                  {k}
-                                </SelectItem>
-                              );
-                            })}
+                            {tShirtSizes.map((size) => (
+                              <SelectItem key={`size-${size}`} value={size}>
+                                {size}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -672,10 +670,10 @@ export default function stepPage() {
         </motion.div>
       ) : (
         <div className="flex gap-3">
-          <div className="flex h-screen items-center justify-center">
-            <div className="relative">
-              <div className="h-24 w-24 rounded-full border-b-8 border-t-8 border-gray-200"></div>
-              <div className="absolute left-0 top-0 h-24 w-24 animate-spin rounded-full border-b-8 border-t-8 border-blue-500"></div>
+          <div key="loading-container" className="flex h-screen items-center justify-center">
+            <div key="loading-spinner-outer" className="relative">
+              <div key="loading-spinner-base" className="h-24 w-24 rounded-full border-b-8 border-t-8 border-gray-200"></div>
+              <div key="loading-spinner-animated" className="absolute left-0 top-0 h-24 w-24 animate-spin rounded-full border-b-8 border-t-8 border-blue-500"></div>
             </div>
           </div>
         </div>

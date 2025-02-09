@@ -106,19 +106,16 @@ export async function POST(
         _id: requestedID,
         ...validationResult.data,
         is_leader: false,
-        email_verified:
-          (checkResponseData?.data?.email ?? null) === validationResult.data.email,
+        email_verified: checkResponseData?.data?.[0]?.email === validationResult.data.email,
         team_id: team_uuid,
-
         ignore_encryption: defaultIgnoreEncryption,
       };
 
-      // Send verification email if email updated
       // Only send verification email if:
-      // 1. This is a new member (no existing data) OR
+      // 1. This is a new teacher (no existing data) OR
       // 2. The email has been changed from the existing one
-      const isNewMember = !checkResponseData.data;
-      const emailChanged = checkResponseData.data && checkResponseData.data.email !== validationResult.data.email;
+      const isNewMember = !checkResponseData?.data?.[0];
+      const emailChanged = checkResponseData?.data?.[0]?.email !== validationResult.data.email;
       
       if (isNewMember || emailChanged) {
         const url = generateEmailVerificationToken({
@@ -130,6 +127,9 @@ export async function POST(
           memberData.email,
           url,
           memberData.name_zh,
+          false,
+          undefined,
+          memberData._id,
         );
         if (!emailSuccess)
           return NextResponse.json(
@@ -202,19 +202,17 @@ export async function POST(
         _id: requestedID,
         ...validationResult.data,
         is_leader: true,
-        email_verified: (checkResponseData?.data?.email ?? null) === validationResult.data.email,
+        email_verified: checkResponseData?.data?.[0]?.email === validationResult.data.email,
         team_id: team_uuid,
-
         ignore_encryption: defaultIgnoreEncryption,
       };
-
       // Send verification email if email updated
       // Only send verification email if:
       // 1. This is a new leader (no existing data) OR
       // 2. The email has been changed from the existing one
-      const isNewLeader = !checkResponseData.data;
-      const emailChanged = checkResponseData.data && checkResponseData.data.email !== validationResult.data.email;
-      
+      const isNewLeader = !checkResponseData?.data?.[0];
+      const emailChanged = checkResponseData?.data?.[0]?.email !== validationResult.data.email;
+
       if (isNewLeader || emailChanged) {
         const url = generateEmailVerificationToken({
           teamID: leaderData.team_id,
@@ -228,8 +226,9 @@ export async function POST(
           leaderData.email,
           url,
           leaderData.name_zh,
-          true,  // isLeader
+          true,
           finishPageUrl,
+          leaderData._id,
         );
         if (!emailSuccess)
           return NextResponse.json(
@@ -300,18 +299,16 @@ export async function POST(
       const teacherData: teacherDatabaseSchemaType = {
         _id: requestedID,
         ...validationResult.data,
-        email_verified:
-          (checkResponseData?.data?.email ?? null) === validationResult.data.email,
+        email_verified: checkResponseData?.data?.[0]?.email === validationResult.data.email,
         team_id: team_uuid,
-
         ignore_encryption: defaultIgnoreEncryption,
       };
 
       // Only send verification email if:
       // 1. This is a new teacher (no existing data) OR
       // 2. The email has been changed from the existing one
-      const isNewTeacher = !checkResponseData.data;
-      const emailChanged = checkResponseData.data && checkResponseData.data.email !== validationResult.data.email;
+      const isNewTeacher = !checkResponseData?.data?.[0];
+      const emailChanged = checkResponseData?.data?.[0]?.email !== validationResult.data.email;
       
       if (isNewTeacher || emailChanged) {
         const url = generateEmailVerificationToken({
@@ -323,6 +320,9 @@ export async function POST(
           teacherData.email,
           url,
           teacherData.name_zh,
+          false,
+          undefined,
+          teacherData._id,
         );
         if (!emailSuccess)
           return NextResponse.json(
