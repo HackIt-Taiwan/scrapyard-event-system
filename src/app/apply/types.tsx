@@ -1,7 +1,7 @@
 import taiwanIdValidator from "taiwan-id-validator";
 import { z } from "zod";
 
-export const grades = ["高中一年級", "高中二年級", "高中三年級"] as const;
+export const grades = ["高中/職/專科一年級", "高中/職/專科二年級", "高中/職/專科三年級"] as const;
 
 export const tShirtSizes = ["S", "M", "L", "XL"] as const;
 

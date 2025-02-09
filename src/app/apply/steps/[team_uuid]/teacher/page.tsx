@@ -245,7 +245,7 @@ export default function stepPage() {
                   name={`diet`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>食物相關需求(如素食等)</FormLabel>
+                      <FormLabel>飲食習慣 (素食、不吃豬肉等)</FormLabel>
                       <FormControl>
                         <Input placeholder="無" {...field} />
                       </FormControl>

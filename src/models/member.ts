@@ -2,7 +2,7 @@ import { baseSchema, ignoreEncryptionSchema } from "@/models/common";
 import { z } from "zod";
 
 const memberSchema = baseSchema.extend({
-  grade: z.enum(["高中一年級", "高中二年級", "高中三年級"]),
+  grade: z.enum(["高中/職/專科一年級", "高中/職/專科二年級", "高中/職/專科三年級"]),
   school: z.string().trim().max(30, "學校名字超過 30 個字元"),
   shirt_size: z.enum(["S", "M", "L", "XL"]),
   student_id: z.object({
