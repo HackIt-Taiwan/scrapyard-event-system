@@ -31,8 +31,9 @@ export const memberDataSchema = z.object({
   // Contact Information
   telephone: z
     .string()
-    .max(10, "你的電話號碼太長了，最多 10 碼")
-    .min(7, "你的電話號碼太短了，最少 7 碼"),
+    .trim()
+    .length(10, "電話號碼必須是10碼")
+    .regex(/^[0-9]+$/, "電話號碼只能包含數字"),
   email: z.string().email({ message: "這不是有效的電子郵件格式" }),
 
   // Special Needs & Additional Information
@@ -45,8 +46,9 @@ export const memberDataSchema = z.object({
     .max(6, "緊急聯絡人名字太長了，最多只能 6 個字"),
   emergencyContactTelephone: z
     .string()
-    .max(10, "緊急聯絡人電話號碼太長了，最多 10 碼")
-    .min(7, "緊急聯絡人電話號碼太短了，最少 7 碼"),
+    .trim()
+    .length(10, "緊急聯絡人電話號碼必須是10碼")
+    .regex(/^[0-9]+$/, "電話號碼只能包含數字"),
   emergencyContactRelation: z
     .string()
     .max(10, "緊急聯絡人關係太長了")

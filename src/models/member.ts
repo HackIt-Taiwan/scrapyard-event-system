@@ -11,7 +11,10 @@ const memberSchema = baseSchema.extend({
   }),
   special_needs: z.string().max(100, "特殊需求太多了").optional(),
   emergency_contact_name: z.string().trim().max(6, "中文名字超過 6 個字元"),
-  emergency_contact_telephone: z.string().trim().max(10, "電話號碼過長"),
+  emergency_contact_telephone: z.string()
+    .trim()
+    .length(10, "電話號碼必須是10碼")
+    .regex(/^[0-9]+$/, "電話號碼只能包含數字"),
   emergency_contact_relation: z.string().trim().max(10, "緊急連絡人關係過長"),
 });
 
