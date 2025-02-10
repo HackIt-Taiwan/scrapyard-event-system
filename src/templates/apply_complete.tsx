@@ -53,21 +53,53 @@ export function ApplyComplete({
         </Text>
 
         <Section style={{ margin: "20px 0" }}>
-          <Text style={{ color: "#555", fontSize: "16px" }}>
+          <Text style={{ color: "#555", fontSize: "16px", marginBottom: "12px" }}>
             團隊成員資料：
           </Text>
-          {teamMembers.map((member, index) => (
-            <Text key={index} style={{ color: "#666", fontSize: "14px", margin: "4px 0" }}>
-              {`${member.name} (${member.email})`}
-            </Text>
-          ))}
+          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" }}>
+            <tbody>
+              {teamMembers.map((member, index) => (
+                <tr key={index}>
+                  <td style={{ 
+                    padding: "8px 12px",
+                    backgroundColor: "#fff",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "4px"
+                  }}>
+                    <span style={{ color: "#2d3748", fontSize: "14px", fontWeight: "500" }}>
+                      {member.name}
+                    </span>
+                    <span style={{ color: "#718096", fontSize: "14px", marginLeft: "8px" }}>
+                      {member.email}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           
-          <Text style={{ color: "#555", fontSize: "16px", marginTop: "16px" }}>
+          <Text style={{ color: "#555", fontSize: "16px", marginTop: "20px", marginBottom: "12px" }}>
             指導老師：
           </Text>
-          <Text style={{ color: "#666", fontSize: "14px", margin: "4px 0" }}>
-            {`${teacher.name} (${teacher.email})`}
-          </Text>
+          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0" }}>
+            <tbody>
+              <tr>
+                <td style={{ 
+                  padding: "8px 12px",
+                  backgroundColor: "#fff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "4px"
+                }}>
+                  <span style={{ color: "#2d3748", fontSize: "14px", fontWeight: "500" }}>
+                    {teacher.name}
+                  </span>
+                  <span style={{ color: "#718096", fontSize: "14px", marginLeft: "8px" }}>
+                    {teacher.email}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </Section>
 
         <Text style={{ color: "#555", fontSize: "16px", textAlign: "center", marginTop: "24px" }}>
