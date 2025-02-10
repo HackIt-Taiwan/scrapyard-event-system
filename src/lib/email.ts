@@ -1,18 +1,13 @@
-import nodemailer from "nodemailer";
+import * as brevo from '@getbrevo/brevo';
 import { render } from "@react-email/components";
 import { EmailVerification } from "@/templates/email_verification";
 import { LeaderEmailVerification } from "@/templates/leader_email_verification";
 import { ApplyComplete } from "@/templates/apply_complete";
 import { isRateLimited, getRateLimitInfo } from "./rate-limiter";
 
-export const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT),
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Initialize Brevo API client
+const apiInstance = new brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.EMAIL_PASS || '');
 
 export async function sendVerificationEmail(
   to: string,
@@ -37,18 +32,19 @@ export async function sendVerificationEmail(
         : EmailVerification({ verificationUrl: url, userName: name }),
     );
 
-    const options = {
-      from: "scrapyard@mail.hackit.tw",
-      to: to,
-      subject: "scrapyard - 驗證電子郵件",
-      html: emailHtml,
-    };
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = { name: "Scrapyard", email: "scrapyard@mail.hackit.tw" };
+    sendSmtpEmail.to = [{ name: name || "Participant", email: to }];
+    sendSmtpEmail.subject = "scrapyard - 驗證電子郵件";
+    sendSmtpEmail.htmlContent = emailHtml;
+    sendSmtpEmail.textContent = `請點擊以下連結驗證您的電子郵件：${url}`;
+    sendSmtpEmail.headers = { 'X-Mailer': 'Scrapyard Mailer' };
 
-    await transporter.sendMail(options);
-
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log('Email sent successfully:', data.body);
     return true;
   } catch (error) {
-    console.log(`Error while sending email:${error}`);
+    console.error("Error sending verification email:", error);
     return false;
   }
 }
@@ -72,17 +68,34 @@ export async function sendApplyCompleteEmail(
       })
     );
 
-    const options = {
-      from: "scrapyard@mail.hackit.tw",
-      to: to,
-      subject: "scrapyard - 報名資料已完成填寫",
-      html: emailHtml,
-    };
+    const plainText = `
+您好 ${userName}，
 
-    await transporter.sendMail(options);
+您的隊伍 ${teamName} 已完成報名資料填寫。
+
+隊伍成員：
+${teamMembers.map(member => `- ${member.name} (${member.email})`).join('\n')}
+
+指導老師：
+${teacher.name} (${teacher.email})
+
+如需修改資料，請點擊以下連結：
+${editUrl}
+    `.trim();
+
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = { name: "Scrapyard", email: "scrapyard@mail.hackit.tw" };
+    sendSmtpEmail.to = [{ name: userName, email: to }];
+    sendSmtpEmail.subject = "scrapyard - 報名資料已完成填寫";
+    sendSmtpEmail.htmlContent = emailHtml;
+    sendSmtpEmail.textContent = plainText;
+    sendSmtpEmail.headers = { 'X-Mailer': 'Scrapyard Mailer' };
+
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log('Completion email sent successfully:', data.body);
     return true;
   } catch (error) {
-    console.log(`Error while sending completion email:${error}`);
+    console.error("Error sending completion email:", error);
     return false;
   }
 }
