@@ -32,8 +32,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import imageCompression from "browser-image-compression";
 import * as changeKeys from "change-case/keys";
 import { motion } from "motion/react";
+import Image from "next/image";
 import {
   notFound,
   useParams,
@@ -43,7 +45,6 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
-import imageCompression from "browser-image-compression";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -79,6 +80,7 @@ export default function stepPage() {
   const [uploadingCardFront, setUploadingCardFront] = useState(false);
   const [uploadingCardBack, setUploadingCardBack] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showTShirtGuide, setShowTShirtGuide] = useState(false);
   if (!authJwt) {
     return notFound();
   }
@@ -149,6 +151,23 @@ export default function stepPage() {
 
   return (
     <>
+      <Dialog open={showTShirtGuide} onOpenChange={setShowTShirtGuide}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>T-shirt 尺寸指南</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full">
+            <Image
+              src={"/t-shirt.png"}
+              alt="T-shirt Size Guide"
+              width={800} // Adjust width and height accordingly
+              height={600}
+              className="w-full"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent>
           <DialogHeader>
@@ -156,7 +175,9 @@ export default function stepPage() {
             <DialogDescription className="space-y-2">
               <p>你的資料已經成功填寫完成，我們已經寄送驗證信到你的信箱。</p>
               <p>請記得檢查你的信箱並點擊驗證連結。</p>
-              <p className="text-muted-foreground">你隨時可以回到這個頁面修改資料。</p>
+              <p className="text-muted-foreground">
+                你隨時可以回到這個頁面修改資料。
+              </p>
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end">
@@ -166,7 +187,6 @@ export default function stepPage() {
           </div>
         </DialogContent>
       </Dialog>
-
       {!isLoading && show ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -318,7 +338,8 @@ export default function stepPage() {
                               setUploadingCardFront(true);
                               try {
                                 // Compress the image before uploading
-                                const compressedFile = await compressImage(file);
+                                const compressedFile =
+                                  await compressImage(file);
                                 const formData = new FormData();
                                 formData.append("image", compressedFile);
 
@@ -333,7 +354,10 @@ export default function stepPage() {
                                 const data = await res.json();
 
                                 if (data.data) {
-                                  form.setValue("studentId.cardFront", data.data);
+                                  form.setValue(
+                                    "studentId.cardFront",
+                                    data.data,
+                                  );
                                 }
                               } catch (error) {
                                 console.error("Upload failed", error);
@@ -387,7 +411,8 @@ export default function stepPage() {
                               setUploadingCardBack(true);
                               try {
                                 // Compress the image before uploading
-                                const compressedFile = await compressImage(file);
+                                const compressedFile =
+                                  await compressImage(file);
                                 const formData = new FormData();
                                 formData.append("image", compressedFile);
 
@@ -402,7 +427,10 @@ export default function stepPage() {
                                 const data = await res.json();
 
                                 if (data.data) {
-                                  form.setValue("studentId.cardBack", data.data);
+                                  form.setValue(
+                                    "studentId.cardBack",
+                                    data.data,
+                                  );
                                 }
                               } catch (error) {
                                 console.error("Upload failed", error);
@@ -612,10 +640,21 @@ export default function stepPage() {
 
                 <FormField
                   control={form.control}
-                  name={`shirtSize`}
+                  name="shirtSize"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>T 恤尺寸 *</FormLabel>
+                      <FormLabel className="flex items-center gap-2">
+                        T-shirt 尺寸 *
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-6 px-2 text-xs"
+                          onClick={() => setShowTShirtGuide(true)}
+                        >
+                          查看尺寸表
+                        </Button>
+                      </FormLabel>
                       <FormControl>
                         <Select
                           onValueChange={field.onChange}
@@ -623,7 +662,7 @@ export default function stepPage() {
                           value={field.value}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="請輸入T恤尺寸" />
+                            <SelectValue placeholder="請選擇 T-shirt 尺寸" />
                           </SelectTrigger>
                           <SelectContent>
                             {tShirtSizes.map((size) => (
@@ -670,10 +709,19 @@ export default function stepPage() {
         </motion.div>
       ) : (
         <div className="flex gap-3">
-          <div key="loading-container" className="flex h-screen items-center justify-center">
+          <div
+            key="loading-container"
+            className="flex h-screen items-center justify-center"
+          >
             <div key="loading-spinner-outer" className="relative">
-              <div key="loading-spinner-base" className="h-24 w-24 rounded-full border-b-8 border-t-8 border-gray-200"></div>
-              <div key="loading-spinner-animated" className="absolute left-0 top-0 h-24 w-24 animate-spin rounded-full border-b-8 border-t-8 border-blue-500"></div>
+              <div
+                key="loading-spinner-base"
+                className="h-24 w-24 rounded-full border-b-8 border-t-8 border-gray-200"
+              ></div>
+              <div
+                key="loading-spinner-animated"
+                className="absolute left-0 top-0 h-24 w-24 animate-spin rounded-full border-b-8 border-t-8 border-blue-500"
+              ></div>
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const grades = ["高中/職/專科一年級", "高中/職/專科二年級", "高中/職/專科三年級"] as const;
 
-export const tShirtSizes = ["S", "M", "L", "XL"] as const;
+export const tShirtSizes = ["不要 T-shirt", "S", "M", "L", "XL"] as const;
 
 // Define Zod schema for request validation
 const StudentIdSchema = z.object({
