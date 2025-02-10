@@ -6,6 +6,63 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { sendApplyCompleteEmail } from "@/lib/email";
 
+async function sendDiscordCompletionNotification(
+  teamData: any,
+  memberEmails: Array<{ name: string; email: string }>,
+  teacherData: { name: string; email: string },
+  affidavits: { team_affidavit: string; parents_affidavit: string }
+) {
+  try {
+    if (!process.env.DISCORD_WEBHOOK_URL) {
+      console.error("Discord webhook URL not configured");
+      return;
+    }
+
+    const embed = {
+      title: "✅ 團隊完成報名",
+      color: 0x0099ff,
+      fields: [
+        {
+          name: "團隊資訊",
+          value: `**團隊名稱:** ${teamData.team_name}\n**團隊ID:** ${teamData._id}\n**人數:** ${teamData.team_size}`,
+          inline: false
+        },
+        {
+          name: "成員資料",
+          value: memberEmails.map(member => `- ${member.name} (${member.email})`).join('\n'),
+          inline: false
+        },
+        {
+          name: "指導老師",
+          value: `${teacherData.name} (${teacherData.email})`,
+          inline: false
+        },
+        {
+          name: "切結書",
+          value: `[團隊切結書](${affidavits.team_affidavit})\n[法定代理人切結書](${affidavits.parents_affidavit})`,
+          inline: false
+        }
+      ],
+      timestamp: new Date().toISOString(),
+      footer: {
+        text: "Scrapyard Registration System"
+      }
+    };
+
+    await fetch(process.env.DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        embeds: [embed]
+      })
+    });
+  } catch (error) {
+    console.error("Error sending Discord completion notification:", error);
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // Verify required environment variables
@@ -249,6 +306,16 @@ export async function POST(request: Request) {
           email: teacherResponseData.data[0].email,
         };
       }
+    }
+
+    // Send Discord notification
+    if (leaderData && teacherData) {
+      await sendDiscordCompletionNotification(
+        teamData.data[0],
+        memberEmails,
+        teacherData,
+        validationResult.data
+      );
     }
 
     // Send completion email to all team members

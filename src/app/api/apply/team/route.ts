@@ -7,6 +7,53 @@ import { randomUUID } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+async function sendDiscordNotification(teamData: teamDatabaseSchemaType) {
+  try {
+    if (!process.env.DISCORD_WEBHOOK_URL) {
+      console.error("Discord webhook URL not configured");
+      return;
+    }
+
+    const embed = {
+      title: "🎉 新團隊註冊",
+      color: 0x00ff00, // Green color
+      fields: [
+        {
+          name: "團隊名稱",
+          value: teamData.team_name,
+          inline: true
+        },
+        {
+          name: "團隊人數",
+          value: teamData.team_size.toString(),
+          inline: true
+        },
+        {
+          name: "狀態",
+          value: teamData.status,
+          inline: true
+        }
+      ],
+      timestamp: new Date().toISOString(),
+      footer: {
+        text: "Scrapyard Registration System"
+      }
+    };
+
+    await fetch(process.env.DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        embeds: [embed]
+      })
+    });
+  } catch (error) {
+    console.error("Error sending Discord notification:", error);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Verify required environment variables
@@ -117,9 +164,11 @@ export async function POST(request: NextRequest) {
 
     if (!databaseResponse.ok) {
       const errorData = await databaseResponse.json();
-
       throw new Error(errorData.message || "Database API request failed");
     }
+
+    // Send Discord notification
+    await sendDiscordNotification(newTeam);
 
     return NextResponse.json(
       {
