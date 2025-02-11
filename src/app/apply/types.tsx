@@ -5,6 +5,15 @@ export const grades = ["高中/職/專科一年級", "高中/職/專科二年級
 
 export const tShirtSizes = ["不要 T-shirt", "S", "M", "L", "XL"] as const;
 
+export const learnAboutUsOptions = [
+  "朋友/同學",
+  "老師/學校",
+  "Discord社群",
+  "社群軟體（Ig/threads/FB)",
+  "獎金獵人",
+  "其他"
+] as const;
+
 // Define Zod schema for request validation
 const StudentIdSchema = z.object({
   cardFront: z.string().url("Invalid card front URL"), // assuming S3 URLs
@@ -17,6 +26,9 @@ export const teamDataSchema = z.object({
     .number()
     .max(5, "團隊不能超過五個人")
     .min(4, "團隊不能小於四個人"),
+  learnAboutUs: z.enum(learnAboutUsOptions, {
+    required_error: "請選擇你是如何得知這個活動的",
+  }),
 });
 
 export const memberDataSchema = z.object({

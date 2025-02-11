@@ -1,6 +1,6 @@
 "use client";
 
-import { type teamData, teamDataSchema } from "@/app/apply/types";
+import { type teamData, teamDataSchema, learnAboutUsOptions } from "@/app/apply/types";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -34,13 +34,14 @@ export default function StepPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const [teamData_, setTeamData] = useState<any>()
+  const [teamData_, setTeamData] = useState<any>();
 
   const form = useForm<teamData>({
     resolver: zodResolver(teamDataSchema),
     defaultValues: {
       teamName: "",
       teamSize: 4,
+      learnAboutUs: undefined,
     },
   });
 
@@ -70,9 +71,9 @@ export default function StepPage() {
         });
       }
       const bodyData = await response.json();
-      console.log(bodyData)
+      console.log(bodyData);
 
-      setTeamData(bodyData)
+      setTeamData(bodyData);
       setShow(false);
     } catch (error) {
       console.error("Error submitting team data:", error);
@@ -131,23 +132,44 @@ export default function StepPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>團隊人數 (不包含指導老師) *</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        defaultValue={field.value.toString()}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="請選擇團隊人數" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {teamSizes.map((size) => (
-                            <SelectItem key={size} value={size.toString()}>
-                              {size} 人
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
+                    <Select
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      defaultValue={field.value.toString()}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="請選擇團隊人數" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teamSizes.map((size) => (
+                          <SelectItem key={size} value={size.toString()}>
+                            {size} 人
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="learnAboutUs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>你是如何得知這個活動的？ *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="請選擇" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {learnAboutUsOptions.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

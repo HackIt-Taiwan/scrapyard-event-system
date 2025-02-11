@@ -24,7 +24,7 @@ async function sendDiscordCompletionNotification(
       fields: [
         {
           name: "團隊資訊",
-          value: `**團隊名稱:** ${teamData.team_name}\n**團隊ID:** ${teamData._id}\n**人數:** ${teamData.team_size}`,
+          value: `**團隊名稱:** ${teamData.team_name}\n**團隊ID:** ${teamData._id}\n**人數:** ${teamData.team_size}\n**得知活動管道:** ${teamData.learn_about_us}`,
           inline: false
         },
         {
@@ -134,7 +134,6 @@ export async function POST(request: Request) {
         _id: memberID,
         ignore_encryption: {
           _id: true,
-          email_verified: true,
         },
       };
 
@@ -162,37 +161,34 @@ export async function POST(request: Request) {
       }
     }
 
-    // Check teacher verification if members are verified
-    if (allEmailVerified) {
-      const teacherPayload = {
-        _id: teamData.data[0].teacher_id,
-        ignore_encryption: {
-          _id: true,
-          email_verified: true,
+    // Check leader verification
+    const leaderVerifyPayload = {
+      _id: teamData.data[0].leader_id,
+      ignore_encryption: {
+        _id: true,
+      },
+    };
+
+    const leaderVerifyResponse = await databasePost(
+      `/etc/get/member`,
+      leaderVerifyPayload,
+    );
+
+    if (!leaderVerifyResponse.ok) {
+      const errorData = await leaderVerifyResponse.json();
+      return NextResponse.json(
+        {
+          message: errorData.message || "Database API request failed",
         },
-      };
-
-      const teacherResponse = await databasePost(
-        `/etc/get/teacher`,
-        teacherPayload,
+        {
+          status: 500,
+        },
       );
+    }
 
-      if (!teacherResponse.ok) {
-        const errorData = await teacherResponse.json();
-        return NextResponse.json(
-          {
-            message: errorData.message || "Database API request failed",
-          },
-          {
-            status: 500,
-          },
-        );
-      }
-
-      const teacher = await teacherResponse.json();
-      if (!teacher.data || !teacher.data[0].email_verified) {
-        allEmailVerified = false;
-      }
+    const leaderVerifyData = await leaderVerifyResponse.json();
+    if (!leaderVerifyData.data || !leaderVerifyData.data[0].email_verified) {
+      allEmailVerified = false;
     }
 
     // If not all verified, return error
@@ -200,7 +196,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: "所有成員（包含指導老師）都必須先完成信箱驗證",
+          message: "所有成員都必須先完成信箱驗證",
         },
         {
           status: 400
@@ -252,8 +248,6 @@ export async function POST(request: Request) {
         _id: memberId,
         ignore_encryption: {
           _id: true,
-          email: true,
-          name_zh: true,
         },
       });
       if (memberResponse.ok) {
@@ -272,8 +266,6 @@ export async function POST(request: Request) {
       _id: teamData.data[0].leader_id,
       ignore_encryption: {
         _id: true,
-        email: true,
-        name_zh: true,
       },
     });
     let leaderData;
@@ -293,8 +285,6 @@ export async function POST(request: Request) {
       _id: teamData.data[0].teacher_id,
       ignore_encryption: {
         _id: true,
-        email: true,
-        name_zh: true,
       },
     });
     let teacherData;
@@ -309,38 +299,23 @@ export async function POST(request: Request) {
     }
 
     // Send Discord notification
-    if (leaderData && teacherData) {
+    if (leaderData) {
       await sendDiscordCompletionNotification(
         teamData.data[0],
         memberEmails,
-        teacherData,
+        teacherData || { name: "尚未填寫 (非必填)", email: "尚未填寫" },
         validationResult.data
       );
-    }
 
-    // Send completion email to all team members
-    if (leaderData && teacherData) {
+      // Send completion email only to the team leader
       const editUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/apply/steps/${decodedJWT.teamID}/finish-page?auth=${jwt}`;
       
-      // Send to all members (including leader)
-      for (const member of memberEmails) {
-        await sendApplyCompleteEmail(
-          member.email,
-          member.name,
-          teamData.data[0].team_name,
-          memberEmails,
-          teacherData,
-          editUrl
-        );
-      }
-
-      // Send to teacher
       await sendApplyCompleteEmail(
-        teacherData.email,
-        teacherData.name,
+        leaderData.email,
+        leaderData.name,
         teamData.data[0].team_name,
         memberEmails,
-        teacherData,
+        teacherData || { name: "尚未填寫 (非必填)", email: "尚未填寫" },
         editUrl
       );
     }

@@ -32,6 +32,11 @@ async function sendDiscordNotification(teamData: teamDatabaseSchemaType) {
           name: "狀態",
           value: teamData.status,
           inline: true
+        },
+        {
+          name: "得知活動管道",
+          value: teamData.learn_about_us,
+          inline: false
         }
       ],
       timestamp: new Date().toISOString(),
@@ -305,8 +310,6 @@ export async function GET(request: NextRequest) {
       _id: teamData.data[0].teacher_id,
       ignore_encryption: {
         _id: true,
-        email_verified: true,
-        name_zh: true,
       },
     };
 
@@ -316,8 +319,6 @@ export async function GET(request: NextRequest) {
         _id: memberID,
         ignore_encryption: {
           _id: true,
-          email_verified: true,
-          name_zh: true,
         },
       };
 
@@ -369,12 +370,9 @@ export async function GET(request: NextRequest) {
     }
 
     const teacher = await teacherResponse.json();
-    if (!teacher.data || !teacher.data[0].email_verified) {
-      allEmailVerified = false;
-    }
     if (teacher.data) {
       memberName[teamData.data[0].teacher_id] = teacher.data[0].name_zh;
-      membersStatus[teamData.data[0].teacher_id] = teacher.data[0].email_verified || false;
+      membersStatus[teamData.data[0].teacher_id] = true;
     } else {
       membersStatus[teamData.data[0].teacher_id] = false;
     }
@@ -384,8 +382,6 @@ export async function GET(request: NextRequest) {
       _id: teamData.data[0].leader_id,
       ignore_encryption: {
         _id: true,
-        email_verified: true,
-        name_zh: true,
       },
     };
 
