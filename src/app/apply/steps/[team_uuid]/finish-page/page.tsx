@@ -174,10 +174,10 @@ export default function stepPage() {
 
             <div className="flex flex-col items-center gap-4">
               <div className="flex w-full items-center gap-4">
-                <div className="flex-[2] rounded-lg px-4 py-2 text-left">
+                <div className="flex-[3] rounded-lg px-4 py-2 text-left">
                   成員名稱
                 </div>
-                <div className="flex-[1] rounded-lg px-4 py-2 text-left">
+                <div className="flex-[2] rounded-lg px-4 py-2 text-left">
                   填寫狀態
                 </div>
                 <div className="flex-[2] rounded-lg px-4 py-2 text-left">
@@ -185,14 +185,14 @@ export default function stepPage() {
                 </div>
               </div>
               <div className="flex w-full items-center gap-4">
-                <div className="flex-[2] rounded-lg border px-4 py-2 text-center">
+                <div className="flex-[3] rounded-lg border px-4 py-2 text-center">
                   {teamData.data.member_name[teamData.data.leader_id]
                     ? teamData.data.member_name[teamData.data.leader_id]
                     : "隊長"}
                 </div>
                 <div
                   className={twMerge(
-                    "bg- flex-[1] rounded-lg border px-4 py-2 text-center text-black",
+                    "bg- flex-[2] rounded-lg border px-4 py-2 text-center text-black",
                     teamData.data.verified_status[teamData.data.leader_id]
                       ? "bg-primary"
                       : "bg-destructive",
@@ -231,14 +231,14 @@ export default function stepPage() {
               </div>
               {teamData.data.members_id.map((id: any, index: any) => (
                 <div key={index} className="flex w-full items-center gap-4">
-                  <div className="flex-[2] rounded-lg border px-4 py-2 text-center">
+                  <div className="flex-[3] rounded-lg border px-4 py-2 text-center">
                     {teamData.data.member_name[id]
                       ? teamData.data.member_name[id]
                       : "未知成員"}
                   </div>
                   <div
                     className={twMerge(
-                      "bg- flex-[1] rounded-lg border px-4 py-2 text-center text-black",
+                      "bg- flex-[2] rounded-lg border px-4 py-2 text-center text-black",
                       teamData.data.verified_status[id]
                         ? "bg-primary"
                         : "bg-destructive",
@@ -276,22 +276,24 @@ export default function stepPage() {
               ))}
 
               <div className="flex w-full items-center gap-4">
-                <div className="flex-[2] rounded-lg border px-4 py-2 text-center">
+                <div className="flex-[3] rounded-lg border px-4 py-2 text-center">
                   {teamData.data.member_name[teamData.data.teacher_id]
                     ? teamData.data.member_name[teamData.data.teacher_id]
-                    : "指導老師"}
+                    : "指導老師"} <span className="text-sm text-gray-500">(非必填)</span>
                 </div>
                 <div
                   className={twMerge(
-                    "bg- flex-[1] rounded-lg border px-4 py-2 text-center text-black",
+                    "bg- flex-[2] rounded-lg border px-4 py-2 text-center text-black",
                     teamData.data.verified_status[teamData.data.teacher_id]
                       ? "bg-primary"
-                      : "bg-destructive",
+                      : "bg-gray-200",
                   )}
                 >
-                  {teamData.data.verified_status[teamData.data.teacher_id]
-                    ? "已完成"
-                    : "未完成"}
+                  {teamData.data.member_name[teamData.data.teacher_id]
+                    ? (teamData.data.verified_status[teamData.data.teacher_id]
+                      ? "已完成"
+                      : "未完成")
+                    : "未填寫"}
                 </div>
                 <button
                   className="flex-[2] rounded-lg border px-4 py-2"
@@ -327,7 +329,7 @@ export default function stepPage() {
               <div className="my-4 rounded-lg bg-yellow-100 p-4 text-yellow-800">
                 <h3 className="font-bold">尚未完成驗證</h3>
                 <p>
-                  請確保所有成員（包含指導老師）都已完成email驗證後，才能上傳切結書。
+                  請確保所有成員都已完成email驗證後，才能上傳切結書。
                   請檢查上方表格中的驗證狀態。
                 </p>
               </div>
@@ -520,12 +522,12 @@ function Affidavit() {
 function ParentAffidavit() {
   return (
     <a
-      href="/2025%20Scrapyard%20Taiwan%20%E6%B3%95%E5%AE%9A%E4%BB%A3%E7%90%86%E4%BA%BA%E5%8F%8A%E6%8C%87%E5%B0%8E%E8%80%81%E5%B8%AB%E7%AB%B6%E8%B3%BD%E5%8F%83%E8%88%87%E8%88%87%E8%B2%AC%E4%BB%BB%E5%88%87%E7%B5%90%E6%9B%B8.pdf"
+      href="/2025 Scrapyard Taiwan 法定代理人責任切結書.pdf"
       target="_blank"
       rel="noopener noreferrer"
       className="text-primary hover:underline"
     >
-      法定代理人及指導老師競賽參與與責任切結書
+      法定代理人責任切結書
     </a>
   );
 }

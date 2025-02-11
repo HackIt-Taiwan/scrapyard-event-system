@@ -1,5 +1,7 @@
 import { ignoreEncryptionSchema } from "@/models/common";
 import { z } from "zod";
+import { defaultIgnoreEncryption } from "./common";
+import { learnAboutUsOptions } from "@/app/apply/types";
 
 const TeamSchema = z
   .object({
@@ -9,6 +11,9 @@ const TeamSchema = z
       .max(24, "隊伍名稱必須小於24個字")
       .trim(),
     team_size: z.union([z.literal(4), z.literal(5)]),
+    learn_about_us: z.enum(learnAboutUsOptions, {
+      required_error: "請選擇你是如何得知這個活動的",
+    }),
   })
   .strict();
 
