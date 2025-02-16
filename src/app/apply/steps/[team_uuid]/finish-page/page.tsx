@@ -33,6 +33,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { z } from "zod";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -52,6 +53,15 @@ export default function stepPage() {
   const [uploadingTeamAffidavit, setUploadingTeamAffidavit] = useState(false);
   const [uploadingParentsAffidavit, setUploadingParentsAffidavit] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [updatingTeamName, setUpdatingTeamName] = useState(false);
+  const [teamNameForm, setTeamNameForm] = useState("");
+
+  const {
+    data: teamData,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR([`/api/apply/team?auth=${authJwt}`], ([url]) => fetcher(url));
 
   const form = useForm<teamAffidavitSchemaType>({
     resolver: zodResolver(TeamAffidavitSchema),
@@ -61,19 +71,13 @@ export default function stepPage() {
     },
   });
 
-  const {
-    data: teamData,
-    error,
-    isLoading,
-  } = useSWR([`/api/apply/team?auth=${authJwt}`], ([url]) => fetcher(url));
-
-  // Set default values when team data is loaded
   useEffect(() => {
     if (teamData?.data) {
       form.reset({
         team_affidavit: teamData.data.team_affidavit || "",
         parents_affidavit: teamData.data.parents_affidavit || "",
       });
+      setTeamNameForm(teamData.data.team_name || "");
     }
   }, [teamData, form]);
 
@@ -92,15 +96,18 @@ export default function stepPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify({ ...data, team_name: teamNameForm }),
         },
       );
       setLoading(false);
       if (!response.ok) {
-        const errorMessage = await response.json();
+        const errorData = await response.json();
+        const errorMessage = errorData.message
+          .map((err: { field: string; message: string }) => `${err.field}: ${err.message}`)
+          .join(', ');
         return toast({
           title: "送出表單時發生了一些問題",
-          description: errorMessage.message,
+          description: errorMessage,
         });
       }
       const bodyData = await response.json();
@@ -114,6 +121,50 @@ export default function stepPage() {
         description: "送出表單時發生錯誤，請稍後再試",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleTeamNameUpdate = async () => {
+    setUpdatingTeamName(true);
+    try {
+      const response = await fetch(
+        `/api/apply/team/update-name?auth=${authJwt}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ team_name: teamNameForm }),
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = Array.isArray(errorData.message)
+          ? errorData.message.map((err: { field: string; message: string }) => `${err.field}: ${err.message}`).join(', ')
+          : errorData.message;
+        toast({
+          title: "更新團隊名稱時發生錯誤",
+          description: errorMessage,
+        });
+        return;
+      }
+
+      toast({
+        title: "成功更新團隊名稱",
+        description: "團隊名稱已更新成功",
+      });
+      
+      // Refresh the data
+      mutate();
+    } catch (error) {
+      console.error("Error updating team name:", error);
+      toast({
+        title: "更新團隊名稱時發生錯誤",
+        description: "請稍後再試",
+      });
+    } finally {
+      setUpdatingTeamName(false);
     }
   };
 
@@ -158,11 +209,22 @@ export default function stepPage() {
 
             <div className="my-4 space-y-6">
               <section className="space-y-4">
-                <h3 className="text-md font-semibold">團隊資料</h3>
                 <div className="space-y-2">
-                  <div>
-                    <label className="text-sm text-gray-500">團隊名稱</label>
-                    <p className="text-lg">{teamData?.data?.team_name}</p>
+                  <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
+                    <h2 className="font-bold">團隊名稱</h2>
+                    <div className="flex gap-2">
+                      <Input
+                        value={teamNameForm}
+                        onChange={(e) => setTeamNameForm(e.target.value)}
+                        placeholder="團隊名稱"
+                      />
+                      <Button 
+                        onClick={handleTeamNameUpdate}
+                        disabled={updatingTeamName || teamNameForm === teamData?.data?.team_name}
+                      >
+                        {updatingTeamName ? "更新中..." : "更新名稱"}
+                      </Button>
+                    </div>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500">團隊人數</label>

@@ -206,7 +206,7 @@ export async function POST(request: Request) {
 
     // Parse and validate request body
     const requestBody = await request.json();
-    const validationResult = TeamAffidavitSchema.safeParse(requestBody);
+    const validationResult = TeamAffidavitSchema.extend({ team_name: z.string() }).safeParse(requestBody);
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((err) => ({
@@ -230,6 +230,7 @@ export async function POST(request: Request) {
       ...teamData.data[0],  // Include all existing team data
       status: "資料確認中",
       ...validationResult.data,  // Override with new affidavit data
+      team_name: validationResult.data.team_name || teamData.data[0].team_name,
     }
 
     // Send to database API
