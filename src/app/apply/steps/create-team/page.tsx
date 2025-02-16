@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-const teamSizes = [4, 5];
+const teamSizes = [3, 4, 5];
 
 export default function StepPage() {
   const router = useRouter();

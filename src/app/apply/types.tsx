@@ -25,7 +25,7 @@ export const teamDataSchema = z.object({
   teamSize: z
     .number()
     .max(5, "團隊不能超過五個人")
-    .min(4, "團隊不能小於四個人"),
+    .min(3, "團隊不能小於三個人"),
   learnAboutUs: z.enum(learnAboutUsOptions, {
     required_error: "請選擇你是如何得知這個活動的",
   }),
