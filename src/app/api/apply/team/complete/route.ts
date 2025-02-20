@@ -229,6 +229,7 @@ export async function POST(request: Request) {
     const editedTeam: teamDatabaseSchemaType = {
       ...teamData.data[0],  // Include all existing team data
       status: "資料確認中",
+      completeAt: new Date(),
       ...validationResult.data,  // Override with new affidavit data
       team_name: validationResult.data.team_name || teamData.data[0].team_name,
     }
