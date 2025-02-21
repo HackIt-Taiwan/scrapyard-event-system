@@ -3,6 +3,7 @@ import { render } from "@react-email/components";
 import { EmailVerification } from "@/templates/email_verification";
 import { LeaderEmailVerification } from "@/templates/leader_email_verification";
 import { ApplyComplete } from "@/templates/apply_complete";
+import { StaffLoginVerification } from "@/templates/staff_login_verification";
 import { isRateLimited, getRateLimitInfo } from "./rate-limiter";
 
 // Initialize Brevo API client
@@ -100,3 +101,35 @@ ${editUrl}
   }
 }
 
+
+export async function sendStaffOTPEmail(
+  to: string,
+  OTP: string,
+) {
+  try {
+    const emailHtml = await render(StaffLoginVerification({OTP: OTP}));
+
+    const plainText = `
+您好，
+
+你的六位數驗證碼為：${OTP}
+
+若你未申請此要求，請忽略此封郵件，Danke schön!
+    `.trim();
+
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = { name: "Scrapyard", email: "scrapyard@mail.hackit.tw" };
+    sendSmtpEmail.to = [{ name: "Staff", email: to }];
+    sendSmtpEmail.subject = "scrapyard - 登入驗證電子郵件";
+    sendSmtpEmail.htmlContent = emailHtml;
+    sendSmtpEmail.textContent = plainText
+    sendSmtpEmail.headers = { 'X-Mailer': 'Scrapyard Mailer' };
+
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log('Email sent successfully:', data.body);
+    return true;
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    return false;
+  }
+}
