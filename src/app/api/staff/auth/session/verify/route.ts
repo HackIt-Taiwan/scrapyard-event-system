@@ -1,5 +1,5 @@
-import { deleteOTP, getOTP, saveSessionToken } from "@/lib/redis";
-import { staffVerifySchema } from "@/models/staff";
+import { verifySessionToken } from "@/lib/redis";
+import { tokenSchema } from "@/models/staff";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -20,28 +20,15 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       );
     }
+    const { token } = await request.json();
+    tokenSchema.parse({ token });
 
-    // Check if OTP is correct
-    const { email, otp } = await request.json();
-    staffVerifySchema.parse({ email, otp });
+    const decryptData = await verifySessionToken(token || "placeholder");
 
-    const storedOTP = await getOTP(email);
-
-    if (!storedOTP) {
+    if (!token || !decryptData) {
       return NextResponse.json(
         {
-          message: "Email doesn't have OTP assigned :/",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
-
-    if (storedOTP !== otp) {
-      return NextResponse.json(
-        {
-          message: "驗證碼錯誤",
+          message: "Invalid token",
         },
         {
           status: 401,
@@ -49,31 +36,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Delete redis entry
-    await deleteOTP(email);
-
-    // Generate session access token and set as cookie
-    const token = await saveSessionToken(email);
-    const response = NextResponse.json(
+    return NextResponse.json(
       {
         message: "Successfully verified",
-        token,
+        email: decryptData,
       },
       {
         status: 200,
       },
     );
-
-    response.cookies.set({
-      name: "session",
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Secure in prod
-      path: "/",
-      maxAge: 12 * 60 * 60,
-    });
-
-    return response;
   } catch (error: unknown) {
     console.error("Error while logging in", error);
 

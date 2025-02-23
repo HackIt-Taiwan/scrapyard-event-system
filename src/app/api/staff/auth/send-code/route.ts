@@ -1,16 +1,8 @@
 import { generateOTP, storeOTP } from "@/lib/redis";
+import { staffEmailSchema } from "@/models/staff";
 import { staffDatabasePost } from "@/utils/databaseAPI";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-
-const staffEmailSchema = z.object({
-  email: z
-    .string()
-    .email()
-    .regex(/^[^@]+@staff\.hackit\.tw$/, {
-      message: "Email must be a valid staff.hackit.tw address",
-    }),
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,7 +45,7 @@ export async function POST(request: NextRequest) {
     if (!staffData || staffData.data === null) {
       return NextResponse.json(
         {
-          message: "Invalid email",
+          message: "電子郵件不存在！",
         },
         {
           status: 400,
@@ -66,7 +58,7 @@ export async function POST(request: NextRequest) {
     await storeOTP(email, OTP);
 
     // WARN: for debugging, remove this and uncomment send email
-    console.log(OTP)
+    console.log(OTP);
 
     //sendStaffOTPEmail(email, OTP);
 
