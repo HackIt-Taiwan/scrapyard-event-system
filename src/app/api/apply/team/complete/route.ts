@@ -2,7 +2,7 @@
 import { TokenPayload, verifyToken } from "@/lib/jwt";
 import { TeamAffidavitSchema, teamDatabaseSchemaType } from "@/models/team";
 import { databasePost } from "@/utils/databaseAPI";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendApplyCompleteEmail } from "@/lib/email";
 
@@ -63,7 +63,7 @@ async function sendDiscordCompletionNotification(
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     // Verify required environment variables
     if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
