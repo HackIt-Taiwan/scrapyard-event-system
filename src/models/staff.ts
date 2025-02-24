@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { memberSchema } from "./member";
+import { teacherSchema } from "./teacher";
 
 // -- login --
 const staffEmailSchema = z.object({
@@ -48,4 +50,38 @@ const reviewSchema = z.object({
   }
 );
 
-export { staffEmailSchema, staffVerifySchema, tokenSchema, reviewSchema };
+const teamDataReviewSchema = z.object({
+  team_name: z.string(),
+  team_size: z.number()
+}).transform(data => ({
+  隊伍名稱: data.team_name,
+  隊伍大小: data.team_size
+}))
+
+const memberDataReviewSchema = memberSchema.extend({}).transform(data => ({
+  中文姓名: data.name_zh,
+  英文姓名: data.name_en,
+  在學學校: data.school,
+  在學年級: data.grade,
+  飲食習慣: data.diet,
+  特殊需求: data.special_needs,
+  Tshirt尺寸: data.shirt_size,
+  電話號碼: data.telephone,
+  電子郵件: data.email,
+  學生證正面: data.student_id.card_front,
+  學生證背面: data.student_id.card_back,
+  緊急聯絡人中文名字: data.emergency_contact_name,
+  緊急聯絡人電話: data.emergency_contact_telephone,
+  緊急聯絡人關係: data.emergency_contact_relation
+}));
+
+const teacherDataReviewSchema = teacherSchema.extend({}).transform(data => ({
+  中文姓名: data.name_zh,
+  英文姓名: data.name_en,
+  飲食習慣: data.diet,
+  電話號碼: data.telephone,
+  電子郵件: data.email,
+  會不會參加: data.attend ? "會" : "不會"
+}));
+
+export { staffEmailSchema, staffVerifySchema, tokenSchema, reviewSchema, teamDataReviewSchema, memberDataReviewSchema, teacherDataReviewSchema };

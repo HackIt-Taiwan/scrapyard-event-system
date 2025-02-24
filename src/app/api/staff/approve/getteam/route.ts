@@ -1,4 +1,9 @@
 import { defaultIgnoreEncryption } from "@/models/common";
+import {
+  memberDataReviewSchema,
+  teacherDataReviewSchema,
+  teamDataReviewSchema,
+} from "@/models/staff";
 import { databasePost } from "@/utils/databaseAPI";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,19 +22,153 @@ export async function GET(request: NextRequest) {
     }
 
     // Get complete team's data based on date
-    const completedTeamResponse = await databasePost('/etc/getbydateandstatus/team', {})
-    const completedTeamData = await completedTeamResponse.json()
+    const fullData = [];
+
+    const completedTeamResponse = await databasePost(
+      "/etc/getbydateandstatus/team",
+      {},
+    );
+    const completedTeamData = await completedTeamResponse.json();
 
     if (!completedTeamResponse.ok) {
       const errorData = await completedTeamResponse.json();
       throw new Error(errorData.message || "Database API request failed");
     }
 
-    const completedTeam = completedTeamData.data.at(-1)
+    const completedTeam = completedTeamData.data.at(-1);
+    const leaderID = completedTeam.leader_id;
+    const teacherID = completedTeam.teacher_id;
+    const membersID = [];
+    for (var i = 0; i < completedTeam.members_id.length; i++) {
+      membersID.push(completedTeam.members_id[i]);
+    }
+
+    // Parse and save team data to fullData
+    const parsedTeamData = teamDataReviewSchema.safeParse(completedTeam);
+
+    if (!parsedTeamData.success) {
+      const errorMessages = parsedTeamData.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: errorMessages,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    fullData.push(parsedTeamData.data);
+
+    // Get and save leader dataa to fullData
+    const leaderDataResponse = await databasePost("/etc/get/member", {
+      _id: leaderID,
+      ignore_encryption: defaultIgnoreEncryption,
+    });
+    const leaderData = await leaderDataResponse.json();
+
+    if (!leaderDataResponse.ok) {
+      const errorData = await leaderDataResponse.json();
+      throw new Error(errorData.message || "Database API request failed");
+    }
+
+    const parsedLeaderData = memberDataReviewSchema.safeParse(leaderData.data[0]);
+
+    if (!parsedLeaderData.success) {
+      const errorMessages = parsedLeaderData.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: errorMessages,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    fullData.push(parsedLeaderData.data);
+
+    // Get and save member data
+    for (var i = 0; i < membersID.length; i++) {
+      const memberDataResponse = await databasePost("/etc/get/member", {
+        _id: membersID[i],
+        ignore_encryption: defaultIgnoreEncryption,
+      });
+      const memberData = await memberDataResponse.json();
+
+      if (!memberDataResponse.ok) {
+        const errorData = await memberDataResponse.json();
+        throw new Error(errorData.message || "Database API request failed");
+      }
+
+      const parsedMemberData = memberDataReviewSchema.safeParse(memberData.data[0]);
+
+      if (!parsedMemberData.success) {
+        const errorMessages = parsedMemberData.error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        }));
+
+        return NextResponse.json(
+          {
+            success: false,
+            message: errorMessages,
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      fullData.push(parsedMemberData.data);
+    }
+
+    // Get and save teacher data
+    const teacherDataResponse = await databasePost("/etc/get/teacher", {
+      _id: teacherID,
+      ignore_encryption: defaultIgnoreEncryption,
+    });
+    const teacherData = await teacherDataResponse.json();
+
+    if (!teacherDataResponse.ok) {
+      const errorData = await teacherDataResponse.json();
+      throw new Error(errorData.message || "Database API request failed");
+    }
+
+    const parsedTeacherData = teacherDataReviewSchema.safeParse(teacherData.data[0]);
+
+    if (!parsedTeacherData.success) {
+      const errorMessages = parsedTeacherData.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: errorMessages,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    fullData.push(parsedTeacherData.data);
 
     return NextResponse.json(
       {
-        message: completedTeam,
+        message: fullData,
       },
       { status: 200 },
     );
@@ -61,4 +200,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

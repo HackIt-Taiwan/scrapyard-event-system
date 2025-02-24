@@ -66,6 +66,7 @@ export default {
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
+      fontFamily: { "zen-kurenaido": ["Zen Kurenaido", "serif"] },
     },
   },
   plugins: [require("tailwindcss-animate")],

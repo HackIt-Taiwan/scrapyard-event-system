@@ -5,6 +5,7 @@ import { databasePost } from "@/utils/databaseAPI";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendApplyCompleteEmail } from "@/lib/email";
+import { defaultIgnoreEncryption } from "@/models/common";
 
 async function sendDiscordCompletionNotification(
   teamData: any,
@@ -232,6 +233,7 @@ export async function POST(request: NextRequest) {
       completeAt: new Date(),
       ...validationResult.data,  // Override with new affidavit data
       team_name: validationResult.data.team_name || teamData.data[0].team_name,
+      ignore_encryption: defaultIgnoreEncryption
     }
 
     // Send to database API
