@@ -33,6 +33,7 @@ const ignoreEncryptionSchema = z.object({
   email_verified: z.boolean(),
   createdAt: z.boolean(),
   updatedAt: z.boolean(),
+  completeAt: z.boolean(),
 });
 type IgnoreEncryption = z.infer<typeof ignoreEncryptionSchema>;
 
@@ -42,6 +43,7 @@ const defaultIgnoreEncryption: IgnoreEncryption = {
   email_verified: true,
   createdAt: true,
   updatedAt: true,
+  completeAt: true,
 };
 
 export { baseSchema, defaultIgnoreEncryption, ignoreEncryptionSchema };
