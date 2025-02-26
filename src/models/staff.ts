@@ -52,10 +52,14 @@ const reviewSchema = z.object({
 
 const teamDataReviewSchema = z.object({
   team_name: z.string(),
-  team_size: z.number()
+  team_size: z.number(),
+  team_affidavit: z.string().url().optional(),
+  parents_affidavit: z.string().url().optional()
 }).transform(data => ({
   隊伍名稱: data.team_name,
-  隊伍大小: data.team_size
+  隊伍大小: data.team_size,
+  團隊切結書: data.team_affidavit,
+  家長切結書: data.parents_affidavit,
 }))
 
 const memberDataReviewSchema = memberSchema.extend({}).transform(data => ({

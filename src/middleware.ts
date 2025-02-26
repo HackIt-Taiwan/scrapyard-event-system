@@ -1,9 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-// WARN: uncomment below
-//const protectedRoutes = ["/staff/review", "/api/staff/approve", "/api/staff/approve/getteam"];
-const protectedRoutes = ["/staff/review", "/api/staff/approve"];
+const protectedRoutes = ["/staff/review", "/api/staff/approve", "/api/staff/approve/getteam"];
 const publicRoutes = ["/staff/login"];
 
 export default async function middleware(request: NextRequest) {
@@ -53,6 +51,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  //matcher: ["/staff/:path*", "/api/staff/approve/:path*"],
   matcher: ["/staff/:path*", "/api/staff/approve/:path*"],
 };

@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Fusion Pixel";
+  src: url("../fonts/fusion-pixel.ttf");
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -114,4 +119,10 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.pixelated-image {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }

@@ -7,8 +7,8 @@ export async function POST(request: NextRequest) {
   try {
     // Verify required environment variables
     if (
-      !process.env.STAFF_DATABASE_API ||
-      !process.env.STAFF_DATABASE_AUTH_KEY ||
+      !process.env.DATABASE_API ||
+      !process.env.DATABASE_AUTH_KEY ||
       !process.env.REDIS_URI
     ) {
       return NextResponse.json(

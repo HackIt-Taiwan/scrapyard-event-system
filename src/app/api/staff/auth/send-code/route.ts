@@ -1,6 +1,7 @@
+import { sendStaffOTPEmail } from "@/lib/email";
 import { generateOTP, storeOTP } from "@/lib/redis";
 import { staffEmailSchema } from "@/models/staff";
-import { staffDatabasePost } from "@/utils/databaseAPI";
+import { databasePost } from "@/utils/databaseAPI";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -8,8 +9,8 @@ export async function POST(request: NextRequest) {
   try {
     // Verify required environment variables
     if (
-      !process.env.STAFF_DATABASE_API ||
-      !process.env.STAFF_DATABASE_AUTH_KEY ||
+      !process.env.DATABASE_API ||
+      !process.env.DATABASE_AUTH_KEY ||
       !process.env.REDIS_URI
     ) {
       return NextResponse.json(
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
     const emailPayload = {
       official_email: email,
     };
-    const databaseResponse = await staffDatabasePost(
+    const databaseResponse = await databasePost(
       "/staff/getstaffs",
       emailPayload,
     );
@@ -57,10 +58,7 @@ export async function POST(request: NextRequest) {
     const OTP = generateOTP();
     await storeOTP(email, OTP);
 
-    // WARN: for debugging, remove this and uncomment send email
-    console.log(OTP);
-
-    //sendStaffOTPEmail(email, OTP);
+    sendStaffOTPEmail(email, OTP);
 
     return NextResponse.json(
       {

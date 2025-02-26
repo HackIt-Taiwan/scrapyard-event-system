@@ -56,7 +56,7 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      // INFO: for input-otp
+      // INFO: for staff page
       keyframes: {
         "caret-blink": {
           "0%,70%,100%": { opacity: "1" },
@@ -66,7 +66,10 @@ export default {
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
-      fontFamily: { "zen-kurenaido": ["Zen Kurenaido", "serif"] },
+      fontFamily: {
+        "zen-kurenaido": ["Zen Kurenaido", "serif"],
+        "fusion-pixel": ["Fusion Pixel", "serif"],
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

@@ -35,7 +35,17 @@ export async function GET(request: NextRequest) {
       throw new Error(errorData.message || "Database API request failed");
     }
 
+    if (!completedTeamData.data) {
+      return NextResponse.json(
+        {
+          message: null,
+        },
+        { status: 200 },
+      );
+    }
+
     const completedTeam = completedTeamData.data.at(-1);
+    const teamID = completedTeam._id;
     const leaderID = completedTeam.leader_id;
     const teacherID = completedTeam.teacher_id;
     const membersID = [];
@@ -77,7 +87,9 @@ export async function GET(request: NextRequest) {
       throw new Error(errorData.message || "Database API request failed");
     }
 
-    const parsedLeaderData = memberDataReviewSchema.safeParse(leaderData.data[0]);
+    const parsedLeaderData = memberDataReviewSchema.safeParse(
+      leaderData.data[0],
+    );
 
     if (!parsedLeaderData.success) {
       const errorMessages = parsedLeaderData.error.errors.map((err) => ({
@@ -111,7 +123,9 @@ export async function GET(request: NextRequest) {
         throw new Error(errorData.message || "Database API request failed");
       }
 
-      const parsedMemberData = memberDataReviewSchema.safeParse(memberData.data[0]);
+      const parsedMemberData = memberDataReviewSchema.safeParse(
+        memberData.data[0],
+      );
 
       if (!parsedMemberData.success) {
         const errorMessages = parsedMemberData.error.errors.map((err) => ({
@@ -145,7 +159,9 @@ export async function GET(request: NextRequest) {
       throw new Error(errorData.message || "Database API request failed");
     }
 
-    const parsedTeacherData = teacherDataReviewSchema.safeParse(teacherData.data[0]);
+    const parsedTeacherData = teacherDataReviewSchema.safeParse(
+      teacherData.data[0],
+    );
 
     if (!parsedTeacherData.success) {
       const errorMessages = parsedTeacherData.error.errors.map((err) => ({
@@ -168,6 +184,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
+        teamid: teamID,
         message: fullData,
       },
       { status: 200 },

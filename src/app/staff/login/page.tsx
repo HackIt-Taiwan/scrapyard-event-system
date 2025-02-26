@@ -52,7 +52,6 @@ export default function LoginPage() {
       setStep(true);
       setLoading(false);
     } catch (error) {
-      console.log(error);
       setLoading(false);
       return toast({
         title: "登入錯誤😵，請稍後再試。",
@@ -84,7 +83,7 @@ export default function LoginPage() {
         });
       }
 
-      router.push('/staff/review')
+      router.push("/staff/review");
     } catch (error) {
       console.log(error);
       setLoading(false);
@@ -114,8 +113,8 @@ export default function LoginPage() {
 
   // Actual UI
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
-      <div className="-mt-20 space-y-8 rounded-xl px-8 pb-8 pt-12 sm:shadow-xl">
+    <div className="max-w-screen absolute inset-0 mx-auto flex h-screen items-center justify-center">
+      <div className="space-y-8 rounded-xl px-8 pb-8 pt-12 sm:shadow-xl">
         {!step ? (
           <h1 className="pb-0 text-center text-2xl font-semibold">登入🔐</h1>
         ) : (
