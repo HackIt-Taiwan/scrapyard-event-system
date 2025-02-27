@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         { status: 200 },
       );
     }
-    console.log(completedTeamData.data);
+
     const completedTeam = completedTeamData.data.at(-1);
     const teamID = completedTeam._id;
     const leaderID = completedTeam.leader_id;
@@ -87,14 +87,48 @@ export async function GET(request: NextRequest) {
       throw new Error(errorData.message || "Database API request failed");
     }
 
-    // Check if leader data exists before trying to parse it
-    if (leaderData.data && leaderData.data.length > 0) {
-      const parsedLeaderData = memberDataReviewSchema.safeParse(
-        leaderData.data[0],
+    const parsedLeaderData = memberDataReviewSchema.safeParse(
+      leaderData.data[0],
+    );
+
+    if (!parsedLeaderData.success) {
+      const errorMessages = parsedLeaderData.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: errorMessages,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    fullData.push(parsedLeaderData.data);
+
+    // Get and save member data
+    for (var i = 0; i < membersID.length; i++) {
+      const memberDataResponse = await databasePost("/etc/get/member", {
+        _id: membersID[i],
+        ignore_encryption: defaultIgnoreEncryption,
+      });
+      const memberData = await memberDataResponse.json();
+
+      if (!memberDataResponse.ok) {
+        const errorData = await memberDataResponse.json();
+        throw new Error(errorData.message || "Database API request failed");
+      }
+
+      const parsedMemberData = memberDataReviewSchema.safeParse(
+        memberData.data[0],
       );
 
-      if (!parsedLeaderData.success) {
-        const errorMessages = parsedLeaderData.error.errors.map((err) => ({
+      if (!parsedMemberData.success) {
+        const errorMessages = parsedMemberData.error.errors.map((err) => ({
           field: err.path.join("."),
           message: err.message,
         }));
@@ -110,59 +144,7 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      fullData.push(parsedLeaderData.data);
-    } else {
-      // If no leader data is found, return an appropriate message
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Leader data not found",
-        },
-        {
-          status: 404,
-        },
-      );
-    }
-
-    // Get and save member data
-    for (var i = 0; i < membersID.length; i++) {
-      const memberDataResponse = await databasePost("/etc/get/member", {
-        _id: membersID[i],
-        ignore_encryption: defaultIgnoreEncryption,
-      });
-      const memberData = await memberDataResponse.json();
-
-      if (!memberDataResponse.ok) {
-        const errorData = await memberDataResponse.json();
-        throw new Error(errorData.message || "Database API request failed");
-      }
-
-      // Check if member data exists before trying to parse it
-      if (memberData.data && memberData.data.length > 0) {
-        const parsedMemberData = memberDataReviewSchema.safeParse(
-          memberData.data[0],
-        );
-
-        if (!parsedMemberData.success) {
-          const errorMessages = parsedMemberData.error.errors.map((err) => ({
-            field: err.path.join("."),
-            message: err.message,
-          }));
-
-          return NextResponse.json(
-            {
-              success: false,
-              message: errorMessages,
-            },
-            {
-              status: 400,
-            },
-          );
-        }
-
-        fullData.push(parsedMemberData.data);
-      }
-      // If member data doesn't exist, skip this member
+      fullData.push(parsedMemberData.data);
     }
 
     // Get and save teacher data
