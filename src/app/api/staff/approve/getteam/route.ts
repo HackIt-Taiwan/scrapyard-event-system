@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         { status: 200 },
       );
     }
-
+    console.log(completedTeamData.data);
     const completedTeam = completedTeamData.data.at(-1);
     const teamID = completedTeam._id;
     const leaderID = completedTeam.leader_id;
