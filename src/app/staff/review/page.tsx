@@ -14,10 +14,12 @@ export default function ReviewPage() {
   const [teamData, setTeamData] = useState<Array<
     Record<string, string>
   > | null>(null);
+  const [teamIndex, setTeamIndex] = useState(1);
   const [showClipboard, setShowClipboard] = useState(false);
   const [stampedStatus, setStampedStatus] = useState<
     "approve" | "rejected" | null
   >(null);
+  const [animateStamp, setAnimateStamp] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [loadingText, setLoadingText] = useState("少女祈禱中...");
 
@@ -25,28 +27,39 @@ export default function ReviewPage() {
     try {
       setApproving(false);
       setStampedStatus(null);
+      setAnimateStamp(false);
       setTeamData(null);
       setLoadingData(true);
 
-      const res = await fetch("/api/staff/approve/getteam");
+      const res = await fetch(`/api/staff/approve/getteam?index=${teamIndex}`);
       const data = await res.json();
 
-      if (!data.message) {
+      if (!data.message || !res.ok) {
         setLoadingText("已經沒有資料了 :/");
         return;
       }
 
       setTeamID(data.teamid);
+      setStampedStatus(
+        data.status === "待繳費"
+          ? "approve"
+          : data.status === "填寫資料中"
+            ? "rejected"
+            : null,
+      );
+      setTeamIndex(teamIndex + 1);
       setTeamData(data.message); // Reset if data is invalid
       setLoadingData(false);
     } catch (error) {
-      setLoadingData(false);
+      setLoadingText("出錯了 x_x");
     }
   };
 
   const closeClipboard = async () => {
     setTeamData(null);
     setTeamID("");
+    setTeamIndex(1);
+    setAnimateStamp(false);
     setShowClipboard(false);
     setStampedStatus(null);
     setLoadingText("少女祈禱中...");
@@ -64,6 +77,7 @@ export default function ReviewPage() {
   ) => {
     try {
       if (!teamData) return;
+      setAnimateStamp(true);
       setApproving(true);
 
       const reviewPayload = {
@@ -92,7 +106,7 @@ export default function ReviewPage() {
   const skipTeam = () => {
     // Set loading state
     setApproving(true);
-    
+
     // Fetch next team without any approval action
     setTimeout(() => {
       fetchNextTeam();
@@ -127,9 +141,9 @@ export default function ReviewPage() {
       )}
 
       {/*Desk area*/}
-      <div className="h-12 w-[30%] translate-y-60 bg-orange-900">
+      <div className="h-12 w-[80%] translate-y-60 bg-orange-900 xl:w-[30%]">
         <button
-          className="group absolute -top-24 left-10 z-10 transition-all duration-200 ease-out hover:-top-[7rem]"
+          className="group absolute -top-24 z-10 transition-all duration-200 ease-out hover:-top-[7rem] xl:left-10"
           onClick={() => setShowClipboard(true)}
         >
           <Image
@@ -151,18 +165,24 @@ export default function ReviewPage() {
           />
         </div>
       </div>
-      <div className="h-6 w-[30%] translate-y-60 bg-orange-800" />
+      <div className="h-6 w-[80%] translate-y-60 bg-orange-800 xl:w-[30%]" />
+
+      {/* Review area */}
       {showClipboard && teamData && (
-        <>
-          <Clipboard data={teamData} stampedStatus={stampedStatus} />
-          <div className="absolute right-36 flex w-1/2 flex-row justify-between px-36">
+        <div className="flex flex-col items-center xl:flex-row">
+          <Clipboard
+            data={teamData}
+            stampedStatus={stampedStatus}
+            animateStamp={animateStamp}
+          />
+          <div className="absolute flex flex-row justify-between gap-2 px-10 max-xl:bottom-10 lg:px-36 xl:right-36 xl:w-1/2">
             <Stamp
               type="approve"
               onClick={() => markAsReviewed("approve")}
               disabled={isApproving}
             />
             <button
-              className={`z-20 transition-all hover:scale-110 ${isApproving ? "cursor-not-allowed opacity-50" : ""}`}
+              className={`z-20 font-zen-kurenaido text-xl transition-all hover:scale-110 ${isApproving ? "cursor-not-allowed opacity-50" : ""}`}
               onClick={skipTeam}
               disabled={isApproving}
             >
@@ -174,7 +194,7 @@ export default function ReviewPage() {
               disabled={isApproving}
             />
           </div>
-        </>
+        </div>
       )}
     </div>
   );

@@ -21,11 +21,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get complete team's data based on date
+    // Get complete team's data based on index
+    const index = request.nextUrl.searchParams.get("index");
+
+    if (!index) {
+      return NextResponse.json(
+        {
+          message: "Parameters are missing.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
     const fullData = [];
 
     const completedTeamResponse = await databasePost(
-      "/etc/getbydateandstatus/team",
+      "/etc/getalldata/team",
       {},
     );
     const completedTeamData = await completedTeamResponse.json();
@@ -44,7 +57,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const completedTeam = completedTeamData.data.at(-1);
+    const completedTeam = completedTeamData.data.at(-parseInt(index));
+    const teamStatus = completedTeam.status;
     const teamID = completedTeam._id;
     const leaderID = completedTeam.leader_id;
     const teacherID = completedTeam.teacher_id;
@@ -189,6 +203,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         teamid: teamID,
+        status: teamStatus,
         message: fullData,
       },
       { status: 200 },

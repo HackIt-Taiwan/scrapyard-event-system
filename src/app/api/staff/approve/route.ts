@@ -56,16 +56,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (teamStatusCheckData.data[0].status !== "資料確認中") {
-      return NextResponse.json(
-        {
-          message: "Team has not finish filling data yet.",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
+    // INFO: no need
+    //if (teamStatusCheckData.data[0].status !== "資料確認中") {
+    //  return NextResponse.json(
+    //    {
+    //      message: "Team has not finish filling data yet.",
+    //    },
+    //    {
+    //      status: 400,
+    //    },
+    //  );
+    //}
 
     // Update team status
     const teamPayload = {
