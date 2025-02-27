@@ -50,6 +50,7 @@ export default function ReviewPage() {
         return;
       } else if (data.message === "Skip") {
         setTeamData([{ 此隊伍: "尚未填寫完資料。" }]);
+        setLoadingData(false);
         setApproving(true);
       } else {
         setTeamID(data.teamid);
