@@ -159,28 +159,32 @@ export async function GET(request: NextRequest) {
       throw new Error(errorData.message || "Database API request failed");
     }
 
-    const parsedTeacherData = teacherDataReviewSchema.safeParse(
-      teacherData.data[0],
-    );
-
-    if (!parsedTeacherData.success) {
-      const errorMessages = parsedTeacherData.error.errors.map((err) => ({
-        field: err.path.join("."),
-        message: err.message,
-      }));
-
-      return NextResponse.json(
-        {
-          success: false,
-          message: errorMessages,
-        },
-        {
-          status: 400,
-        },
+    // Check if teacher data exists before trying to parse it
+    if (teacherData.data && teacherData.data.length > 0) {
+      const parsedTeacherData = teacherDataReviewSchema.safeParse(
+        teacherData.data[0],
       );
-    }
 
-    fullData.push(parsedTeacherData.data);
+      if (!parsedTeacherData.success) {
+        const errorMessages = parsedTeacherData.error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        }));
+
+        return NextResponse.json(
+          {
+            success: false,
+            message: errorMessages,
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      fullData.push(parsedTeacherData.data);
+    }
+    // If no teacher data, just continue without adding to fullData
 
     return NextResponse.json(
       {
