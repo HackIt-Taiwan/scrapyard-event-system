@@ -58,6 +58,18 @@ export async function GET(request: NextRequest) {
     }
 
     const completedTeam = completedTeamData.data.at(-parseInt(index));
+    if (!completedTeam) {
+      // Index ends and no team
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Index ends",
+        },
+        {
+          status: 200,
+        },
+      );
+    }
     const teamStatus = completedTeam.status;
     const teamID = completedTeam._id;
     const leaderID = completedTeam.leader_id;
@@ -101,6 +113,18 @@ export async function GET(request: NextRequest) {
       throw new Error(errorData.message || "Database API request failed");
     }
 
+    if (!leaderData.data || leaderData.data.length < 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Skip",
+        },
+        {
+          status: 200,
+        },
+      );
+    }
+
     const parsedLeaderData = memberDataReviewSchema.safeParse(
       leaderData.data[0],
     );
@@ -135,6 +159,18 @@ export async function GET(request: NextRequest) {
       if (!memberDataResponse.ok) {
         const errorData = await memberDataResponse.json();
         throw new Error(errorData.message || "Database API request failed");
+      }
+
+      if (!memberData.data || memberData.data.length < 0) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Skip",
+          },
+          {
+            status: 200,
+          },
+        );
       }
 
       const parsedMemberData = memberDataReviewSchema.safeParse(

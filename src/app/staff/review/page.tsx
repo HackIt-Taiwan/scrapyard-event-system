@@ -31,25 +31,53 @@ export default function ReviewPage() {
       setTeamData(null);
       setLoadingData(true);
 
-      const res = await fetch(`/api/staff/approve/getteam?index=${teamIndex}`);
-      const data = await res.json();
+      while (teamIndex < 40) {
+        // INFO: I know this looks bad, but it works
+        const res = await fetch(
+          `/api/staff/approve/getteam?index=${teamIndex}`,
+        );
+        if (!res.ok) {
+          setLoadingText("出錯了 x_x");
+          return;
+        }
 
-      if (!data.message || !res.ok) {
-        setLoadingText("已經沒有資料了 :/");
-        return;
+        const data = await res.json();
+
+        if (!data || typeof data !== "object" || !("message" in data)) {
+          setLoadingText("回應格式錯誤");
+          return;
+        }
+
+        if (data.message === "Index ends") {
+          setLoadingText("已經沒有資料了 :/");
+          return;
+        }
+
+        if (data.message === "Skip") {
+          setTeamIndex((prev) => prev + 1);
+          continue;
+        }
+
+        if (data.message) {
+          setTeamID(data.teamid);
+          setStampedStatus(
+            data.status === "待繳費"
+              ? "approve"
+              : data.status === "填寫資料中"
+                ? "rejected"
+                : null,
+          );
+
+          setTeamData(data.message);
+          setTeamIndex((prev) => prev + 1);
+          setLoadingData(false);
+          return;
+        }
+
+        setTeamIndex((prev) => prev + 1);
       }
-
-      setTeamID(data.teamid);
-      setStampedStatus(
-        data.status === "待繳費"
-          ? "approve"
-          : data.status === "填寫資料中"
-            ? "rejected"
-            : null,
-      );
-      setTeamIndex(teamIndex + 1);
-      setTeamData(data.message); // Reset if data is invalid
-      setLoadingData(false);
+      setLoadingText("已經沒有資料了 :/");
+      return;
     } catch (error) {
       setLoadingText("出錯了 x_x");
     }
