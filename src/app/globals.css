@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: "Fusion Pixel";
-  src: url("../fonts/fusion-pixel.ttf");
+  src: url("/fusion-pixel.ttf");
 }
 
 body {
