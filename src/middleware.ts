@@ -1,7 +1,11 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const protectedRoutes = ["/staff/review", "/api/staff/approve", "/api/staff/approve/getteam"];
+const protectedRoutes = [
+  "/staff/review",
+  "/api/staff/approve",
+  "/api/staff/approve/getteam",
+];
 const publicRoutes = ["/staff/login"];
 
 export default async function middleware(request: NextRequest) {

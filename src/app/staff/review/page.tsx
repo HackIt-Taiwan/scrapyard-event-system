@@ -25,58 +25,46 @@ export default function ReviewPage() {
 
   const fetchNextTeam = async () => {
     try {
+      setTeamID("");
       setApproving(false);
       setStampedStatus(null);
       setAnimateStamp(false);
       setTeamData(null);
       setLoadingData(true);
 
-      while (teamIndex < 40) {
-        // INFO: I know this looks bad, but it works
-        const res = await fetch(
-          `/api/staff/approve/getteam?index=${teamIndex}`,
-        );
-        if (!res.ok) {
-          setLoadingText("出錯了 x_x");
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!data || typeof data !== "object" || !("message" in data)) {
-          setLoadingText("回應格式錯誤");
-          return;
-        }
-
-        if (data.message === "Index ends") {
-          setLoadingText("已經沒有資料了 :/");
-          return;
-        }
-
-        if (data.message === "Skip") {
-          setTeamIndex(teamIndex + 1);
-          continue;
-        }
-
-        if (data.message) {
-          setTeamID(data.teamid);
-          setStampedStatus(
-            data.status === "待繳費"
-              ? "approve"
-              : data.status === "填寫資料中"
-                ? "rejected"
-                : null,
-          );
-
-          setTeamData(data.message);
-          setTeamIndex(teamIndex + 1);
-          setLoadingData(false);
-          return;
-        }
-
-        setTeamIndex(teamIndex + 1);
+      const res = await fetch(`/api/staff/approve/getteam?index=${teamIndex}`);
+      if (!res.ok) {
+        setLoadingText("出錯了 x_x");
+        return;
       }
-      setLoadingText("已經沒有資料了 :/");
+
+      const data = await res.json();
+
+      if (!data || typeof data !== "object" || !("message" in data)) {
+        setLoadingText("回應格式錯誤");
+        return;
+      }
+
+      if (data.message === "Index ends") {
+        setLoadingText("已經沒有資料了 :/");
+        return;
+      } else if (data.message === "Skip") {
+        setTeamData([{ 此隊伍: "尚未填寫完資料。" }]);
+        setApproving(true);
+      } else {
+        setTeamID(data.teamid);
+        setStampedStatus(
+          data.status === "待繳費"
+            ? "approve"
+            : data.status === "填寫資料中"
+              ? "rejected"
+              : null,
+        );
+
+        setTeamData(data.message);
+        setLoadingData(false);
+      }
+      setTeamIndex(teamIndex + 1);
       return;
     } catch (error) {
       setLoadingText("出錯了 x_x");
@@ -210,9 +198,9 @@ export default function ReviewPage() {
               disabled={isApproving}
             />
             <button
-              className={`z-20 font-zen-kurenaido text-xl transition-all hover:scale-110 ${isApproving ? "cursor-not-allowed opacity-50" : ""}`}
+              className={`z-20 font-zen-kurenaido text-xl transition-all hover:scale-110 ${isApproving && teamID !== "" ? "cursor-not-allowed opacity-50" : ""}`}
               onClick={skipTeam}
-              disabled={isApproving}
+              disabled={isApproving && teamID !== ""}
             >
               Skip
             </button>
