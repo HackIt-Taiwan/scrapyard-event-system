@@ -54,7 +54,7 @@ export default function ReviewPage() {
         }
 
         if (data.message === "Skip") {
-          setTeamIndex((prev) => prev + 1);
+          setTeamIndex(teamIndex + 1);
           continue;
         }
 
@@ -69,12 +69,12 @@ export default function ReviewPage() {
           );
 
           setTeamData(data.message);
-          setTeamIndex((prev) => prev + 1);
+          setTeamIndex(teamIndex + 1);
           setLoadingData(false);
           return;
         }
 
-        setTeamIndex((prev) => prev + 1);
+        setTeamIndex(teamIndex + 1);
       }
       setLoadingText("已經沒有資料了 :/");
       return;
