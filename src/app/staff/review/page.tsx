@@ -162,7 +162,7 @@ export default function ReviewPage() {
               disabled={isApproving}
             />
             <button
-              className="rounded-lg bg-yellow-500 px-6 py-3 font-fusion-pixel text-lg text-black hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className={`z-20 transition-all hover:scale-110 ${isApproving ? "cursor-not-allowed opacity-50" : ""}`}
               onClick={skipTeam}
               disabled={isApproving}
             >
