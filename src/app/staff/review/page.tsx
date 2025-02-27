@@ -88,6 +88,17 @@ export default function ReviewPage() {
     }
   };
 
+  // Skip current team without approving or rejecting
+  const skipTeam = () => {
+    // Set loading state
+    setApproving(true);
+    
+    // Fetch next team without any approval action
+    setTimeout(() => {
+      fetchNextTeam();
+    }, 500);
+  };
+
   return (
     <div className="mx-auto flex min-h-fit min-w-full grow flex-col items-center justify-center overflow-hidden bg-gray-900">
       {/* Overlay */}
@@ -150,6 +161,13 @@ export default function ReviewPage() {
               onClick={() => markAsReviewed("approve")}
               disabled={isApproving}
             />
+            <button
+              className="rounded-lg bg-yellow-500 px-6 py-3 font-fusion-pixel text-lg text-black hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={skipTeam}
+              disabled={isApproving}
+            >
+              Skip
+            </button>
             <Stamp
               type="rejected"
               onClick={() => markAsReviewed("rejected")}
