@@ -83,7 +83,7 @@ export default function LoginPage() {
         });
       }
 
-      router.push("/staff/review");
+      router.push("/staff/dashboard");
     } catch (error) {
       console.log(error);
       setLoading(false);
