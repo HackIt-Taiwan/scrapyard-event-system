@@ -56,8 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // INFO: no need
-    //if (teamStatusCheckData.data[0].status !== "資料確認中") {
+    //if (!["已拒絕", "已接受", "資料確認中"].includes(teamStatusCheckData.data[0].status)) {
     //  return NextResponse.json(
     //    {
     //      message: "Team has not finish filling data yet.",
@@ -72,7 +71,7 @@ export async function POST(request: NextRequest) {
     const teamPayload = {
       _id: validationResult.data._id,
       status:
-        validationResult.data.review === "approve" ? "待繳費" : "填寫資料中",
+        validationResult.data.review === "approve" ? "已接受" : "已拒絕",
       ignore_encryption: defaultIgnoreEncryption,
     };
 
