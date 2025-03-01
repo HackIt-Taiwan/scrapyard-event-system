@@ -3,9 +3,9 @@
 import Clipboard from "@/components/Clipboard";
 import Stamp from "@/components/Stamp";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function ReviewPage() {
+function ReviewPageContent() {
   const [isApproving, setApproving] = useState(false);
   const [teamData, setTeamData] = useState<Array<
     Record<string, string>
@@ -15,7 +15,6 @@ export default function ReviewPage() {
   >(null);
   const [animateStamp, setAnimateStamp] = useState(false);
   const [isLoadingData, setLoadingData] = useState(true);
-
   const searchParams = useSearchParams();
   const teamID = searchParams.get("teamid");
   const router = useRouter();
@@ -28,22 +27,18 @@ export default function ReviewPage() {
       if (!teamData) return;
       setAnimateStamp(true);
       setApproving(true);
-
       const reviewPayload = {
         _id: teamID,
         review: status,
         ...(status === "rejected" && reason ? { reason } : {}),
       };
-
       await fetch("/api/staff/approve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewPayload),
       });
       console.log(reviewPayload);
-
       setStampedStatus(status);
-
       setTimeout(() => {
         router.push("/staff/dashboard");
       }, 2000);
@@ -55,7 +50,6 @@ export default function ReviewPage() {
   useEffect(() => {
     setLoadingData(true);
     if (!teamID) return;
-
     const fetchTeam = async () => {
       try {
         const res = await fetch(`/api/staff/approve/getteam?teamid=${teamID}`);
@@ -74,7 +68,6 @@ export default function ReviewPage() {
         console.error(error);
       }
     };
-
     fetchTeam();
   }, [teamID]);
 
@@ -100,5 +93,21 @@ export default function ReviewPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function LoadingReview() {
+  return (
+    <div className="mx-auto flex min-h-fit min-w-full grow flex-col items-center justify-center overflow-hidden bg-gray-900 font-fusion-pixel">
+      <div className="text-white">少女祈禱中...</div>
+    </div>
+  );
+}
+
+export default function ReviewPage() {
+  return (
+    <Suspense fallback={<LoadingReview />}>
+      <ReviewPageContent />
+    </Suspense>
   );
 }
