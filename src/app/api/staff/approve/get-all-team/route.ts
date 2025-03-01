@@ -1,5 +1,3 @@
-import { TokenPayload, verifyToken } from "@/lib/jwt";
-import { teamDatabaseSchemaType } from "@/models/team";
 import { databasePost } from "@/utils/databaseAPI";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -10,44 +8,58 @@ export async function GET(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Internal Server Error, missing DATABASE_API and DATABASE_AUTH_KEY",
+          message:
+            "Internal Server Error, missing DATABASE_API and DATABASE_AUTH_KEY",
         },
         { status: 500 },
       );
     }
 
-    const teamPayload = {
-      status: "資料確認中",
-      ignore_encryption: {
-        _id: true,
-      },
-    };
+    const statuses = ["已接受", "資料確認中", "已拒絕"];
+    let FullData: any = [];
 
-    const teamResponse = await databasePost(`/etc/get/team`, teamPayload);
-    if (!teamResponse.ok) {
-      const errorData = await teamResponse.json();
-      return NextResponse.json(
-        {
-          message: errorData.message || "Database API request failed",
+    for (const status of statuses) {
+      const teamPayload = {
+        status: status,
+        ignore_encryption: {
+          _id: true,
         },
-        { status: 500 },
-      );
-    }
+      };
 
-    const teamData = await teamResponse.json();
-    if (!teamData.data) {
-      return NextResponse.json(
-        {
-          message: "Team does not exist!",
-        },
-        { status: 400 },
-      );
+      try {
+        const teamResponse = await databasePost(`/etc/get/team`, teamPayload);
+
+        if (!teamResponse.ok) {
+          const errorData = await teamResponse.json();
+          return NextResponse.json(
+            {
+              message: errorData.message || "Database API request failed",
+            },
+            { status: 500 },
+          );
+        }
+
+        const teamData = await teamResponse.json();
+        if (!teamData.data) {
+          continue;
+        }
+
+        FullData = FullData.concat(teamData.data);
+      } catch (error) {
+        console.error("Error fetching team data:", error);
+        return NextResponse.json(
+          {
+            message: "An error occurred while fetching team data.",
+          },
+          { status: 500 },
+        );
+      }
     }
 
     return NextResponse.json(
       {
         success: true,
-        data: teamData.data,
+        data: FullData,
       },
       { status: 200 },
     );
@@ -80,4 +92,4 @@ export async function GET(request: Request) {
       { status: 500 },
     );
   }
-} 
+}

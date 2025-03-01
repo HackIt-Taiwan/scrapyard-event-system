@@ -13,6 +13,7 @@ import {
 import { memberDatabaseSchema } from "@/models/member";
 import { teacherDatabaseSchema } from "@/models/teacher";
 import { TeamDatabaseSchema } from "@/models/team";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { z } from "zod";
@@ -32,6 +33,8 @@ const fetcher = (url: string) =>
 
 export default function ReviewPage() {
   const [teamData, setTeamData] = useState<Array<TeamDataType> | null>(null);
+
+  const router = useRouter();
 
   const {
     data: teamData_,
@@ -54,7 +57,7 @@ export default function ReviewPage() {
           <TableCaption>新的團隊審核</TableCaption>
           <TableHeader>
             <TableRow>
-            <TableHead>隊伍編號</TableHead>
+              <TableHead>隊伍編號</TableHead>
               <TableHead>隊伍ID</TableHead>
               <TableHead>隊伍名稱</TableHead>
               <TableHead>隊伍人數</TableHead>
@@ -63,19 +66,29 @@ export default function ReviewPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {teamData?.map((team, index) => 
-              team.status === "資料確認中" && (
-                <TableRow key={team._id}>
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell className="font-medium">{team._id}</TableCell>
-                  <TableCell className="font-medium">{team.team_name}</TableCell>
-                  <TableCell>{team.team_size}</TableCell>
-                  <TableCell>{team.status}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="outline">審核</Button>
-                  </TableCell>
-                </TableRow>
-              )
+            {teamData?.map(
+              (team, index) =>
+                ["資料確認中", "已拒絕", "已接受"].includes(team.status) && (
+                  <TableRow key={team._id}>
+                    <TableCell className="font-medium">{index + 1}</TableCell>
+                    <TableCell className="font-medium">{team._id}</TableCell>
+                    <TableCell className="font-medium">
+                      {team.team_name}
+                    </TableCell>
+                    <TableCell>{team.team_size}</TableCell>
+                    <TableCell>{team.status}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        onClick={() =>
+                          router.push(`/staff/review?teamid=${team._id}`)
+                        }
+                      >
+                        審核
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ),
             )}
           </TableBody>
         </Table>

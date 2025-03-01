@@ -5,6 +5,8 @@ const protectedRoutes = [
   "/staff/review",
   "/api/staff/approve",
   "/api/staff/approve/getteam",
+  "/api/staff/approve/get-all-team",
+  "/staff/dashboard",
 ];
 const publicRoutes = ["/staff/login"];
 
@@ -45,9 +47,9 @@ export default async function middleware(request: NextRequest) {
     if (
       isPublicRoute &&
       email.email &&
-      !request.nextUrl.pathname.startsWith("/staff/review")
+      !request.nextUrl.pathname.startsWith("/staff/dashboard")
     ) {
-      return NextResponse.redirect(new URL("/staff/review", request.url));
+      return NextResponse.redirect(new URL("/staff/dashboard", request.url));
     }
   }
 

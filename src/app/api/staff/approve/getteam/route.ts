@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get complete team's data based on index
-    const index = request.nextUrl.searchParams.get("index");
+    const index = request.nextUrl.searchParams.get("teamid");
 
     if (!index) {
       return NextResponse.json(
@@ -35,11 +35,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const teamPayload = {
+      _id: index,
+      ignore_encryption: defaultIgnoreEncryption,
+    };
+
     const fullData = [];
 
     const completedTeamResponse = await databasePost(
-      "/etc/getalldata/team",
-      {},
+      "/etc/get/team",
+      teamPayload,
     );
     const completedTeamData = await completedTeamResponse.json();
 
@@ -51,36 +56,22 @@ export async function GET(request: NextRequest) {
     if (!completedTeamData.data) {
       return NextResponse.json(
         {
-          message: null,
+          message: "Team does not exist!",
         },
-        { status: 200 },
+        { status: 400 },
       );
     }
 
-    const completedTeam = completedTeamData.data.at(-parseInt(index));
-    if (!completedTeam) {
-      // Index ends and no team
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Index ends",
-        },
-        {
-          status: 200,
-        },
-      );
-    }
-    const teamStatus = completedTeam.status;
-    const teamID = completedTeam._id;
-    const leaderID = completedTeam.leader_id;
-    const teacherID = completedTeam.teacher_id;
+    const teamStatus = completedTeamData.data[0].status;
+    const leaderID = completedTeamData.data[0].leader_id;
+    const teacherID = completedTeamData.data[0].teacher_id;
     const membersID = [];
-    for (var i = 0; i < completedTeam.members_id.length; i++) {
-      membersID.push(completedTeam.members_id[i]);
+    for (var i = 0; i < completedTeamData.data[0].members_id.length; i++) {
+      membersID.push(completedTeamData.data[0].members_id[i]);
     }
 
     // Parse and save team data to fullData
-    const parsedTeamData = teamDataReviewSchema.safeParse(completedTeam);
+    const parsedTeamData = teamDataReviewSchema.safeParse(completedTeamData.data[0]);
 
     if (!parsedTeamData.success) {
       const errorMessages = parsedTeamData.error.errors.map((err) => ({
@@ -117,10 +108,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Skip",
+          message: "Team hasn't complete filling data yet!",
         },
         {
-          status: 200,
+          status: 400,
         },
       );
     }
@@ -165,10 +156,11 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(
           {
             success: false,
-            message: "Skip",
+
+            message: "Team hasn't complete filling data yet!",
           },
           {
-            status: 200,
+            status: 400,
           },
         );
       }
@@ -238,7 +230,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        teamid: teamID,
         status: teamStatus,
         message: fullData,
       },
