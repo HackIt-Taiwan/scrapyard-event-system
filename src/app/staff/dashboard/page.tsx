@@ -44,9 +44,31 @@ export default function ReviewPage() {
 
   useEffect(() => {
     if (teamData_) {
-      setTeamData(teamData_.data);
+      // Get the original data
+      const originalData = teamData_.data;
+      
+      // Check if we have enough teams to copy indices 3 and 4
+      if (originalData && originalData.length >= 5) {
+        // Create copies of teams at indices 3 and 4
+        const teamCopy1 = JSON.parse(JSON.stringify(originalData[3]));
+        const teamCopy2 = JSON.parse(JSON.stringify(originalData[4]));
+        
+        // Modify team names
+        teamCopy1.team_name = `它叫我取團隊名稱`;
+        teamCopy2.team_name = `別再用cursor了`;
+        
+        // Add the copies to the data
+        const newData = [...originalData, teamCopy1, teamCopy2];
+        setTeamData(newData);
+      } else {
+        // If not enough teams, just use the original data
+        setTeamData(originalData);
+      }
+
+      console.log(teamData_.data);
     }
   }, [teamData_]);
+
   return (
     <div className="container mx-auto mt-10">
       <div className="flex flex-col items-center justify-center">
