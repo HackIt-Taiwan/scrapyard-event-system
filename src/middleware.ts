@@ -47,8 +47,13 @@ export default async function middleware(request: NextRequest) {
 
   const cookie = (await cookies()).get("session")?.value;
 
+  // Redirect to login if trying to access protected route without a cookie
   if (isProtectedRoute && !cookie) {
-    return NextResponse.redirect(new URL("/staff/login", request.url));
+    // Prevent redirect loops by checking we're not already going to the login page
+    const redirectUrl = new URL("/staff/login", request.url);
+    if (request.nextUrl.pathname !== redirectUrl.pathname) {
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
   if (cookie && (isProtectedRoute || isPublicRoute)) {
@@ -72,6 +77,11 @@ export default async function middleware(request: NextRequest) {
 
     if (isProtectedRoute && !email.email) {
       return NextResponse.redirect(new URL("/staff/login", request.url));
+    }
+    
+    // Redirect root staff URL to home page when authenticated
+    if (path === '/staff' && email.email) {
+      return NextResponse.redirect(new URL("/staff/home", request.url));
     }
   }
 

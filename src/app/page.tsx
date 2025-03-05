@@ -21,9 +21,12 @@ export default function Home() {
         Scrapyard 是由 HackIt 團隊舉辦的 Hack Club 黑客松
       </h2>
 
-      <Button variant="default" className="w-full" asChild>
-        <Link href="/apply/steps/create-team">立即報名</Link>
+      <Button variant="default" className="w-full" disabled>
+        報名已截止
       </Button>
+      <p className="mt-2 text-center text-sm text-muted-foreground">
+        報名期限已於 2024 年 3 月 5 日結束
+      </p>
     </div>
   );
 }

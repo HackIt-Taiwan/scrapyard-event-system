@@ -49,18 +49,6 @@ export default function ReviewPage() {
       
       // Check if we have enough teams to copy indices 3 and 4
       if (originalData && originalData.length >= 5) {
-        // Create copies of teams at indices 3 and 4
-        const teamCopy1 = JSON.parse(JSON.stringify(originalData[3]));
-        const teamCopy2 = JSON.parse(JSON.stringify(originalData[4]));
-        
-        // Modify team names
-        teamCopy1.team_name = `它叫我取團隊名稱`;
-        teamCopy2.team_name = `別再用cursor了`;
-        
-        // Add the copies to the data
-        const newData = [...originalData, teamCopy1, teamCopy2];
-        setTeamData(newData);
-      } else {
         // If not enough teams, just use the original data
         setTeamData(originalData);
       }
