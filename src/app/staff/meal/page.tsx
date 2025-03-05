@@ -456,8 +456,8 @@ const MealPage = () => {
                 <TabsContent value="history" className="pt-4">
                   {memberData.meal_pickups &&
                   memberData.meal_pickups.length > 0 ? (
-                    <Table>
-                      <TableHeader>
+                    <Table className="border rounded-md overflow-hidden">
+                      <TableHeader className="bg-slate-100">
                         <TableRow>
                           <TableHead>餐食類型</TableHead>
                           <TableHead>活動日</TableHead>
@@ -465,9 +465,9 @@ const MealPage = () => {
                           <TableHead>備註</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
+                      <TableBody className="bg-slate-50">
                         {memberData.meal_pickups.map((pickup, index) => (
-                          <TableRow key={index}>
+                          <TableRow key={index} className="hover:bg-slate-100 border-b border-slate-200">
                             <TableCell>
                               <Badge variant="outline">
                                 {pickup.meal_type}
