@@ -1,4 +1,4 @@
-import React from "react";
+"use client";
 import { useRouter } from "next/navigation";
 import {
   ClipboardCheck,
@@ -16,17 +16,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import AuthCheck from "@/components/AuthCheck";
 
 export default function StaffHomePage() {
-  return (
-    <AuthCheck requiredRoles={["staff"]} redirectTo="/staff/login">
-      <StaffHomeContent />
-    </AuthCheck>
-  );
-}
-
-function StaffHomeContent() {
   const router = useRouter();
 
   const navigationItems = [
@@ -34,7 +25,7 @@ function StaffHomeContent() {
       title: "團隊審核",
       description: "審核新的團隊申請",
       icon: <FileCheck className="h-8 w-8" />,
-      href: "/staff/review",
+      href: "/staff/dsahboard",
       color: "bg-blue-500 hover:bg-blue-600",
     },
     {
@@ -52,8 +43,8 @@ function StaffHomeContent() {
       color: "bg-amber-500 hover:bg-amber-600",
     },
     {
-      title: "團隊管理",
-      description: "查看所有團隊和相關數據",
+      title: "敬請期待",
+      description: "敬請期待",
       icon: <Users className="h-8 w-8" />,
       href: "/staff/dashboard",
       color: "bg-purple-500 hover:bg-purple-600",
