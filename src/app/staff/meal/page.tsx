@@ -4,6 +4,7 @@ import { IDetectedBarcode, Scanner, useDevices } from "@yudiel/react-qr-scanner"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { AlertCircle } from "lucide-react";
 
 // Shadcn UI components
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +80,7 @@ const MealPage = () => {
   const [mealDay, setMealDay] = useState("Day 1"); // Default to Day 1
   const [notes, setNotes] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const devices = useDevices();
   const [selectedDevice, setSelectedDevice] = useState<MediaDeviceInfo | null>(null);
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
@@ -153,6 +155,7 @@ const MealPage = () => {
     if (!memberData) return;
 
     setAddingMeal(true);
+    setErrorMessage(null);
 
     try {
       const response = await fetch("/api/staff/meal/add-pickup", {
@@ -170,27 +173,35 @@ const MealPage = () => {
 
       const data = await response.json();
 
+      // Specifically handle 409 Conflict
+      if (response.status === 409) {
+        setErrorMessage(`${memberData.member_name} 已經領取了 ${mealDay} 的 ${mealType}`);
+        return;
+      }
+
       if (!response.ok) {
-        throw new Error(data.message || "無法記錄餐食領取");
+        if (data.already_picked_up) {
+          // Show more detailed message for already picked up meals
+          setErrorMessage(`${memberData.member_name} 已經領取了 ${mealDay} 的 ${mealType}`);
+        } else {
+          setErrorMessage(data.message || "無法記錄餐食領取");
+        }
+        return;
       }
 
       if (data.success) {
-        toast.success(`${mealType} 領取成功!`);
-        // Reset form
-        setNotes("");
-      } else {
-        toast.error(data.message || "無法記錄餐食領取");
+        // Update the member data with the new meal pickup
+        if (data.meal_pickup) {
+          setMemberData({
+            ...memberData,
+            meal_pickups: [data.meal_pickup, ...memberData.meal_pickups],
+          });
+        }
+        resetForm();
       }
     } catch (error) {
       console.error("Error adding meal pickup:", error);
-      if (
-        error instanceof Error &&
-        error.message.includes("already been picked up")
-      ) {
-        toast.error("該餐食已被領取");
-      } else {
-        toast.error("餐食記錄失敗");
-      }
+      setErrorMessage("發生錯誤，無法記錄餐食領取");
     } finally {
       setAddingMeal(false);
     }
@@ -425,6 +436,13 @@ const MealPage = () => {
                   >
                     {addingMeal ? "記錄中..." : "記錄餐食領取"}
                   </Button>
+                  
+                  {errorMessage && (
+                    <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                      <AlertCircle className="mr-2 inline-block h-4 w-4" />
+                      {errorMessage}
+                    </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="history" className="pt-4">
