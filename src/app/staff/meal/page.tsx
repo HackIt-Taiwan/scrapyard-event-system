@@ -241,7 +241,7 @@ const MealPage = () => {
   };
 
   return (
-    <div className="container mx-auto py-10 bg-slate-50 min-h-screen">
+    <div className="container mx-auto py-10 min-h-screen">
       <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight">餐食領取系統</h1>
         <p className="mt-1 text-muted-foreground">
@@ -288,7 +288,7 @@ const MealPage = () => {
               </div>
             )}
 
-            <div className="aspect-square w-full overflow-hidden rounded-lg bg-slate-100">
+            <div className="aspect-square w-full overflow-hidden rounded-lg">
               {!loading && (
                 <Scanner
                   onScan={handleDecode}
@@ -457,7 +457,7 @@ const MealPage = () => {
                   {memberData.meal_pickups &&
                   memberData.meal_pickups.length > 0 ? (
                     <Table className="border rounded-md overflow-hidden">
-                      <TableHeader className="bg-slate-100">
+                      <TableHeader className="">
                         <TableRow>
                           <TableHead>餐食類型</TableHead>
                           <TableHead>活動日</TableHead>
@@ -467,7 +467,7 @@ const MealPage = () => {
                       </TableHeader>
                       <TableBody className="bg-slate-50">
                         {memberData.meal_pickups.map((pickup, index) => (
-                          <TableRow key={index} className="hover:bg-slate-100 border-b border-slate-200">
+                          <TableRow key={index} className="border-b border-slate-200">
                             <TableCell>
                               <Badge variant="outline">
                                 {pickup.meal_type}
