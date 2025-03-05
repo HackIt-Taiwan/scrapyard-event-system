@@ -241,7 +241,7 @@ const MealPage = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-6">
+    <div className="container mx-auto py-10 bg-slate-50 min-h-screen">
       <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight">餐食領取系統</h1>
         <p className="mt-1 text-muted-foreground">
@@ -288,7 +288,7 @@ const MealPage = () => {
               </div>
             )}
 
-            <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+            <div className="aspect-square w-full overflow-hidden rounded-lg bg-slate-100">
               {!loading && (
                 <Scanner
                   onScan={handleDecode}
@@ -309,7 +309,7 @@ const MealPage = () => {
 
       {/* Member Details Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="max-w-4xl bg-slate-50">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">成員資訊</DialogTitle>
           </DialogHeader>

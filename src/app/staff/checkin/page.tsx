@@ -225,7 +225,7 @@ export default function CheckInPage() {
                       </Button>
                     )}
                   </div>
-                  <div className="w-full aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                  <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-4 bg-slate-100">
                     <Scanner
                       onScan={handleDecode}
                       onError={handleError}
