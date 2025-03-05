@@ -23,6 +23,7 @@ const TeamDatabaseSchema = TeamSchema.extend({
     teacher_id: z.string(),
     members_id: z.array(z.string()),
     status: z.string(), // 已拒絕, 填寫資料中, 資料確認中, 已接受, 入選
+    checked_in: z.boolean().default(false), // Track whether the team has checked in
     completeAt: z.date().optional(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),

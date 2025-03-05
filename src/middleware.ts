@@ -7,6 +7,11 @@ const protectedRoutes = [
   "/api/staff/approve/getteam",
   "/api/staff/approve/get-all-team",
   "/staff/dashboard",
+  "/staff/checkin",
+  "/api/staff/checkin",
+  "/staff/meal",
+  "/api/staff/meal/add-pickup",
+  "/api/staff/meal/get-history",
 ];
 const publicRoutes = ["/staff/login"];
 
@@ -57,5 +62,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/staff/:path*", "/api/staff/approve/:path*"],
+  matcher: ["/staff/:path*", "/api/staff/:path*"],
 };
