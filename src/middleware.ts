@@ -52,9 +52,10 @@ export default async function middleware(request: NextRequest) {
     if (
       isPublicRoute &&
       email.email &&
-      !request.nextUrl.pathname.startsWith("/staff/dashboard")
+      !request.nextUrl.pathname.startsWith("/staff/home") &&
+      !request.nextUrl.pathname.startsWith("/staff")
     ) {
-      return NextResponse.redirect(new URL("/staff/dashboard", request.url));
+      return NextResponse.redirect(new URL("/staff/home", request.url));
     }
   }
 
