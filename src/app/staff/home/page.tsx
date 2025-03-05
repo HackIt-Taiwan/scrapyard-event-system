@@ -25,7 +25,7 @@ export default function StaffHomePage() {
       title: "團隊審核",
       description: "審核新的團隊申請",
       icon: <FileCheck className="h-8 w-8" />,
-      href: "/staff/dsahboard",
+      href: "/staff/dashboard",
       color: "bg-blue-500 hover:bg-blue-600",
     },
     {
