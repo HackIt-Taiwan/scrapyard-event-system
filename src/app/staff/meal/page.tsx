@@ -261,7 +261,7 @@ const MealPage = () => {
                     </Button>
                   )}
                 </div>
-                <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-4 bg-slate-100">
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-4">
                   <Scanner
                     onScan={handleDecode}
                     onError={handleError}
@@ -283,7 +283,7 @@ const MealPage = () => {
 
       {/* Member Details Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-4xl bg-slate-50">
+        <DialogContent className="max-w-4xl  max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">成員資訊</DialogTitle>
           </DialogHeader>
@@ -439,7 +439,7 @@ const MealPage = () => {
                           <TableHead>備註</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody className="bg-slate-50">
+                      <TableBody className="">
                         {memberData.meal_pickups.map((pickup, index) => (
                           <TableRow key={index} className="border-b border-slate-200">
                             <TableCell>
