@@ -1,6 +1,6 @@
 "use client";
 
-import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
+import { IDetectedBarcode, Scanner, useDevices } from "@yudiel/react-qr-scanner";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -79,45 +79,9 @@ const MealPage = () => {
   const [mealDay, setMealDay] = useState("Day 1"); // Default to Day 1
   const [notes, setNotes] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState<MediaDeviceInfo | null>(
-    null,
-  );
-  const [facingMode, setFacingMode] = useState<string>("environment");
-
-  // Get available camera devices
-  useEffect(() => {
-    const getDevices = async () => {
-      try {
-        // Request camera permissions first
-        await navigator.mediaDevices.getUserMedia({ video: true });
-
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(
-          (device) => device.kind === "videoinput",
-        ) as MediaDeviceInfo[];
-
-        setDevices(videoDevices);
-
-        if (videoDevices.length > 0) {
-          // Prefer back camera if available
-          const backCamera = videoDevices.find(
-            (device) =>
-              device.label.toLowerCase().includes("back") ||
-              device.label.toLowerCase().includes("環境") ||
-              device.label.toLowerCase().includes("後"),
-          );
-
-          setSelectedDevice(backCamera || videoDevices[0]);
-        }
-      } catch (error) {
-        console.error("Error accessing camera devices:", error);
-        toast.error("無法訪問相機，請確保已授予權限");
-      }
-    };
-
-    getDevices();
-  }, []);
+  const devices = useDevices();
+  const [selectedDevice, setSelectedDevice] = useState<MediaDeviceInfo | null>(null);
+  const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -240,6 +204,15 @@ const MealPage = () => {
     setShowModal(false);
   };
 
+  const toggleCamera = () => {
+    setFacingMode(prev => prev === "environment" ? "user" : "environment");
+  };
+
+  const handleError = (error: any) => {
+    console.error("Scanner error:", error);
+    toast.error("掃描錯誤，請重試");
+  };
+
   return (
     <div className="container mx-auto py-10 min-h-screen">
       <div className="mb-6">
@@ -249,57 +222,58 @@ const MealPage = () => {
         </p>
       </div>
 
-      <Card className="mb-6 w-full">
+      <Card>
         <CardHeader>
-          <CardTitle>成員掃描</CardTitle>
-          <CardDescription>掃描QR碼來查看和記錄餐食領取</CardDescription>
+          <CardTitle>QR Code Scanner</CardTitle>
+          <CardDescription>掃描成員QR碼以記錄餐點領取</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-hidden rounded-lg">
-            {devices.length > 1 && (
-              <div className="mb-4">
-                <Label htmlFor="camera-select">選擇相機</Label>
-                <Select
-                  value={selectedDevice?.deviceId || ""}
-                  onValueChange={(value) => {
-                    const device = devices.find((d) => d.deviceId === value);
-                    if (device) {
-                      setSelectedDevice(device);
-                      // Set facing mode based on camera selection
-                      const isFrontCamera =
-                        device.label.toLowerCase().includes("front") ||
-                        device.label.toLowerCase().includes("前");
-                      setFacingMode(isFrontCamera ? "user" : "environment");
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="選擇相機" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {devices.map((device) => (
-                      <SelectItem key={device.deviceId} value={device.deviceId}>
-                        {device.label ||
-                          `相機 ${device.deviceId.substring(0, 5)}...`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {!loading && (
+              <>
+                <div className="mb-4 flex justify-between items-center">
+                  {devices && devices.length > 1 ? (
+                    <Select
+                      value={selectedDevice?.deviceId || ""}
+                      onValueChange={(value: string) => {
+                        const device = devices.find((d: MediaDeviceInfo) => d.deviceId === value);
+                        if (device) setSelectedDevice(device);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="選擇相機" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {devices.map((device: MediaDeviceInfo) => (
+                          <SelectItem key={device.deviceId} value={device.deviceId}>
+                            {device.label || `相機 ${device.deviceId.slice(0, 5)}...`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Button
+                      onClick={toggleCamera}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      {facingMode === "environment" ? "使用前置鏡頭" : "使用後置鏡頭"}
+                    </Button>
+                  )}
+                </div>
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-4 bg-slate-100">
+                  <Scanner
+                    onScan={handleDecode}
+                    onError={handleError}
+                    scanDelay={1000}
+                    constraints={{
+                      facingMode: facingMode,
+                      ...(selectedDevice ? { deviceId: { exact: selectedDevice.deviceId } } : {})
+                    }}
+                  />
+                </div>
+              </>
             )}
-
-            <div className="aspect-square w-full overflow-hidden rounded-lg">
-              {!loading && (
-                <Scanner
-                  onScan={handleDecode}
-                  onError={(error) => {
-                    console.error("Scanner error:", error);
-                    toast.error("掃描器錯誤，請嘗試手動輸入");
-                  }}
-                  scanDelay={1000}
-                />
-              )}
-            </div>
             <p className="mt-2 text-center text-xs text-muted-foreground">
               將QR碼對準相機進行掃描
             </p>
