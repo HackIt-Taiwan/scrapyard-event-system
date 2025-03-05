@@ -2,22 +2,47 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 const protectedRoutes = [
+  // Staff page routes
+  "/staff",
+  "/staff/home",
   "/staff/review",
+  "/staff/dashboard",
+  "/staff/checkin",
+  "/staff/meal",
+  
+  // Staff approval API routes
   "/api/staff/approve",
   "/api/staff/approve/getteam",
   "/api/staff/approve/get-all-team",
-  "/staff/dashboard",
-  "/staff/checkin",
+  
+  // Staff checkin API routes
   "/api/staff/checkin",
-  "/staff/meal",
+  "/api/staff/checkin/get-members",
+  
+  // Staff meal API routes
   "/api/staff/meal/add-pickup",
   "/api/staff/meal/get-history",
 ];
-const publicRoutes = ["/staff/login"];
+
+// Routes that should be accessible without authentication
+const publicRoutes = [
+  "/staff/login",
+  "/api/staff/auth/send-code",
+  "/api/staff/auth/verify-code",
+  "/api/staff/auth/session/verify",
+];
 
 export default async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const isProtectedRoute = protectedRoutes.includes(path);
+  
+  // Better protection for all staff routes
+  // This checks if path starts with /staff/ or is exactly /staff but isn't the login page
+  const isStaffRoute = (path === "/staff" || path.startsWith("/staff/")) && path !== "/staff/login";
+  const isProtectedApiRoute = path.startsWith("/api/staff/") && 
+                             !path.startsWith("/api/staff/auth/");
+  
+  // This combines the explicit list with the new logic
+  const isProtectedRoute = protectedRoutes.includes(path) || isStaffRoute || isProtectedApiRoute;
   const isPublicRoute = publicRoutes.includes(path);
 
   const cookie = (await cookies()).get("session")?.value;
@@ -47,15 +72,6 @@ export default async function middleware(request: NextRequest) {
 
     if (isProtectedRoute && !email.email) {
       return NextResponse.redirect(new URL("/staff/login", request.url));
-    }
-
-    if (
-      isPublicRoute &&
-      email.email &&
-      !request.nextUrl.pathname.startsWith("/staff/home") &&
-      !request.nextUrl.pathname.startsWith("/staff")
-    ) {
-      return NextResponse.redirect(new URL("/staff/home", request.url));
     }
   }
 
