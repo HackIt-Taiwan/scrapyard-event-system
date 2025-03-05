@@ -331,7 +331,7 @@ export default function CheckInPage() {
                         key={team._id} 
                         className={`border rounded-lg p-4 ${
                           isFullyCheckedIn ? 'border-green-500 bg-green-50' : 
-                          checkedInCount > 0 ? 'border-yellow-500 bg-yellow-50' : 'border-gray-300'
+                          checkedInCount > 0 ? 'border-yellow-500' : 'border-gray-300'
                         }`}
                       >
                         <div className="flex justify-between items-center mb-2">
@@ -341,7 +341,7 @@ export default function CheckInPage() {
                           <div className="text-sm">
                             <span className={`px-2 py-1 rounded-full ${
                               isFullyCheckedIn ? 'bg-green-100 text-green-800' : 
-                              checkedInCount > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
+                              checkedInCount > 0 ? 'text-green-500' : 'bg-gray-100 text-gray-800'
                             }`}>
                               {checkedInCount}/{totalMembers} 報到
                               {isFullyCheckedIn && ' ✓'}
