@@ -23,6 +23,7 @@ const memberDatabaseSchema = memberSchema.extend({
   team_id: z.string(),
   is_leader: z.boolean(),
   email_verified: z.boolean(),
+  checked_in: z.boolean().default(false),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
   ignore_encryption: ignoreEncryptionSchema,

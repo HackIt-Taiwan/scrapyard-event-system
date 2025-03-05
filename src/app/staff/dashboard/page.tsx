@@ -71,8 +71,16 @@ export default function ReviewPage() {
 
   return (
     <div className="container mx-auto mt-10">
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center mb-8">
         <h1 className="text-2xl font-bold">新的團隊審核</h1>
+        <div className="flex gap-4 mt-4">
+          <Button 
+            onClick={() => router.push('/staff/checkin')}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
+            參賽者報到
+          </Button>
+        </div>
       </div>
       <div>
         <Table>

@@ -25,30 +25,11 @@ const tokenSchema = z.object({
 });
 
 // -- review --
-const reviewSchema = z.object({
+export const reviewSchema = z.object({
   _id: z.string(),
-  review: z.enum(["approve", "rejected"]),
-  reason: z.string().optional().refine(
-    (data) => {
-      // If review is rejected, reason must be present
-      return true;
-    },
-    {
-      message: "Reason is required when review is rejected"
-    }
-  )
-}).refine(
-  (data) => {
-    if (data.review === "rejected") {
-      return !!data.reason;
-    }
-    return true;
-  },
-  {
-    message: "Reason is required when review is rejected",
-    path: ["reason"]
-  }
-);
+  review: z.union([z.literal("approve"), z.literal("rejected")]),
+  reason: z.string().optional(),
+});
 
 const teamDataReviewSchema = z.object({
   team_name: z.string(),
@@ -88,4 +69,9 @@ const teacherDataReviewSchema = teacherSchema.extend({}).transform(data => ({
   會不會參加: data.attend ? "會" : "不會"
 }));
 
-export { staffEmailSchema, staffVerifySchema, tokenSchema, reviewSchema, teamDataReviewSchema, memberDataReviewSchema, teacherDataReviewSchema };
+export const checkInSchema = z.object({
+  member_id: z.string(),
+  checked_in: z.boolean().default(true),
+});
+
+export { staffEmailSchema, staffVerifySchema, tokenSchema, teamDataReviewSchema, memberDataReviewSchema, teacherDataReviewSchema };
