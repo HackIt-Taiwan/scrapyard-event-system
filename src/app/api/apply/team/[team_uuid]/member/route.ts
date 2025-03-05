@@ -108,6 +108,7 @@ export async function POST(
         is_leader: false,
         email_verified: checkResponseData?.data?.[0]?.email === validationResult.data.email,
         team_id: team_uuid,
+        checked_in: false,
         ignore_encryption: defaultIgnoreEncryption,
       };
 
@@ -204,6 +205,7 @@ export async function POST(
         is_leader: true,
         email_verified: checkResponseData?.data?.[0]?.email === validationResult.data.email,
         team_id: team_uuid,
+        checked_in: false,
         ignore_encryption: defaultIgnoreEncryption,
       };
       // Send verification email if email updated
