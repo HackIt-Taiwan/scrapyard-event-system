@@ -61,19 +61,7 @@ async function sendDiscordNotification(teamData: teamDatabaseSchemaType) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Application period has ended (after March 5th)
-    const currentDate = new Date();
-    const deadline = new Date('2024-03-05T23:59:59.999Z');
-    
-    if (currentDate > deadline) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "報名已經結束，不再接受新的團隊註冊。",
-        },
-        { status: 403 },
-      );
-    }
+    // Application period is now open again
     
     // Verify required environment variables
     if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
