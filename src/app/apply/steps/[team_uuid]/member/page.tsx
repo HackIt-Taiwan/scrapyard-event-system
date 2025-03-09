@@ -106,7 +106,6 @@ export default function stepPage() {
   }
 
   const [show, setShow] = useState(true);
-  const [back, setBack] = useState(false);
 
   const {
     data: memberData_,

@@ -1,4 +1,4 @@
-import taiwanIdValidator from "taiwan-id-validator";
+import {isNationalIdentificationNumberValid}  from 'taiwan-id-validator';
 import { z } from "zod";
 
 export const grades = ["高中/職/專科一年級", "高中/職/專科二年級", "高中/職/專科三年級"] as const;
@@ -43,7 +43,7 @@ export const memberDataSchema = z.object({
   // National ID for insurance
   nationalId: z
     .string()
-    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
+    .refine((id) => isNationalIdentificationNumberValid(id), {
       message: "你的身份證字號格式錯誤",
     }),
 
@@ -78,18 +78,6 @@ export const memberDataSchema = z.object({
     .string()
     .max(10, "緊急聯絡人關係太長了")
     .min(1, "緊急聯絡人關係太短了"),
-  
-  // 保險資料
-  // nationalID: z
-  //   .string()
-  //   .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
-  //     message: "你的身份證字號格式錯誤",
-  //   }),
-  // birthDate: z.preprocess((k) => {
-  //   if (typeof k === "string" || k instanceof Date) {
-  //     return new Date(k);
-  //   }
-  // }, z.date()),
 });
 
   
