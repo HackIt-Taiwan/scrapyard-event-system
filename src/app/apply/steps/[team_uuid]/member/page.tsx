@@ -70,6 +70,25 @@ async function compressImage(file: File) {
   }
 }
 
+// Add RiskAgreement component
+function RiskAgreement() {
+  return (
+    <div className="flex items-center gap-2 rounded-md border p-3 shadow-sm">
+      <div className="text-sm text-muted-foreground">
+        請下載並填寫個人競賽風險承擔同意書，填寫完成後請上傳：
+      </div>
+      <a
+        href="/競賽風險承擔同意書.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 underline underline-offset-2"
+      >
+        點此下載
+      </a>
+    </div>
+  );
+}
+
 export default function stepPage() {
   const searchParams = useSearchParams();
   const authJwt = searchParams.get("auth");
@@ -81,6 +100,7 @@ export default function stepPage() {
   const [uploadingCardBack, setUploadingCardBack] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showTShirtGuide, setShowTShirtGuide] = useState(false);
+  const [uploadingRiskAgreement, setUploadingRiskAgreement] = useState(false);
   if (!authJwt) {
     return notFound();
   }
@@ -465,97 +485,22 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="nationalId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>身份證字號 *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="A123456789" required={true} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
               </div>
-
-              {/* 保險相關資料 */}
-
-              {/* 
-              <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
-                <h2 className="font-bold">保險相關資料</h2>
-                <FormField
-                  control={form.control}
-                  name={`nationalID`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>身分證字號 (保險用) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="A121212121"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`birthDate`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>生日 (保險用) *</FormLabel>
-                      <br />
-                      <FormControl>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground",
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>請選擇日期</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="center">
-                            <Calendar
-                              mode="single"
-                              selected={new Date(field.value)}
-                              onSelect={field.onChange}
-                              fromYear={2006}
-                              toYear={2010}
-                              defaultMonth={
-                                field.value
-                                  ? new Date(field.value)
-                                  : new Date("2009-01-01")
-                              }
-                              captionLayout="dropdown"
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`nationalID`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>通訊地址 (保險用) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="臺北市信義區信義路5段7號"
-                          required={true}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div> */}
 
               {/* 緊急聯絡人資料 */}
               <div className="flex flex-col space-y-4 rounded-lg border-2 p-4">
@@ -677,7 +622,127 @@ export default function stepPage() {
                     </FormItem>
                   )}
                 />
+                                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>地址 (收T-shirt用) *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="台北市中正區忠孝東路一段"
+                          required={true}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
+
+              <div className="mt-4">
+                <RiskAgreement />
+
+                <FormField
+                  control={form.control}
+                  name="competitionRiskAgreement"
+                  render={({ field }) => (
+                    <FormItem className="mt-4">
+                      <FormLabel className="font-bold">請上傳已簽署的競賽風險承擔同意書 *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            disabled={uploadingRiskAgreement}
+                            onChange={async (e) => {
+                              try {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                
+                                setUploadingRiskAgreement(true);
+                                
+                                // Create form data
+                                const formData = new FormData();
+                                formData.append("pdf", file);
+                                
+                                // Upload the file using the PDF upload endpoint
+                                const uploadResponse = await fetch(
+                                  process.env.NEXT_PUBLIC_DATABASE_API + "/pdf/upload",
+                                  {
+                                    method: "POST",
+                                    body: formData,
+                                  }
+                                );
+                                
+                                const uploadData = await uploadResponse.json();
+                                
+                                if (uploadData.data) {
+                                  field.onChange(uploadData.data);
+                                  toast({
+                                    title: "上傳成功",
+                                    description: "競賽風險承擔同意書上傳成功",
+                                  });
+                                } else {
+                                  toast({
+                                    title: "上傳失敗",
+                                    description: uploadData.message || "上傳失敗，請再試一次",
+                                    variant: "destructive",
+                                  });
+                                }
+                              } catch (error) {
+                                console.error(error);
+                                toast({
+                                  title: "上傳失敗",
+                                  description: "上傳時發生錯誤，請再試一次",
+                                  variant: "destructive",
+                                });
+                              } finally {
+                                setUploadingRiskAgreement(false);
+                              }
+                            }}
+                            className="flex-1"
+                          />
+                          {uploadingRiskAgreement && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                              <div className="animate-spin h-5 w-5 border-b-2 border-gray-900 rounded-full"></div>
+                            </div>
+                          )}
+                        </div>
+                      </FormControl>
+                      {field.value && (
+                        <div className="mt-2 flex items-center gap-2 text-sm">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-4 w-4 text-green-500"
+                          >
+                            <path d="M20 6 9 17l-5-5" />
+                          </svg>
+                          <a
+                            href={field.value}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline"
+                          >
+                            查看已上傳的文件
+                          </a>
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? (

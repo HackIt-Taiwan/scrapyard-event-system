@@ -2,22 +2,13 @@
 
 // FIXME: still need to update to fix some issue
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
-import { motion } from "motion/react";
 import {
-  notFound,
-  useParams,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
-import { useState, useEffect } from "react";
-import useSWR from "swr";
-import { twMerge } from "tailwind-merge";
-import { TeamAffidavitSchema } from "@/models/team";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import type { teamAffidavitSchemaType } from "@/models/team";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -26,14 +17,22 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
+import type { teamAffidavitSchemaType } from "@/models/team";
+import { TeamAffidavitSchema } from "@/models/team";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "motion/react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { z } from "zod";
+  notFound,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
+import { twMerge } from "tailwind-merge";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -51,7 +50,8 @@ export default function stepPage() {
   const [show, setShow] = useState(true);
   const [loading, setLoading] = useState(false);
   const [uploadingTeamAffidavit, setUploadingTeamAffidavit] = useState(false);
-  const [uploadingParentsAffidavit, setUploadingParentsAffidavit] = useState(false);
+  const [uploadingParentsAffidavit, setUploadingParentsAffidavit] =
+    useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [updatingTeamName, setUpdatingTeamName] = useState(false);
   const [teamNameForm, setTeamNameForm] = useState("");
@@ -89,22 +89,22 @@ export default function stepPage() {
   const onSubmit = async (data: teamAffidavitSchemaType) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `/api/apply/team/complete?auth=${authJwt}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ ...data, team_name: teamNameForm }),
+      const response = await fetch(`/api/apply/team/complete?auth=${authJwt}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ ...data, team_name: teamNameForm }),
+      });
       setLoading(false);
       if (!response.ok) {
         const errorData = await response.json();
         const errorMessage = errorData.message
-          .map((err: { field: string; message: string }) => `${err.field}: ${err.message}`)
-          .join(', ');
+          .map(
+            (err: { field: string; message: string }) =>
+              `${err.field}: ${err.message}`,
+          )
+          .join(", ");
         return toast({
           title: "送出表單時發生了一些問題",
           description: errorMessage,
@@ -141,7 +141,12 @@ export default function stepPage() {
       if (!response.ok) {
         const errorData = await response.json();
         const errorMessage = Array.isArray(errorData.message)
-          ? errorData.message.map((err: { field: string; message: string }) => `${err.field}: ${err.message}`).join(', ')
+          ? errorData.message
+              .map(
+                (err: { field: string; message: string }) =>
+                  `${err.field}: ${err.message}`,
+              )
+              .join(", ")
           : errorData.message;
         toast({
           title: "更新團隊名稱時發生錯誤",
@@ -154,7 +159,7 @@ export default function stepPage() {
         title: "成功更新團隊名稱",
         description: "團隊名稱已更新成功",
       });
-      
+
       // Refresh the data
       mutate();
     } catch (error) {
@@ -176,15 +181,19 @@ export default function stepPage() {
             <DialogTitle>報名成功！</DialogTitle>
             <DialogDescription className="space-y-2">
               <p>感謝你完成 Scrapyard 黑客松的報名！</p>
-              <p>我們已經寄送一封確認信到所有團隊成員的信箱，請按照信件中的指示進行。</p>
+              <p>
+                我們已經寄送一封確認信到所有團隊成員的信箱，請按照信件中的指示進行。
+              </p>
               <p>你隨時可以回到這個頁面修改資料，直到報名截止日期為止。</p>
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end">
-            <Button onClick={() => {
-              setShowSuccessDialog(false);
-              router.push("/");
-            }}>
+            <Button
+              onClick={() => {
+                setShowSuccessDialog(false);
+                router.push("/");
+              }}
+            >
               我知道了
             </Button>
           </div>
@@ -218,9 +227,12 @@ export default function stepPage() {
                         onChange={(e) => setTeamNameForm(e.target.value)}
                         placeholder="團隊名稱"
                       />
-                      <Button 
+                      <Button
                         onClick={handleTeamNameUpdate}
-                        disabled={updatingTeamName || teamNameForm === teamData?.data?.team_name}
+                        disabled={
+                          updatingTeamName ||
+                          teamNameForm === teamData?.data?.team_name
+                        }
                       >
                         {updatingTeamName ? "更新中..." : "更新名稱"}
                       </Button>
@@ -341,7 +353,8 @@ export default function stepPage() {
                 <div className="flex-[3] rounded-lg border px-4 py-2 text-center">
                   {teamData.data.member_name[teamData.data.teacher_id]
                     ? teamData.data.member_name[teamData.data.teacher_id]
-                    : "指導老師"} <span className="text-sm text-gray-500">(非必填)</span>
+                    : "指導老師"}{" "}
+                  <span className="text-sm text-gray-500">(非必填)</span>
                 </div>
                 <div
                   className={twMerge(
@@ -352,9 +365,9 @@ export default function stepPage() {
                   )}
                 >
                   {teamData.data.member_name[teamData.data.teacher_id]
-                    ? (teamData.data.verified_status[teamData.data.teacher_id]
+                    ? teamData.data.verified_status[teamData.data.teacher_id]
                       ? "已完成"
-                      : "未完成")
+                      : "未完成"
                     : "未填寫"}
                 </div>
                 <button
@@ -401,7 +414,10 @@ export default function stepPage() {
             {allVerified && (
               <div className="flex flex-col gap-4 py-5">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6"
+                  >
                     <div className="flex flex-col gap-4">
                       <FormField
                         control={form.control}
@@ -426,7 +442,8 @@ export default function stepPage() {
 
                                     try {
                                       const res = await fetch(
-                                        process.env.NEXT_PUBLIC_DATABASE_API + "/pdf/upload",
+                                        process.env.NEXT_PUBLIC_DATABASE_API +
+                                          "/pdf/upload",
                                         {
                                           method: "POST",
                                           body: formData,
@@ -457,6 +474,32 @@ export default function stepPage() {
                                 )}
                               </div>
                             </FormControl>
+                            {field.value && (
+                              <div className="mt-2 flex items-center gap-2 text-sm">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="h-4 w-4 text-green-500"
+                                >
+                                  <path d="M20 6 9 17l-5-5" />
+                                </svg>
+                                <a
+                                  href={field.value}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 underline"
+                                >
+                                  查看已上傳的文件
+                                </a>
+                              </div>
+                            )}
                             <FormMessage />
                           </FormItem>
                         )}
@@ -487,7 +530,8 @@ export default function stepPage() {
 
                                     try {
                                       const res = await fetch(
-                                        process.env.NEXT_PUBLIC_DATABASE_API + "/pdf/upload",
+                                        process.env.NEXT_PUBLIC_DATABASE_API +
+                                          "/pdf/upload",
                                         {
                                           method: "POST",
                                           body: formData,
@@ -518,13 +562,43 @@ export default function stepPage() {
                                 )}
                               </div>
                             </FormControl>
+                            {field.value && (
+                              <div className="mt-2 flex items-center gap-2 text-sm">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="h-4 w-4 text-green-500"
+                                >
+                                  <path d="M20 6 9 17l-5-5" />
+                                </svg>
+                                <a
+                                  href={field.value}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 underline"
+                                >
+                                  查看已上傳的文件
+                                </a>
+                              </div>
+                            )}
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     </div>
                     <div>
-                      <Button type="submit" className="mt-4 w-full" disabled={loading}>
+                      <Button
+                        type="submit"
+                        className="mt-4 w-full"
+                        disabled={loading}
+                      >
                         {loading ? (
                           <div role="status">
                             <svg
