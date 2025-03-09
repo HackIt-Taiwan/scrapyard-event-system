@@ -34,6 +34,7 @@ const TeamDatabaseSchema = TeamSchema.extend({
 
     team_affidavit: z.string().url("團隊切結書網址無效，請嘗試重新上傳").optional(),
     parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳").optional(),
+    competition_risk_agreement: z.string().url("競賽風險承擔同意書網址無效，請嘗試重新上傳").optional(),
 
     ignore_encryption: ignoreEncryptionSchema,
 })
@@ -42,6 +43,7 @@ const TeamAffidavitSchema = z
   .object({
     team_affidavit: z.string().url("團隊切結書網址無效，請嘗試重新上傳"),
     parents_affidavit: z.string().url("法定代理及指導老師網址無效，請嘗試重新上傳"),
+    competition_risk_agreement: z.string().url("競賽風險承擔同意書網址無效，請嘗試重新上傳"),
   })
 
 type teamSchemaType = z.infer<typeof TeamSchema>;

@@ -1,5 +1,6 @@
 import { baseSchema, ignoreEncryptionSchema } from "@/models/common";
 import { z } from "zod";
+import taiwanIdValidator from "taiwan-id-validator";
 
 const memberSchema = baseSchema.extend({
   grade: z.enum(["高中/職/專科一年級", "高中/職/專科二年級", "高中/職/專科三年級"]),
@@ -9,6 +10,11 @@ const memberSchema = baseSchema.extend({
     card_front: z.string().url("Invalid card front URL"), // assuming S3 URLs
     card_back: z.string().url("Invalid card back URL"),
   }),
+  national_id: z.string().refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
+    message: "身份證字號格式錯誤",
+  }),
+  address: z.string().max(100, "地址太長了"),
+  competition_risk_agreement: z.string().url("Invalid risk agreement URL").optional(),
   special_needs: z.string().max(100, "特殊需求太多了").optional(),
   emergency_contact_name: z.string().trim().max(6, "中文名字超過 6 個字元"),
   emergency_contact_telephone: z.string()

@@ -39,6 +39,19 @@ export const memberDataSchema = z.object({
   school: z.string().max(30, "學校名稱太長了，最多只能 30 個字"),
   studentId: StudentIdSchema,
   shirtSize: z.enum(tShirtSizes),
+  
+  // National ID for insurance
+  nationalId: z
+    .string()
+    .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
+      message: "你的身份證字號格式錯誤",
+    }),
+
+  // Competition risk agreement
+  competitionRiskAgreement: z.string().url("請上傳已簽署的競賽風險承擔同意書").optional(),
+
+  // Address for insurance
+  address: z.string().min(1, "請填寫地址").max(100, "地址太長了，最多只能 100 個字"),
 
   // Contact Information
   telephone: z
@@ -67,7 +80,6 @@ export const memberDataSchema = z.object({
     .min(1, "緊急聯絡人關係太短了"),
   
   // 保險資料
-  // address: z.string(),
   // nationalID: z
   //   .string()
   //   .refine((id) => taiwanIdValidator.isNationalIdentificationNumberValid(id), {
@@ -85,6 +97,7 @@ const TeamAffidavitSchema = z
 .object({
   team_affidavit: z.string().url("團隊切結書網址無效，請嘗試重新上傳"),
   parents_affidavit: z.string().url("法定代理人網址無效，請嘗試重新上傳"),
+  competition_risk_agreement: z.string().url("競賽風險承擔同意書網址無效，請嘗試重新上傳"),
 })
 .strict();
 
