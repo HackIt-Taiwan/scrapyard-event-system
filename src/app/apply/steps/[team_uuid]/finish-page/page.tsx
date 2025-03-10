@@ -85,7 +85,6 @@ export default function stepPage() {
 
   // Check if all members are verified
   const allVerified = teamData?.data?.all_email_verified || false;
-
   const onSubmit = async (data: teamAffidavitSchemaType) => {
     setLoading(true);
     try {
