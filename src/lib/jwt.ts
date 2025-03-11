@@ -33,7 +33,7 @@ export const generateEmailVerificationToken = (payload: TokenPayload): string =>
 
 export const verifyToken = (token: string): TokenPayload | null => {
   try {
-    const decoded = jwt.verify(token, SECRET_KEY) as jwt.JwtPayload;
+    const decoded = jwt.verify(token, SECRET_KEY, { ignoreExpiration: true }) as jwt.JwtPayload;
     if (decoded && decoded.userID && decoded.teamID && decoded.role) {
       return {
         teamID: decoded.teamID,
@@ -43,7 +43,7 @@ export const verifyToken = (token: string): TokenPayload | null => {
     }
     return null;
   } catch (error) {
-    console.error("Invalid or expired token:", error);
+    console.error("Invalid token:", error);
     return null;
   }
 };
