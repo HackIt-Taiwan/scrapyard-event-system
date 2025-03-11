@@ -1,4 +1,4 @@
-import {isNationalIdentificationNumberValid}  from 'taiwan-id-validator';
+import {isNationalIdentificationNumberValid, isResidentCertificateNumberValid}  from 'taiwan-id-validator';
 import { z } from "zod";
 
 export const grades = ["高中/職/專科一年級", "高中/職/專科二年級", "高中/職/專科三年級"] as const;
@@ -43,7 +43,7 @@ export const memberDataSchema = z.object({
   // National ID for insurance
   nationalId: z
     .string()
-    .refine((id) => isNationalIdentificationNumberValid(id), {
+    .refine((id) => (isNationalIdentificationNumberValid(id) || isResidentCertificateNumberValid(id)), {
       message: "你的身份證字號格式錯誤",
     }),
 
