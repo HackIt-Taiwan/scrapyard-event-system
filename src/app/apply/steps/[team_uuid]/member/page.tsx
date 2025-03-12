@@ -133,6 +133,21 @@ export default function stepPage() {
   }, [memberData_, form]);
 
   const onSubmit = async (data: memberData) => {
+    // Check if competition risk agreement is missing
+    if (!data.competitionRiskAgreement) {
+      toast({
+        title: "表單不完整",
+        description: "請上傳已簽署的競賽風險承擔同意書",
+        variant: "destructive",
+      });
+      // Trigger form error for the field
+      form.setError("competitionRiskAgreement", {
+        type: "manual",
+        message: "此欄位為必填"
+      });
+      return;
+    }
+    
     setLoading(true);
     try {
       const transformedData = changeKeys.snakeCase(data, 5);
@@ -648,9 +663,13 @@ export default function stepPage() {
                   name="competitionRiskAgreement"
                   render={({ field }) => (
                     <FormItem className="mt-4">
-                      <FormLabel className="font-bold">請上傳已簽署的競賽風險承擔同意書 *</FormLabel>
+                      <FormLabel className="font-bold">
+                        請上傳已簽署的競賽風險承擔同意書 
+                        <span className="ml-1 text-red-500">*</span>
+                        <span className="ml-2 text-sm text-red-500 font-normal">(必填)</span>
+                      </FormLabel>
                       <FormControl>
-                        <div className="relative">
+                        <div className="relative border-2 rounded-md p-1" style={{ borderColor: field.value ? 'transparent' : '#fecaca' }}>
                           <Input
                             type="file"
                             accept=".pdf,.jpg,.jpeg,.png"
@@ -734,6 +753,27 @@ export default function stepPage() {
                           >
                             查看已上傳的文件
                           </a>
+                        </div>
+                      )}
+                      {!field.value && (
+                        <div className="mt-2 text-sm text-red-500">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-4 w-4 inline-block mr-1"
+                          >
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                          </svg>
+                          請上傳已簽署的競賽風險承擔同意書，否則表單無法提交
                         </div>
                       )}
                       <FormMessage />

@@ -48,7 +48,7 @@ export const memberDataSchema = z.object({
     }),
 
   // Competition risk agreement
-  competitionRiskAgreement: z.string().url("請上傳已簽署的競賽風險承擔同意書").optional(),
+  competitionRiskAgreement: z.string().url("請上傳已簽署的競賽風險承擔同意書").min(1, "請上傳已簽署的競賽風險承擔同意書"),
 
   // Address for insurance
   address: z.string().min(1, "請填寫地址").max(100, "地址太長了，最多只能 100 個字"),
