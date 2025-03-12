@@ -7,6 +7,10 @@ import { randomUUID } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+// Configuration for application period
+const TEAM_REGISTRATION_CLOSED = true; // Set to true when new team registration is closed
+const REGISTRATION_CLOSED_MESSAGE = "報名已截止，無法註冊新團隊。"; 
+
 async function sendDiscordNotification(teamData: teamDatabaseSchemaType) {
   try {
     if (!process.env.DISCORD_WEBHOOK_URL) {
@@ -61,7 +65,16 @@ async function sendDiscordNotification(teamData: teamDatabaseSchemaType) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Application period is now open again
+    // Check if team registration is closed
+    if (TEAM_REGISTRATION_CLOSED) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: REGISTRATION_CLOSED_MESSAGE,
+        },
+        { status: 403 },
+      );
+    }
     
     // Verify required environment variables
     if (!process.env.DATABASE_API || !process.env.DATABASE_AUTH_KEY) {
