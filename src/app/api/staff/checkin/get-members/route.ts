@@ -16,31 +16,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all members data
-    const membersResponse = await databasePost(
-      "/etc/get/member",
-      {
-        ignore_encryption: defaultIgnoreEncryption,
-      },
-    );
-
-    if (!membersResponse.ok) {
-      throw new Error("Failed to fetch members data");
-    }
-
-    const membersData = await membersResponse.json();
-    
-    if (!membersData.data || !Array.isArray(membersData.data)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid members data format",
-        },
-        { status: 500 },
-      );
-    }
-
-    // Get all teams data for organizing members by team
+    // Get all teams data first
     const teamsResponse = await databasePost(
       "/etc/get/team",
       {
@@ -64,52 +40,75 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Create a map of team IDs to team names for efficient lookup
+    // Filter for teams with status "已接受" (Accepted)
+    const acceptedTeams = teamsData.data.filter((team: any) => team.status === "已接受");
+    
+    // Create a map to store team information
     const teamMap = new Map();
-    teamsData.data.forEach((team: any) => {
+    acceptedTeams.forEach((team: any) => {
       teamMap.set(team._id, {
         team_name: team.team_name,
         team_size: team.team_size,
         status: team.status,
-        _id: team._id
+        _id: team._id,
+        leader_id: team.leader_id,
+        members_id: team.members_id
       });
     });
 
-    // Organize members by team
+    // Array to store the final result
     const teamsWithMembers: any[] = [];
-    const membersByTeam = new Map<string, any[]>();
 
-    // Group members by team_id
-    membersData.data.forEach((member: any) => {
-      const teamId = member.team_id;
-      if (!membersByTeam.has(teamId)) {
-        membersByTeam.set(teamId, []);
+    // Process each accepted team
+    for (const team of acceptedTeams) {
+      const memberIds = [...team.members_id]; // Get member IDs from team model
+      const leaderId = team.leader_id; // Get leader ID from team model
+      
+      // Collect all member IDs including leader
+      const allMemberIds = [leaderId, ...memberIds];
+      
+      // Create a map to store member data we'll fetch
+      const memberMap = new Map();
+      
+      // Fetch each member's data including the leader
+      for (const memberId of allMemberIds) {
+        const memberResponse = await databasePost(
+          "/etc/get/member",
+          {
+            _id: memberId,
+            ignore_encryption: defaultIgnoreEncryption,
+          },
+        );
+        
+        if (memberResponse.ok) {
+          const memberData = await memberResponse.json();
+          if (memberData.data && memberData.data.length > 0) {
+            const member = memberData.data[0];
+            memberMap.set(memberId, {
+              _id: member._id,
+              name_zh: member.name_zh,
+              name_en: member.name_en,
+              email: member.email,
+              checked_in: member.checked_in || false,
+              is_leader: memberId === leaderId, // Set is_leader based on ID match
+              team_id: team._id
+            });
+          }
+        }
       }
-      membersByTeam.get(teamId)!.push({
-        _id: member._id,
-        name_zh: member.name_zh,
-        name_en: member.name_en,
-        email: member.email,
-        checked_in: member.checked_in || false,
-        is_leader: member.is_leader || false,
-        team_id: teamId
+      
+      // Convert member map to array
+      const membersArray = Array.from(memberMap.values());
+      
+      // Add to final result
+      teamsWithMembers.push({
+        _id: team._id,
+        team_name: team.team_name,
+        team_size: team.team_size,
+        status: team.status,
+        members: membersArray
       });
-    });
-
-    // Create the final teams with members array
-    membersByTeam.forEach((members, teamId) => {
-      const team = teamMap.get(teamId);
-      // Only include teams with status "已接受" (Accepted)
-      if (team && team.status === "已接受") {
-        teamsWithMembers.push({
-          _id: teamId,
-          team_name: team.team_name,
-          team_size: team.team_size,
-          status: team.status,
-          members: members
-        });
-      }
-    });
+    }
 
     // Sort teams by name
     teamsWithMembers.sort((a, b) => a.team_name.localeCompare(b.team_name));
