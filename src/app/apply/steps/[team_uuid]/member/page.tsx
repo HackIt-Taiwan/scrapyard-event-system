@@ -117,18 +117,32 @@ export default function stepPage() {
 
   const form = useForm<memberData>({
     resolver: zodResolver(memberDataSchema),
-    defaultValues: {}, // 先給空物件作為預設值
+    defaultValues: {
+      shirtSize: "不要 T-shirt" // Default value for shirt size
+    },
   });
 
   // 當 memberData_ 載入完成後，更新 form 的值
   useEffect(() => {
     if (memberData_) {
+      // Extract shirt_size directly from the API response
+      const shirtSize = memberData_.data?.shirt_size;
+      console.log("Raw shirt_size from API:", shirtSize);
+      
       const transformedData = changeKeys.camelCase(
         memberData_.data,
         5,
       ) as memberData;
-      form.reset(transformedData); // 使用 reset 方法更新整個表單的值
-      console.log(form.getValues("studentId"));
+      
+      // Manually update the transformed data to ensure shirt size is set properly
+      const dataWithShirtSize = {
+        ...transformedData,
+        shirtSize: shirtSize || "不要 T-shirt" // Use the raw value from API
+      };
+      
+      form.reset(dataWithShirtSize); // 使用 reset 方法更新整個表單的值
+      console.log("Form values after reset with manual shirtSize:", form.getValues());
+      console.log("Shirt Size after manual reset:", form.getValues("shirtSize"));
     }
   }, [memberData_, form]);
 
@@ -182,6 +196,28 @@ export default function stepPage() {
       console.error("Error submitting team data:", error);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex gap-3">
+        <div
+          key="loading-container"
+          className="flex h-screen items-center justify-center"
+        >
+          <div key="loading-spinner-outer" className="relative">
+            <div
+              key="loading-spinner-base"
+              className="h-24 w-24 rounded-full border-b-8 border-t-8 border-gray-200"
+            ></div>
+            <div
+              key="loading-spinner-animated"
+              className="absolute left-0 top-0 h-24 w-24 animate-spin rounded-full border-b-8 border-t-8 border-blue-500"
+            ></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -277,14 +313,23 @@ export default function stepPage() {
                 <FormField
                   control={form.control}
                   name={`grade`}
-                  render={({ field }) => (
+                  render={({ field }) => {
+                    // Create a safe value that's never undefined or empty
+                    const safeValue = field.value || "高中/職/專科一年級";
+                    
+                    return (
                     <FormItem>
                       <FormLabel>在學年級 *</FormLabel>
                       <FormControl>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          value={field.value}
+                          onValueChange={(value) => {
+                            // Only update if the value is not empty
+                            if (value) {
+                              field.onChange(value);
+                            }
+                          }}
+                          value={safeValue}
+                          defaultValue="高中/職/專科一年級"
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="請填寫在學年級" />
@@ -300,7 +345,7 @@ export default function stepPage() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
+                  )}}
                 />
                 <FormField
                   control={form.control}
@@ -600,7 +645,12 @@ export default function stepPage() {
                 <FormField
                   control={form.control}
                   name="shirtSize"
-                  render={({ field }) => (
+                  render={({ field }) => {
+                    console.log("Shirt field in render:", field.value);
+                    // Create a safe value that's never undefined or empty
+                    const safeValue = field.value || "不要 T-shirt";
+                    
+                    return (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
                         T-shirt 尺寸 *
@@ -614,27 +664,34 @@ export default function stepPage() {
                           查看尺寸表
                         </Button>
                       </FormLabel>
+
                       <FormControl>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          value={field.value}
+                          onValueChange={(value) => {
+                            console.log("Selected new value:", value);
+                            // Only update if the value is not empty
+                            if (value) {
+                              field.onChange(value);
+                            }
+                          }}
+                          value={safeValue}
+                          defaultValue="不要 T-shirt"
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="請選擇 T-shirt 尺寸" />
                           </SelectTrigger>
                           <SelectContent>
-                            {tShirtSizes.map((size) => (
-                              <SelectItem key={`size-${size}`} value={size}>
-                                {size}
-                              </SelectItem>
-                            ))}
+                            <SelectItem value="不要 T-shirt">不要 T-shirt</SelectItem>
+                            <SelectItem value="S">S</SelectItem>
+                            <SelectItem value="M">M</SelectItem>
+                            <SelectItem value="L">L</SelectItem>
+                            <SelectItem value="XL">XL</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
+                  )}}
                 />
                                 <FormField
                   control={form.control}
